@@ -1,33 +1,54 @@
-#include "ssl.h"
-#include <stdio.h>
-#include <string.h>
+#include "common.h"
 
-BIO* bio;
+int tcp_connect(host,port)
+  char *host;
+  int port;
+  {
+    struct hostent *hp;
+    struct sockaddr_in addr;
+    int sock;
+    
+    if(!(hp=gethostbyname(host)))
+      berr_exit("Couldn't resolve host");
+    memset(&addr,0,sizeof(addr));
+    addr.sin_addr=*(struct in_addr*)
+      hp->h_addr_list[0];
+    addr.sin_family=AF_INET;
+    addr.sin_port=htons(port);
 
-int main(int argc, char** argv) {
-char buf[256] = "";
-int rvd = 0;
-int i = 0;
-char input[256] = "";
-char a;
+    if((sock=socket(AF_INET,SOCK_STREAM,
+      IPPROTO_TCP))<0)
+      err_exit("Couldn't create socket");
+    if(connect(sock,(struct sockaddr *)&addr,
+      sizeof(addr))<0)
+      err_exit("Couldn't connect socket");
+    
+    return sock;
+  }
 
-bio = BIO_new_connect(argv[1]);
-if (bio == NULL) {
-printf("Error\n");
-return 1;
-}
-if(BIO_do_connect(bio) <= 0) {
-printf("Mala conexión\n");
-return 1;
-}
+/* Check that the common name matches the
+   host name*/
+void check_cert(ssl,host)
+  SSL *ssl;
+  char *host;
+  {
+    X509 *peer;
+    char peer_CN[256];
+    
+    if(SSL_get_verify_result(ssl)!=X509_V_OK)
+      berr_exit("Certificate doesn't verify");
 
-scanf("%s", &input);
-BIO_write(bio, input, strlen(input));
-rvd = BIO_read(bio, buf, 256);
-printf("Respuesta: %s\n", buf);
+    /*Check the cert chain. The chain length
+      is automatically checked by OpenSSL when
+      we set the verify depth in the ctx */
 
-BIO_reset(bio);
-BIO_free_all(bio);
+    /*Check the common name*/
+    peer=SSL_get_peer_certificate(ssl);
+    X509_NAME_get_text_by_NID
+      (X509_get_subject_name(peer),
+      NID_commonName, peer_CN, 256);
+    if(strcasecmp(peer_CN,host))
+    err_exit
+      ("Common name doesn't match host name");
+  }
 
-printf("FIN\n");
-}
