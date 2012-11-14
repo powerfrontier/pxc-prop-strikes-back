@@ -16,10 +16,6 @@ if (bio == NULL) {
 printf("Error\n");
 return 1;
 }
-/if (BIO_set_nbio(bio, 1) != 1) {
-printf("Bloqueante\n");
-return 1;
-}/
 if(BIO_do_connect(bio) <= 0) {
 printf("Mala conexión\n");
 return 1;
