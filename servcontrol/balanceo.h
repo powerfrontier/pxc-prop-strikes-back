@@ -14,10 +14,8 @@ struct zona_usuario {
 struct server {
 	zona_usuario distribucion[];
 	int carga;
-	static char* ip;
 };
 
-std::list<server*> servers;
 
 int solicitar_carga(server* server);
 int clasificar_server(server* server);
