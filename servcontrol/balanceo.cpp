@@ -3,7 +3,8 @@
 
 using namespace std;
 
-
+static char* ip;
+std::list<server*> servers;
 int main() {
 
 	while(1) {
