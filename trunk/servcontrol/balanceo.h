@@ -3,23 +3,30 @@
 
 #include <list>
 
-#define MINLOAD 0.10
+#define MAXDESV 2
 #define NSERVERS 10
+#define TIME 5
+#define ZONES 9
 
-struct zona_usuario {
+struct zona_carga {
 	int zona;
-	int usuarios;
+	double carga;
+};
+
+struct server_carga {
+	zona_carga distribucion[];
+	double cargaTotal;
 };
 
 struct server {
-	zona_usuario distribucion[];
-	int carga;
+  static int id;
+  static char* ip;
+  server_carga carga;
 };
 
-
-int solicitar_carga(server* server);
-int clasificar_server(server* server);
-int accion_servidor(server* server);
-int rebalanceo();
+int solicitarCarga(server* server);
+void anadirCarga(Datagram datos);
+void balanceo();
+int accionServidor(server* server, Datagram ordenes);
 
 #endif
