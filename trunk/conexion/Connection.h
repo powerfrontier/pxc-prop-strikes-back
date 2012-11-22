@@ -6,7 +6,7 @@ struct ConnectionCallback {
 ConnectionCallback();
 virtual ~ConnectionCallback();
 
-virtual void callbackFunction(Datagram* received) throw() = 0;
+virtual void callbackFunction(Transferable* received) throw() = 0;
 };
 
 
@@ -56,9 +56,9 @@ virtual void close() throw() = 0;
 
 virtual bool isLinkOnline() throw() = 0;
 
-virtual void send(const Datagram& message) throw (ConnectionException) = 0;
+virtual void send(const Transferable& message) throw (ConnectionException) = 0;
 
-virtual Datagram* receive() throw(ConnectionException) = 0;
+virtual Transferable* receive() throw(ConnectionException) = 0;
 
 void setCallbackFunction(ConnectionCallback*) throw();
 };
@@ -74,8 +74,8 @@ virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
 
-virtual void send(const Datagram& message) throw (ConnectionException);
-virtual Datagram* receive() throw(ConnectionException);
+virtual void send(const Transferable& message) throw (ConnectionException);
+virtual Transferable* receive() throw(ConnectionException);
 };
 
 class UDPConnection : public Connection {
@@ -89,6 +89,6 @@ virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
 
-virtual void send(const Datagram& message) throw (ConnectionException);
-virtual Datagram* receive() throw(ConnectionException);
+virtual void send(const Transferable& message) throw (ConnectionException);
+virtual Transferable* receive() throw(ConnectionException);
 };
