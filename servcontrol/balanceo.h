@@ -25,7 +25,7 @@ struct server {
 };
 
 int solicitarCarga(server* server);
-void anadirCarga(Datagram datos);
+void anadirCarga(Datagram datos, server* s);
 void balanceo();
 int accionServidor(server* server, Datagram ordenes);
 
