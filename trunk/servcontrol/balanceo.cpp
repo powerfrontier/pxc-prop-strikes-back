@@ -1,5 +1,6 @@
 #include <iostream>
 #include "balanceo.h"
+#include "Connection.h"
 
 using namespace std;
 
@@ -12,8 +13,10 @@ int accionServidor(server* server, Datagram ordenes) {
 
 }
 
-void anadirCarga(Datagram datos) {
+void anadirCarga(Datagram datos, server* s) {
   //Añade la información de carga a la lista de servidores
+  s->server_carga = datos.getServer_carga();
+  servers.push_back(s);
 }
 
 double getAverage() {
@@ -39,9 +42,11 @@ void balanceo() {
 }
 
 int solicitarCarga(server* server) {
+  delete servers;
+  std::list<server*> servers;
   connection* c = new TCPConnection();
   if(c.connect(server->ip)) {
-    res = c.setReceiveCallback(anadirCarga, new Datagram());
+    res = c.setReceiveCallback(anadirCarga, new Datagram(), server);
   }
   else
     res = -1
@@ -82,7 +87,7 @@ signal(SIGALRM, handle);
         alarm(TIME);
     }
     //para una segunda version implementar un listener que escuche peticiones de emergencia 
-	}
+?  }
 
-	return 0;
+?  return 0;
 }
