@@ -7,7 +7,7 @@
 #define NSERVERS 10
 #define TIME 5
 #define ZONES 9
-
+//
 struct zona_carga {
 	int zona;
 	double carga;
@@ -25,14 +25,14 @@ struct server {
   
   bool operator < (const server& s) const
   {
-    return (carga.cargaTotal < s->carga.cargaTotal);
+    return (carga.cargaTotal < s.carga.cargaTotal);
   }
   
 };
 
 int solicitarCarga(server* server);
-void anadirCarga(Datagram datos, server* s);
+//void anadirCarga(Datagram datos, server* s);
 void balanceo();
-int accionServidor(server* server, Datagram ordenes);
+//int accionServidor(server* server, Datagram ordenes);
 
 #endif
