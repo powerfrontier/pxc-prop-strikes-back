@@ -1,6 +1,6 @@
 #include <string>
-#include <Datagram.h>
-
+#include "Datagram.h"
+#include "Transferable.h"
 
 struct ConnectionCallback {
 ConnectionCallback();
@@ -56,7 +56,7 @@ virtual void close() throw() = 0;
 
 virtual bool isLinkOnline() throw() = 0;
 
-virtual void send(const Transferable& message) throw (ConnectionException) = 0;
+virtual void send(Transferable& message) throw (ConnectionException) = 0;
 
 virtual Transferable* receive() throw(ConnectionException) = 0;
 
@@ -74,7 +74,7 @@ virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
 
-virtual void send(const Transferable& message) throw (ConnectionException);
+virtual void send(Transferable& message) throw (ConnectionException);
 virtual Transferable* receive() throw(ConnectionException);
 };
 
@@ -89,6 +89,6 @@ virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
 
-virtual void send(const Transferable& message) throw (ConnectionException);
+virtual void send(Transferable& message) throw (ConnectionException);
 virtual Transferable* receive() throw(ConnectionException);
 };
