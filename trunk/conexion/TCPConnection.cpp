@@ -92,6 +92,8 @@ void TCPConnection::close() throw(){
 }
 
 bool TCPConnection::isLinkOnline() throw(){
+	//TODO:crear "Ping"
+	return true;
 }
 
 void TCPConnection::send(Transferable& message) throw (ConnectionException){
@@ -118,4 +120,33 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
  }
 
 Transferable* TCPConnection::receive() throw(ConnectionException){
+    ssize_t length = 256; //TODO: Fijar tamaño
+    char buffer[length]; 
+
+    ssize_t r = -1;
+ 
+    while (r < 0) {
+ 
+        r = BIO_read(bio, buffer, length);
+        if (r == 0) {
+ 
+            print_ssl_error("Reached the end of the data stream.\n", stdout);
+            continue;
+ 
+        } else if (r < 0) {
+ 
+            if (!BIO_should_retry(bio)) {
+ 
+                print_ssl_error("BIO_read should retry test failed.\n", stdout);
+                continue;
+            }
+ 
+            /* It would be prudent to check the reason for the retry and handle
+             * it appropriately here */
+        }
+
+	//TODO: Tenemos el buffer lleno, convertir en transferable
+	//Transferable = buffer
+ 
+    };
 }
