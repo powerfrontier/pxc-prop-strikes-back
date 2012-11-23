@@ -76,7 +76,7 @@ signal(SIGALRM, handle);
           if(res < 0)
             printf("No responde el server:" %d, it.actual().id);
         }
-        servers.sort();
+        servers.sort(servers.begin(), servers.end());
         //ejecutar algoritmo balanceo
         balanceo();
         
