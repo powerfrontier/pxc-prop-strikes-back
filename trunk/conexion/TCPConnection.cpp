@@ -127,17 +127,17 @@ Transferable* TCPConnection::receive() throw(ConnectionException){
  
     while (r < 0) {
  
-        r = BIO_read(bio, buffer, length);
+        r = BIO_read(sbio, buffer, length);
         if (r == 0) {
- 
-            print_ssl_error("Reached the end of the data stream.\n", stdout);
+	    char message[] ="Reached the end of the data stream.\n";
+            print_ssl_error(message, stdout);
             continue;
  
         } else if (r < 0) {
  
-            if (!BIO_should_retry(bio)) {
- 
-                print_ssl_error("BIO_read should retry test failed.\n", stdout);
+            if (!BIO_should_retry(sbio)) {
+                char message[] ="BIO_read should retry test failed.\n";
+                print_ssl_error(message, stdout);
                 continue;
             }
  
