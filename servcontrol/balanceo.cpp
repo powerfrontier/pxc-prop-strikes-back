@@ -16,7 +16,6 @@ int accionServidor(server* server, Datagram ordenes) {
 void anadirCarga(Datagram datos, server* s) {
   //Añade la información de carga a la lista de servidores
   s->server_carga = datos.getServer_carga();
-  servers.push_back(s);
 }
 
 double getAverage() {
@@ -42,8 +41,6 @@ void balanceo() {
 }
 
 int solicitarCarga(server* server) {
-  delete servers;
-  std::list<server*> servers;
   connection* c = new TCPConnection();
   if(c.connect(server->ip)) {
     res = c.setReceiveCallback(anadirCarga, new Datagram(), server);
@@ -65,16 +62,17 @@ void handle(int sig) {
 int main() {
 
 signal(SIGALRM, handle);
+list<server*>::iterator it;
 
  while(1) {
     if(breakflag) {
         //para todas los servidores
         int res;  
-        for(int i=0;i<NSERVERS;i++) {
+        for(it=servers.begin();it!=servers.end();it++) {
           //solicitar_carga
           res = solicitarCarga(it.next());
           if(res < 0)
-            printf("No responde el server:" %d, it.actual().id);
+            printf("No responde el server:" %d, *it.id);
         }
         servers.sort(servers.begin(), servers.end());
         //ejecutar algoritmo balanceo
@@ -87,7 +85,8 @@ signal(SIGALRM, handle);
         alarm(TIME);
     }
     //para una segunda version implementar un listener que escuche peticiones de emergencia 
-?  }
+ }
 
-?  return 0;
+
+return 0;
 }
