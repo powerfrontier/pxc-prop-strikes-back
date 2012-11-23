@@ -1,6 +1,8 @@
 #include <iostream>
 #include "balanceo.h"
-#include "Connection.h"
+#include <math.h>
+#include <signal.h>
+//#include "../conexion/Connection.h"
 
 using namespace std;
 
@@ -8,20 +10,22 @@ server* zona_servidor[ZONES];
 std::list<server*> servers;
 
 
-int accionServidor(server* server, Datagram ordenes) {
+//int accionServidor(server* server, Datagram ordenes) {
   // Envia las ordenes del rebalanceo al servidor
 
-}
+//}
 
-void anadirCarga(Datagram datos, server* s) {
+/*void anadirCarga(Datagram datos, server* s) {
   //Añade la información de carga a la lista de servidores
   s->server_carga = datos.getServer_carga();
-}
+}*/
 
 double getAverage() {
   //Obte la mitjana de carrega dels servidors
-   for (int i = 0; i < NSERVERS; ++i) {
-            incr += servers[i]->server_carga.carga_total;
+   double incr = 0;
+   list<server*>::iterator it;
+   for (it=servers.begin(); it!=servers.end(); it++) {
+            incr += (*it)->carga.cargaTotal;
    }
    return incr/NSERVERS;
 }
@@ -30,8 +34,9 @@ double getStDev() {
   //Obte la desviacio estandar de la carrega dels servidors
         double avg = getAverage();
         double incr = 0;
-        for (int i = 0; i < NSERVERS; ++i) {
-            incr += pow(servers[i]->server_carga.carga_total - avg, 2);
+        list<server*>::iterator it;
+        for (it=servers.begin(); it!=servers.end(); it++) {
+            incr += pow((*it)->carga.cargaTotal - avg, 2);
         }
         return sqrt(incr / (NSERVERS - 1));
 }
@@ -41,14 +46,15 @@ void balanceo() {
 }
 
 int solicitarCarga(server* server) {
-  connection* c = new TCPConnection();
+  /*connection* c = new TCPConnection();
   if(c.connect(server->ip)) {
     res = c.setReceiveCallback(anadirCarga, new Datagram(), server);
   }
   else
     res = -1
   
-  return res;
+  return res;*/
+    return 0;
 }
 
 volatile int breakflag = 1;
@@ -70,11 +76,13 @@ list<server*>::iterator it;
         int res;  
         for(it=servers.begin();it!=servers.end();it++) {
           //solicitar_carga
-          res = solicitarCarga(it.next());
-          if(res < 0)
-            printf("No responde el server:" %d, *it.id);
+          res = solicitarCarga(*it);
+          if(res < 0) {
+            server* aux = *it;
+            cout << "No responde el server:" << aux->id << endl;
+          }
         }
-        servers.sort(servers.begin(), servers.end());
+        servers.sort();
         //ejecutar algoritmo balanceo
         balanceo();
         
