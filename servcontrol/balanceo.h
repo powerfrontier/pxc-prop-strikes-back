@@ -22,6 +22,12 @@ struct server {
   static int id;
   static char* ip;
   server_carga carga;
+  
+  bool operator < (const server& s) const
+  {
+    return (carga.cargaTotal < s->carga.cargaTotal);
+  }
+  
 };
 
 int solicitarCarga(server* server);
