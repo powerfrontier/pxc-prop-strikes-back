@@ -43,6 +43,29 @@ double getStDev() {
 
 void balanceo() {
   //ejecuta el algortimo de balanceo
+  server* serverMaxCarga = servers.begin();
+  server* serverMinCarga = servers.end();
+  double standardDev = getStDev();
+  int numIterations = 0;
+  int cargaMinZona = 1;
+  int zonaCargaMin = 0;
+  double minDev = 1.0; // S'ha d'ajustar bé el valor
+  while ( standarDev > minDev && numIterations < servers.size() )
+  {
+     // Escogemos la zona menos cargada de serverMaxCarga
+     for(int i = 0; i < serverMaxCarga->carga.distribucion.size();++i)
+     {
+        if(serverMaxCarga->carga.distribucion[i].carga < cargaMinZona){
+          cargaMinZona = serverMaxCarga->carga.distribucion[i].carga 
+          zonaCargaMin = i; // Guardamos la zona donde esta la carga minima
+        }
+      }
+     // Faltaria mirar quin es el servidor amb les zones mes properes
+     // swapZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga); // Nueva función
+     servers.sort(servers.begin(),servers.end());
+     standarDev = getStDev();
+     numIterations++;
+   }
 }
 
 int solicitarCarga(server* server) {
