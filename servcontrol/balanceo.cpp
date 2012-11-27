@@ -51,7 +51,7 @@ void balanceo() {
   server* serverMinCarga = servers.end();
   double standardDev = getStDev();
   int numIterations = 0;
-  int cargaMinZona = 1; //David: no seria double???
+  double cargaMinZona = 1.0; 
   int zonaCargaMin = 0;
   int posicionZonaACambiar; //David: variable nova
   double minDev = 1.0; // S'ha d'ajustar bé el valor
@@ -67,11 +67,12 @@ void balanceo() {
       }
      // Faltaria mirar quin es el servidor amb les zones mes properes
      posicionZonaACambiar = zonaCargaMin; // David: de moment faig aixo perque funcioni
-     swapZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
+     cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
      servers.sort(); //David: trec els parametres perque la funcio estandard es aixi
      standarDev = getStDev();
      numIterations++;
-     // David: no faltaria cargaMinZona = 1; per la propera volta del bucle
+     // David: no faltaria cargaMinZona = 1; per la propera volta del bucle 
+     cargaMinZona = 1;
    }
 }
 
