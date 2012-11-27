@@ -73,7 +73,6 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	int getSendingType(const std::string& type) const throw(TransferableVersionException&);
 	int getReceivingType(const std::string& type) const throw(TransferableVersionException&);
 
-	TransferableCreator* creator(const std::string& creatorType) const throw(TransferableVersionException&);
 	TransferableCreator* creator(int creatorId) const throw(TransferableVersionException&);
 	
 };
