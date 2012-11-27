@@ -97,44 +97,167 @@ bool TCPConnection::isLinkOnline() throw(){
 }
 
 void TCPConnection::send(Transferable& message) throw (ConnectionException){
-    char* buffer = (char *)&message.transferableObject();
-    ssize_t length = message.size();
-    ssize_t r = -1;
- 
-    while (r < 0) {
- 
-        r = BIO_write(sbio, buffer, length);
-        if (r <= 0) {
- 
-            if (!BIO_should_retry(sbio)) {
- 		char message[] ="BIO_read should retry test failed.\n";
-                print_ssl_error(message, stdout);
-                continue;
-            }
- 
-            /* TODO:It would be prudent to check the reason for the retry and handle
-             * it appropriately here */
-        }
- 
-    }
- }
-
-Transferable* TCPConnection::receive() throw(ConnectionException){
-	ssize_t length = 0; //TODO: Fijar tamaño
-	char buffer[length]; 
+	char buffer[8];
+	size_t length = message.size();
+	
+	// Send the size of Transferable
 	ssize_t r = -1;
-	r = BIO_read(sbio, &length, sizeof(ssize_t));
- 	if (r == 0){
-		char message[] = "Reached the end of the data stream.\n";
-		print_ssl_error(message, stdout);
-		continue;
-	}else if (r<0){
-		if (!BIO_should_retry(sbio)){
-			char message[] = "BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
-                        continue;
+	while (r < 0){
+		r = BIO_write(sbio, &length, sizeof(size_t)); 
+		if (r <=0){
+			if (!BIO_should_retry(sbio)) {
+				char message[] = "BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				continue;
+			}
+		}else if (r== sizeof(size_t)){
+			break;
+		}else{
+			throw ConnectionException("TCPConnection Wrong: Guru meditation 1");
 		}
 	}
+
+	// Send the protocol
+	r = -1;	
+	while (r< 0){
+		std::string protocol = TransferableFactory::instance().protocolVersion();
+		strcpy(buffer, protocol.c_str());
+		r = BIO_write(sbio, buffer, 8);
+		if (r<=0) {
+                        if (!BIO_should_retry(sbio)) {
+                                char message[] ="BIO_read should retry test failed.\n";
+                                print_ssl_error(message, stdout);
+                                continue;
+                        }
+                }else if (r==sizeof(int)){
+                        break;
+                }else{
+                        throw ConnectionException("TCPConnection Wrong: Guru meditation 2");
+		}
+	}
+	int type; 
+	try{
+		type = message.sendingType();
+	}catch(TransferableVersionException& e){
+		throw ConnectionException(e.what());
+	}
+
+	// Send the instruction
+	r = -1;	
+	while (r < 0){
+		r = BIO_write(sbio, (char*) &type, sizeof(int));
+		if (r<=0) {
+			if (!BIO_should_retry(sbio)) {
+                		char message[] ="BIO_read should retry test failed.\n";
+	                        print_ssl_error(message, stdout);
+        	                continue;
+			}
+		}else if (r==sizeof(int)){
+			break;
+		}else{
+                        throw ConnectionException("TCPConnection Wrong: Guru meditation 3");
+		}
+	}
+	
+	// Send the Transferable
+	r = -1;
+	while (r < 0) {
+		r = BIO_write(sbio,(char *)message.transferableObject(), length);
+		if (r <= 0) {
+			if (!BIO_should_retry(sbio)) {
+				char message[] ="BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				continue;
+			}
+		}else if(r == length){
+			break;
+		}else{
+                        throw ConnectionException("TCPConnection Wrong: Guru meditation 4");
+		}
+ 	}
+}
+
+
+Transferable* TCPConnection::receive() throw(&ConnectionException){
+	size_t length;
+	char bufsize[sizeof(size_t)];
+	char protocol[8];
+	int instruction;
+
+	//receive the size of transferable
+	ssize_t r = -1;
+	while (r<0){
+		r = BIO_read(sbio, &length, sizeof(size_t));
+	 	if (r == 0){
+			char message[] = "The size of the packet is incorrect.\n";
+			print_ssl_error(message, stdout);
+			continue;
+		}else if (r<0){
+			if (!BIO_should_retry(sbio)){
+				char message[] = "BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				continue;
+			}
+		}else if (r == sizeof(size_t)){
+			break;
+		}else{ 
+                        throw ConnectionException("TCPConnection Wrong: Guru meditation 5");
+		}
+	}
+	
+	//receive protocol
+	r = -1;
+	while (r < 0){
+		r = BIO_read(sbio, protocol, 8);
+                if (r == 0){
+                        char message[] = "The size of the packet is incorrect.\n";
+                        print_ssl_error(message, stdout);
+                        continue;
+                }else if (r<0){
+                        if (!BIO_should_retry(sbio)){
+                                char message[] = "BIO_read should retry test failed.\n";
+                                print_ssl_error(message, stdout);
+                                continue;
+                        }
+                }else if (r == 8){
+                        break;
+                }else{ 
+                        throw ConnectionException("TCPConnection Wrong: Guru meditation 6");
+                }
+
+	}
+
+	//receive the instruction
+	r = -1;
+	while (r < 0){
+                r = BIO_read(sbio, &instruction, sizeof(int));
+                if (r == 0){
+                        char message[] = "The size of the packet is incorrect.\n";
+                        print_ssl_error(message, stdout);
+                        continue;
+                }else if (r<0){
+                        if (!BIO_should_retry(sbio)){
+                                char message[] = "BIO_read should retry test failed.\n";
+                                print_ssl_error(message, stdout);
+                                continue;
+                        }
+                }else if (r == sizeof(int)){
+                        break;
+                }else{
+                        throw ConnectionException("TCPConnection Wrong: Guru meditation 7");
+                }
+	}
+	TransferableCreator* c;
+	try {
+		TransferableFactory::instance().setProtocol(protocol);
+		c = TransferableFactory::instance().creator(instruction);
+	}catch(TransferableVersionException& e){
+		throw ConnectionException(e.what());
+	}
+
+	//receive the Transferable
+	char buffer[length];
+	r = -1;
 	while (r < 0) {
 		r = BIO_read(sbio, buffer, length);
 		if (r == 0) {
@@ -147,14 +270,15 @@ Transferable* TCPConnection::receive() throw(ConnectionException){
 				print_ssl_error(message, stdout);
 				continue;
 			}
- 
-			/* It would be prudent to check the reason for the retry and handle	
-			* it appropriately here */
-        	}
-		
-		//TODO: Tenemos el buffer lleno, convertir en transferable
-		//Transferable = buffer
-		Transferable = new Transferable();
-		
-	};
+        	}else if (r == length){
+			Transferable *t;
+			try{
+				t = c->create(buffer);	
+			}catch(){
+				trhow ConnectionException(e.what());
+			}
+		}else{
+			throw ConnectionException("TCPConnection Wrong: Guru meditation 8");
+		}
+	}
 }
