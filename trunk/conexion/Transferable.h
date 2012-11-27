@@ -32,7 +32,8 @@ class Transferable {
 
 	virtual Transferable* transferableObject() const throw() = 0;
 	virtual size_t size() const throw() = 0;
-	virtual int type() const throw(TransferableVersionException&) = 0;
+	virtual int sendingType() const throw(TransferableVersionException&) = 0;
+	virtual int receivingType() const throw(TransferableVersionException&) = 0;
 	virtual bool validate() const throw();
 };
 
@@ -50,7 +51,8 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	std::string mProtocolVersion;
 	std::map<int, TransferableCreator*> mCreators;
 	std::map<int, std::string> mIdType;
-	std::map<std::string, int> mTypeId;
+	std::map<std::string, int> mSendingType;
+	std::map<std::string, int> mReceivingType;
 
 	friend class Singleton<TransferableFactory>;
 	TransferableFactory();
@@ -68,7 +70,8 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	const std::string& protocolVersion() const;
 	virtual void setProtocol(const std::string& version) throw(TransferableVersionException&);
 
-	int getTypeId(const std::string& type) const throw(TransferableVersionException&);
+	int getSendingType(const std::string& type) const throw(TransferableVersionException&);
+	int getReceivingType(const std::string& type) const throw(TransferableVersionException&);
 
 	TransferableCreator* creator(const std::string& creatorType) const throw(TransferableVersionException&);
 	TransferableCreator* creator(int creatorId) const throw(TransferableVersionException&);
