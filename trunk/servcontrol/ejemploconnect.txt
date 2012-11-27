@@ -1,0 +1,36 @@
+class GetZoneLoad : public Datagram<GetZoneLoad> {
+  int mZone;
+
+public:
+  GetZoneLoad(int m) : Datagram<GetZoneLoad>("GetZoneLoad"), mZone(m) {}
+
+};
+
+class SetZoneLoad : public Instruction {
+  int mZone;
+  double mLoad;
+
+  public:
+  SetZoneLoad() : Instruction("SetZoneLoad") {}
+  void exec();
+};
+
+
+
+...
+...
+...
+
+GetZoneLoad* t = new GetZoneLoad(4);
+
+Connection* c = new Connection("192.168.0.1");
+...
+c->send(t);
+
+
+----------------------------
+Instruction* i = NULL;
+...
+i = c->read();  // Recibimos la orden de ejecutar i
+i->exec();	// Se ejecuta i
+----------------------------
