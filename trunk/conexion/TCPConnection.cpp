@@ -137,7 +137,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	}
 	int type; 
 	try{
-		type = message.sendingType();
+		type = message.type();
 	}catch(TransferableVersionException& e){
 		throw ConnectionException(e.what());
 	}
@@ -178,7 +178,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 }
 
 
-Transferable* TCPConnection::receive() throw(&ConnectionException){
+Transferable* TCPConnection::receive() throw(ConnectionException){
 	size_t length;
 	char bufsize[sizeof(size_t)];
 	char protocol[8];
@@ -273,9 +273,9 @@ Transferable* TCPConnection::receive() throw(&ConnectionException){
         	}else if (r == length){
 			Transferable *t;
 			try{
-				t = c->create(buffer);	
-			}catch(){
-				trhow ConnectionException(e.what());
+				t = c->create((Transferable&)buffer);	
+			}catch(TransferableVersionException& e){
+				throw ConnectionException(e.what());
 			}
 		}else{
 			throw ConnectionException("TCPConnection Wrong: Guru meditation 8");
