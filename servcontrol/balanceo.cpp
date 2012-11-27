@@ -41,40 +41,44 @@ double getStDev() {
         return sqrt(incr / (NSERVERS - 1));
 }
 
-swapZona(int serverMaxCarga, int posicionZonaACambiar, int serverMinCarga) {
+void cambioZona(int serverMaxCarga, int posicionZonaACambiar, int serverMinCarga) {
 
 }
 
 void balanceo() {
   //ejecuta el algortimo de balanceo
-  server* serverMaxCarga = servers.begin();
-  server* serverMinCarga = servers.end();
+  server* serverMaxCarga = servers.back();
+  server* serverMinCarga = servers.front();
   double standardDev = getStDev();
   int numIterations = 0;
   double cargaMinZona = 1.0; 
   int zonaCargaMin = 0;
   int posicionZonaACambiar; //David: variable nova
   double minDev = 1.0; // S'ha d'ajustar bé el valor
-  while ( standarDev > minDev && numIterations < servers.size() )
+  while ( standardDev > minDev && numIterations < servers.size() && serverMaxCarga->carga.distribucion.size() != 1)
   {
      // Escogemos la zona menos cargada de serverMaxCarga
      for(int i = 0; i < serverMaxCarga->carga.distribucion.size();++i)
      {
-        if(serverMaxCarga->carga.distribucion[i].carga < cargaMinZona){
-          cargaMinZona = serverMaxCarga->carga.distribucion[i].carga 
+        if(serverMaxCarga->carga.distribucion.at(i).carga < cargaMinZona){
+          cargaMinZona = serverMaxCarga->carga.distribucion.at(i).carga;
           zonaCargaMin = i; // Guardamos la zona donde esta la carga minima
         }
       }
      // Faltaria mirar quin es el servidor amb les zones mes properes
      posicionZonaACambiar = zonaCargaMin; // David: de moment faig aixo perque funcioni
-     cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
+     //cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
      servers.sort(); //David: trec els parametres perque la funcio estandard es aixi
-     standarDev = getStDev();
+     standardDev = getStDev();
      numIterations++;
      // David: no faltaria cargaMinZona = 1; per la propera volta del bucle 
+     // Preparación variables para la siguiente iteracion
      cargaMinZona = 1;
+     serverMaxCarga = servers.back();
+     serverMinCarga = servers.front();
    }
 }
+
 
 int solicitarCarga(server* server) {
   /*connection* c = new TCPConnection();
@@ -110,7 +114,7 @@ list<server*>::iterator it;
           res = solicitarCarga(*it);
           if(res < 0) {
             server* aux = *it;
-            cout << "No responde el server:" << aux->id << endl;
+            cout << "No responde el server:" << (*aux).id << endl;
           }
         }
         servers.sort();
