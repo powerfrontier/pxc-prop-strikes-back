@@ -2,6 +2,7 @@
 #define _balanceo_h
 
 #include <list>
+#include <vector>
 
 #define MAXDESV 2
 #define NSERVERS 10
@@ -14,13 +15,13 @@ struct zona_carga {
 };
 
 struct server_carga {
-	zona_carga distribucion[];
+	std::vector<zona_carga> distribucion;
 	double cargaTotal;
 };
 
 struct server {
-  static int id;
-  static char* ip;
+  int id;
+  char* ip;
   server_carga carga;
   
   bool operator < (const server& s) const
