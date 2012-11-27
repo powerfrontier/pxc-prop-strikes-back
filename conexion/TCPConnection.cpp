@@ -120,33 +120,41 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
  }
 
 Transferable* TCPConnection::receive() throw(ConnectionException){
-    ssize_t length = 256; //TODO: Fijar tamaño
-    char buffer[length]; 
-
-    ssize_t r = -1;
+	ssize_t length = 0; //TODO: Fijar tamaño
+	char buffer[length]; 
+	ssize_t r = -1;
+	r = BIO_read(sbio, &length, sizeof(ssize_t));
+ 	if (r == 0){
+		char message[] = "Reached the end of the data stream.\n";
+		print_ssl_error(message, stdout);
+		continue;
+	}else if (r<0){
+		if (!BIO_should_retry(sbio)){
+			char message[] = "BIO_read should retry test failed.\n";
+			print_ssl_error(message, stdout);
+                        continue;
+		}
+	}
+	while (r < 0) {
+		r = BIO_read(sbio, buffer, length);
+		if (r == 0) {
+			char message[] ="Reached the end of the data stream.\n";
+			print_ssl_error(message, stdout);
+			continue;
+ 		} else if (r < 0) {
+ 			if (!BIO_should_retry(sbio)) {
+				char message[] ="BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				continue;
+			}
  
-    while (r < 0) {
- 
-        r = BIO_read(sbio, buffer, length);
-        if (r == 0) {
-	    char message[] ="Reached the end of the data stream.\n";
-            print_ssl_error(message, stdout);
-            continue;
- 
-        } else if (r < 0) {
- 
-            if (!BIO_should_retry(sbio)) {
-                char message[] ="BIO_read should retry test failed.\n";
-                print_ssl_error(message, stdout);
-                continue;
-            }
- 
-            /* It would be prudent to check the reason for the retry and handle
-             * it appropriately here */
-        }
-
-	//TODO: Tenemos el buffer lleno, convertir en transferable
-	//Transferable = buffer
- 
-    };
+			/* It would be prudent to check the reason for the retry and handle	
+			* it appropriately here */
+        	}
+		
+		//TODO: Tenemos el buffer lleno, convertir en transferable
+		//Transferable = buffer
+		Transferable = new Transferable();
+		
+	};
 }
