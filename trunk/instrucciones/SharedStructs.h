@@ -11,4 +11,16 @@ struct server_carga {
         double cargaTotal;
 };
 
+struct server {
+  int id;
+  char* ip;
+  server_carga carga;
+  
+  bool operator < (const server& s) const
+  {
+    return (carga.cargaTotal < s.carga.cargaTotal);
+  }
+  
+};
+
 #endif
