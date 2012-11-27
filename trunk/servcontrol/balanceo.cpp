@@ -41,14 +41,19 @@ double getStDev() {
         return sqrt(incr / (NSERVERS - 1));
 }
 
+swapZona(int serverMaxCarga, int posicionZonaACambiar, int serverMinCarga) {
+
+}
+
 void balanceo() {
   //ejecuta el algortimo de balanceo
   server* serverMaxCarga = servers.begin();
   server* serverMinCarga = servers.end();
   double standardDev = getStDev();
   int numIterations = 0;
-  int cargaMinZona = 1;
+  int cargaMinZona = 1; //David: no seria double???
   int zonaCargaMin = 0;
+  int posicionZonaACambiar; //David: variable nova
   double minDev = 1.0; // S'ha d'ajustar bé el valor
   while ( standarDev > minDev && numIterations < servers.size() )
   {
@@ -61,10 +66,12 @@ void balanceo() {
         }
       }
      // Faltaria mirar quin es el servidor amb les zones mes properes
-     // swapZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga); // Nueva función
-     servers.sort(servers.begin(),servers.end());
+     posicionZonaACambiar = zonaCargaMin; // David: de moment faig aixo perque funcioni
+     swapZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
+     servers.sort(); //David: trec els parametres perque la funcio estandard es aixi
      standarDev = getStDev();
      numIterations++;
+     // David: no faltaria cargaMinZona = 1; per la propera volta del bucle
    }
 }
 
