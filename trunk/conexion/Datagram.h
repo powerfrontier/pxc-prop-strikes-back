@@ -43,12 +43,8 @@ public:
 
 	size_t size() const throw() { return mSize; }
 
-	int sendingType() const throw (TransferableVersionException&) {
+	int type() const throw (TransferableVersionException&) {
 		return TransferableFactory::instance().getSendingId(mType);
-	}
-
-	int receivingType() const throw (TransferableVersionException&) {
-		return TransferableFactory::instance().getReceivingId(mType);
 	}
 
 	virtual void exec() const throw() {}

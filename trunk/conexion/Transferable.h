@@ -30,10 +30,16 @@ class TransferableVersionException : public std::exception {
 class Transferable {
 	public:
 
-	virtual Transferable* transferableObject() const throw() = 0;
+	//Returns a raw pointer to the data to be sent
+	virtual void* transferableObject() const throw() = 0;
+
+	//Returns the object's size to be sent
 	virtual size_t size() const throw() = 0;
-	virtual int sendingType() const throw(TransferableVersionException&) = 0;
-	virtual int receivingType() const throw(TransferableVersionException&) = 0;
+
+	//Returns the sending type id
+	virtual int type() const throw(TransferableVersionException&) = 0;
+	
+	//Reimplementable method to check the transferred Instruction consistency
 	virtual bool validate() const throw();
 };
 
@@ -52,7 +58,6 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	std::map<int, TransferableCreator*> mCreators;
 	std::map<int, std::string> mIdType;
 	std::map<std::string, int> mSendingType;
-	std::map<std::string, int> mReceivingType;
 
 	friend class Singleton<TransferableFactory>;
 	TransferableFactory();
@@ -67,12 +72,20 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 
 	virtual ~TransferableFactory();
 
+	//Get and set for the protocol used in the communication
 	const std::string& protocolVersion() const;
-	virtual void setProtocol(const std::string& version) throw(TransferableVersionException&);
+	//Any new version of the protocol (new instructions, etc) must be handled within this method
+	//Calling this method will set the Factory in the given version.
+	//An invalid version will throw a TransferableVersionException
+	//
+	// - Note: This method should read from a protocol file and add Creators
+	// 	via another factory, virtual reimplementable method, etc... Kept simple for the sake of practice
+	void setProtocol(const std::string& version) throw(TransferableVersionException&);
 
-	int getSendingType(const std::string& type) const throw(TransferableVersionException&);
-	int getReceivingType(const std::string& type) const throw(TransferableVersionException&);
+	//Method called by the sending side to send the instruction ID
+	int type(const std::string& type) const throw(TransferableVersionException&);
 
+	//Method called by the receiving side to create an executable instruction
 	TransferableCreator* creator(int creatorId) const throw(TransferableVersionException&);
 	
 };
