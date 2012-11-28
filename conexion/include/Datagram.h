@@ -23,7 +23,7 @@ public:
 		public:
 		Creator(const std::string& type) : mType(type) {}
 
-		Transferable* create(void* tr) const throw(WrongTransferableException&) {
+		Transferable* create(void* tr) const throw(TransferableVersionException&&) {
 			//if (tr.size() != typeSize()) throw WrongTransferableException("Sizes are different.");
 			T* ret = new T();
 			memcpy(((void*)ret) + sizeof(Datagram<T>), &tr, tr.size());
@@ -35,7 +35,7 @@ public:
 		}
 
 		int type() const throw(TransferableVersionException&) {
-			return TransferableFactory::instance().getTypeId(mType);
+			return TransferableFactory::instance().type(mType);
 		}
 	};
 
