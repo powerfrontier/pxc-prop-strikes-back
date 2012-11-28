@@ -9,16 +9,9 @@ using namespace std;
 server* zona_servidor[ZONES];
 std::list<server*> servers;
 
+Conection* conexionLogin = new TCPConnection(IPLOGIN, PUERTOLOGIN);
+Conection* conexionRedireccion = new TCPConnection(IPREDIRECCION, PUERTOREDIRECCION);
 
-//int accionServidor(server* server, Datagram ordenes) {
-  // Envia las ordenes del rebalanceo al servidor
-
-//}
-
-/*void anadirCarga(Datagram datos, server* s) {
-  //Añade la información de carga a la lista de servidores
-  s->server_carga = datos.getServer_carga();
-}*/
 
 double getAverage() {
   //Obte la mitjana de carrega dels servidors
@@ -42,7 +35,7 @@ double getStDev() {
 }
 
 void cambioZona(int serverMaxCarga, int posicionZonaACambiar, int serverMinCarga) {
-
+  conexion()
 }
 
 void balanceo() {
@@ -67,7 +60,7 @@ void balanceo() {
       }
      // Faltaria mirar quin es el servidor amb les zones mes properes
      posicionZonaACambiar = zonaCargaMin; // David: de moment faig aixo perque funcioni
-     //cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
+     cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
      servers.sort(); //David: trec els parametres perque la funcio estandard es aixi
      standardDev = getStDev();
      numIterations++;
@@ -99,16 +92,52 @@ void handle(int sig) {
     breakflag = 1;
 }
 
+void inicializarConexiones() {
+  for(it=servers.begin();it!=servers.end();it++) {
+    (*it)->c = new TCPConection();
+    if((*it)->c.connect((*it)->ip, PUERTOJUEGO)) {
+  }
+  conexionLogin.connect(IPLOGIN, PUERTOLOGIN);
+  conexionRedireccion.connect(IPREDIRECCION, PUERTOREDIRECCION);
+}
+
+int rebuts = 0;
+int timeout = 1; //Variable que fa de sincronització pel timeout
+int semafor_balanceig = 1;
+
+void managerConexiones() {
+  // El manager de conexions creo threads y els hi asigna una conexió per a fer les comunicacions amb els servidors de joc
+  rebuts = rebuts << NSERVERS; //Mirar si posar el bits a 1 per fer la mascara fent shift a nivell de bits
+  while(1) {
+  while(rebuts OR timeout) {
+      for(it=servers.begin();it!=servers.end();it++) {
+          //solicitar_carga
+          std::thread t(solicitarCarga, *it); //crear thread
+      }
+  }
+  if(rebuts) { //s'ha sortit del bucle pel tiemout
+      cout << "No responde el server:" << endl; //TODO: hacer que repase la máscara para saber que servers no responden
+  }
+    
+    //Ens parem fins que l'algoritme de balanceig hagi acabat
+    //while(semafor_balanceig) {}
+    
+    
+  }
+  }
+}
+
 
 int main() {
 
 signal(SIGALRM, handle);
 list<server*>::iterator it;
 
+inicializarConexiones();
+
  while(1) {
     if(breakflag) {
-        //para todas los servidores
-        int res;  
+        /*int res;  
         for(it=servers.begin();it!=servers.end();it++) {
           //solicitar_carga
           res = solicitarCarga(*it);
@@ -116,12 +145,13 @@ list<server*>::iterator it;
             server* aux = *it;
             cout << "No responde el server:" << (*aux).id << endl;
           }
-        }
+        }*/
+        std::thread t(managerConexiones); //crear thread del manager de conexiones
         servers.sort();
         //ejecutar algoritmo balanceo
         balanceo();
-        
         //enviar las ordenes de balanceo necesarias a los servidores
+        semafor_balanceig = 0;
         
         //contar TIME segundos
         breakflag = 0;
