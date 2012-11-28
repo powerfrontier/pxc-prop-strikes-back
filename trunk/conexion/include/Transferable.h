@@ -1,6 +1,8 @@
 #ifndef _TRANSFERABLE_H_
 #define _TRANSFERABLE_H_
 
+#define TRANSFERABLE_LAST_VERSION "0.1a"
+
 #include <map>
 #include <string>
 #include <typeinfo>
@@ -47,8 +49,9 @@ class Transferable {
 
 class TransferableCreator {
 	public:
-	virtual Transferable* create(Transferable& orig) const throw(WrongTransferableException&) = 0;
+	virtual Transferable* create(Transferable& orig) const throw(TransferableVersionException&) = 0;
 	virtual size_t typeSize() const throw() = 0;
+	virtual int type() const throw(TransferableVersionException&) = 0;
 };
 
 /* Factory */
@@ -56,24 +59,23 @@ class TransferableCreator {
 class TransferableFactory : public Singleton<TransferableFactory> {
 	std::string mProtocolVersion;
 	std::map<int, TransferableCreator*> mCreators;
-	std::map<int, std::string> mIdType;
 	std::map<std::string, int> mSendingType;
 
 	friend class Singleton<TransferableFactory>;
 	TransferableFactory();
 
 	protected:
-	void clear();
-	void addCreator(int transferableType, TransferableCreator& creator);
-	virtual void setLatestsVersion();
+	void clear() throw();
+	void addCreator(TransferableCreator& creator) throw(TransferableVersionException&);
+	virtual void setLatestVersion()  throw(TransferableVersionException&);
 
 	public:
 	static const std::string NO_PROTOCOL;
 
-	virtual ~TransferableFactory();
+	virtual ~TransferableFactory() throw();
 
 	//Get and set for the protocol used in the communication
-	const std::string& protocolVersion() const;
+	const std::string& protocolVersion() const throw();
 	//Any new version of the protocol (new instructions, etc) must be handled within this method
 	//Calling this method will set the Factory in the given version.
 	//An invalid version will throw a TransferableVersionException
