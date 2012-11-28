@@ -9,11 +9,16 @@
 #define NSERVERS 10
 #define TIME 5
 #define ZONES 9
+#define IPLOGIN 192.168.0.1
+#define PUERTOLOGIN 3456
+#define IPREDIRECCION 192.168.0.1
+#define PUERTOREDIRECCION 3457
+#define PUERTOJUEGO 3458
 
-
+void inicializarConexiones();
+void managerConexiones();
 int solicitarCarga(server* server);
-//void anadirCarga(Datagram datos, server* s);
 void balanceo();
-//int accionServidor(server* server, Datagram ordenes);
+void cambioZona(int serverMaxCarga, int posicionZonaACambiar, int serverMinCarga);
 
 #endif
