@@ -14,6 +14,7 @@ struct server_carga {
 struct server {
   int id;
   char* ip;
+  Connection* c;
   server_carga carga;
   
   bool operator < (const server& s) const
