@@ -1,9 +1,7 @@
 #include <SendServerLoad.h>
 
-
 void exec() {
-  //Inserir la carrega a la carrega del server que toca
-  // s->server_carga = carga;
-  s->carga = carga;
-  // Falta recibir la carga de cada zona
+	//Inserir la carrega a la carrega del server que toca i actualitzar la mascara on toca també
+	s->carga = carga;
+	//TODO: falta actualitzar la mascara
 }
