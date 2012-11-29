@@ -4,11 +4,12 @@
 #include <list>
 
 #include "../conexion/include/Connection.h"
-#include "../instrucciones/SharedStructs.h"
+#include "/instrucciones/SharedStructs.h"
 
 #define MAXDESV 2
 #define NSERVERS 10
 #define TIME 5
+#define TIMEOUTTHREAD 10
 #define ZONES 9
 #define IPLOGIN "192.168.0.1"
 #define PUERTOLOGIN 3456
@@ -19,6 +20,7 @@
 #define IPJUEGO3 "192.168.0.1"
 #define IPJUEGO4 "192.168.0.1"
 #define PUERTOJUEGO 3458
+
 
 void inicializarListaServidores();
 void inicializarConexiones();

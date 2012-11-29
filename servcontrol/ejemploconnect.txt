@@ -16,6 +16,18 @@ class SetZoneLoad : public Instruction {
 };
 
 
+class InstrGetZoneLoad : public Instruction {
+  int mZone;
+
+  public:
+  InstrGetZoneLoad() : Instruction("InstrGetZoneLoad") {}
+  void exec();
+};
+
+exec() -> buscar carrega zona i del servidor i tal i tal
+
+
+
 
 ...
 ...
@@ -34,3 +46,15 @@ Instruction* i = NULL;
 i = c->read();  // Recibimos la orden de ejecutar i
 i->exec();	// Se ejecuta i
 ----------------------------
+
+servidor control
+enviar getzoneload
+
+servidor joc
+rep instruccio instrgetzoneload
+
+servidor joc
+envia datagrama sendzoneload
+
+servidor control
+rep instruccio sendzoneload
