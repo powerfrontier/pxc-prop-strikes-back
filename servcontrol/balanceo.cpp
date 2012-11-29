@@ -3,7 +3,7 @@
 #include <signal.h>
 
 #include "balanceo.h"
-#include "../instrucciones/GetServerLoad.h"
+#include "/instrucciones/GetServerLoad.h"
 
 using namespace std;
 
