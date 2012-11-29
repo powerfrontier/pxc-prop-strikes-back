@@ -1,12 +1,22 @@
+#ifndef _CONNECTION_H_
+#define _CONNECTION_H_
+
 #include <string>
 #include "Datagram.h"
 #include "Transferable.h"
+ 
+/* OpenSSL headers */
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+class Connection;
 
 struct ConnectionCallback {
 ConnectionCallback();
 virtual ~ConnectionCallback();
 
-virtual void callbackFunction(Transferable* received) throw() = 0;
+virtual void callbackFunction(Transferable* received, Connection*) throw() = 0;
 };
 
 
@@ -40,42 +50,42 @@ const char* what() const throw();
  * delete myConnection;
  */
 class Connection {
+protected:
 ConnectionCallback* mCallback;
 bool	mIsOpen;
 std::string mIp;
-protected:
-
-virtual bool openConnection() throw (ConnectionException) = 0;
 public:
 Connection() throw();
 virtual ~Connection() throw(ConnectionException);
 
 //Set the objective ip and try to connect to 
-bool connect(std::string& ipAddr) throw(ConnectionException);
+virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException) = 0;
 virtual void close() throw() = 0;
 
 virtual bool isLinkOnline() throw() = 0;
 
 virtual void send(Transferable& message) throw (ConnectionException) = 0;
 
-virtual Transferable* receive() throw(ConnectionException) = 0;
+virtual void receive() throw(ConnectionException) = 0;
 
 void setCallbackFunction(ConnectionCallback*) throw();
 };
 
 class TCPConnection : public Connection {
+private:
+BIO *sbio;
 public:
 TCPConnection() throw();
 virtual ~TCPConnection() throw();
 
-virtual bool connect(std::string& ipAddr) throw(ConnectionException);
-
+virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
+void asignBio(BIO* s) throw(ConnectionException);
 virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
 
 virtual void send(Transferable& message) throw (ConnectionException);
-virtual Transferable* receive() throw(ConnectionException);
+virtual void receive() throw(ConnectionException);
 };
 
 class UDPConnection : public Connection {
@@ -83,12 +93,15 @@ public:
 UDPConnection() throw();
 virtual ~UDPConnection() throw();
 
-virtual bool connect(std::string& ipAddr) throw(ConnectionException);
+virtual bool connect(std::string& ipAddr, const std::string& port) throw(ConnectionException);
 
 virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
 
 virtual void send(Transferable& message) throw (ConnectionException);
-virtual Transferable* receive() throw(ConnectionException);
+virtual void receive() throw(ConnectionException);
 };
+
+#endif
+

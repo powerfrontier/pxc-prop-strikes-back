@@ -1,18 +1,6 @@
-/* Standard headers */
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
- 
-/* OpenSSL headers */
-#include <openssl/bio.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
- 
-
 #include "Connection.h"
-
-
-BIO *sbio;
 
 /**
  * Simple log function
@@ -43,11 +31,12 @@ void print_ssl_error_2(char* message, char* content, FILE* out) {
     ERR_print_errors_fp(out);
 }
 
-TCPConnection::TCPConnection() throw(){
+TCPConnection::TCPConnection() throw() : Connection() {
     /* call the standard SSL init functions */
     SSL_load_error_strings();
     SSL_library_init();
     ERR_load_BIO_strings();
+    ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
  
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
@@ -59,12 +48,13 @@ TCPConnection::~TCPConnection() throw(){
 		close();
 }
 
-bool TCPConnection::connect(std::string& ipAddr) throw(ConnectionException){
+bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException){
 	sbio = NULL;
  
 	/* Create a new connection */
 	char *ipAddrToChar = new char[ipAddr.size()+1] ;
 	strcpy(ipAddrToChar, ipAddr.c_str());
+	strcat(ipAddrToChar, port.c_str());
 	sbio = BIO_new_connect(ipAddrToChar);
     	if (sbio == NULL) {
 		char message[] = "Unable to create a new unencrypted BIO object.\n";
@@ -81,6 +71,14 @@ bool TCPConnection::connect(std::string& ipAddr) throw(ConnectionException){
     	}
 
 	return true;
+}
+
+void TCPConnection::asignBio(BIO* s) throw(ConnectionException){
+	if (sbio == NULL){
+		sbio = s;
+	}else{
+		//TODO: ERROR
+	}
 }
 
 void TCPConnection::close() throw(){
@@ -178,7 +176,21 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 }
 
 
-Transferable* TCPConnection::receive() throw(ConnectionException){
+/*
+
+*/
+/*void TCPConnection::receive() throw(ConnectionException){
+	TODO: Receive ha de crear un thread que ejecuta receiveThread
+}
+
+void TCPConnection::receiveThread(){
+	while(1){
+		this.receiveTransfThread();
+	}
+}*/
+// TODO:Cambiar la cabecera cuando el thread creado
+//void TCPConnection::receiveTransfThread() throw(ConnectionException){
+void TCPConnection::receive() throw(ConnectionException){
 	size_t length;
 	char bufsize[sizeof(size_t)];
 	char protocol[8];
@@ -273,7 +285,9 @@ Transferable* TCPConnection::receive() throw(ConnectionException){
         	}else if (r == length){
 			Transferable *t;
 			try{
-				t = c->create((Transferable&)buffer);	
+				t = c->create((Transferable&)buffer);
+				if (!mCallback) t->exec(this);
+				else mCallback->callbackFunction(t, this);
 			}catch(TransferableVersionException& e){
 				throw ConnectionException(e.what());
 			}
@@ -281,4 +295,5 @@ Transferable* TCPConnection::receive() throw(ConnectionException){
 			throw ConnectionException("TCPConnection Wrong: Guru meditation 8");
 		}
 	}
+	
 }
