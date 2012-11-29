@@ -1,6 +1,8 @@
 #include <iostream>
 #include <math.h>
 #include <signal.h>
+#include <thread.h>
+#include <mutex.h>
 
 #include "balanceo.h"
 #include "/instrucciones/GetServerLoad.h"
@@ -27,11 +29,11 @@ double getStDev() {
 	//Obte la desviacio estandar de la carrega dels servidors
 	double avg = getAverage();
 	double incr = 0;
-    list<server*>::iterator it;
-    for (it=servers.begin(); it!=servers.end(); it++) {
-    	incr += pow((*it)->carga.cargaTotal - avg, 2);
-    }
-    return sqrt(incr / (NSERVERS - 1));
+	list<server*>::iterator it;
+	for (it=servers.begin(); it!=servers.end(); it++) {
+	    	incr += pow((*it)->carga.cargaTotal - avg, 2);
+	}
+	return sqrt(incr / (NSERVERS - 1));
 }
 
 void cambioZona(server* serverMaxCarga, int posicionZonaACambiar, server* serverMinCarga) {
@@ -59,9 +61,9 @@ void balanceo() {
 			}
 		}
 		// Faltaria mirar quin es el servidor amb les zones mes properes
-		posicionZonaACambiar = zonaCargaMin; // David: de moment faig aixo perque funcioni
+		posicionZonaACambiar = zonaCargaMin; // de moment faig aixo perque funcioni
 		cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
-		servers.sort(); //David: trec els parametres perque la funcio estandard es aixi
+		servers.sort();
 		standardDev = getStDev();
 		numIterations++;
 		// Preparación variables para la siguiente iteracion
@@ -69,16 +71,6 @@ void balanceo() {
 		serverMaxCarga = servers.back();
 		serverMinCarga = servers.front();
 	}
-}
-
-
-void solicitarCarga(server* server) {
-	int result;
-	GetServerLoad* getServerLoad = new GetServerLoad(server);
-	server->c->send(getServerLoad);	
-	result = server->c->read();	
-	
-	
 }
 
 void inicializarListaServidores() {
@@ -96,75 +88,53 @@ void inicializarConexiones() {
 	conexionRedireccion.connect(IPREDIRECCION, PUERTOREDIRECCION);
 }
 
-
-void handleSolicitarCarga(int sig){
-  timeout = 0;
-}
-
-volatile int timeout = 1; //Variable que fa de sincronització pel timeout
-int rebuts;
-std::mutex rebuts_mutex;
-
-void managerConexiones() {
-	// El manager de conexions crea threads i els hi asigna una conexió per a fer les comunicacions amb els servidors de joc
-	
-	rebuts = 0;
-	int shift = (sizeof(int) * 8) - NSERVERS; 
-	list<server*>::iterator it;
-	signal(SIGALRM, handleSolicitarCarga);
-	timeout = 1
-	rebuts = ~rebuts;
-	rebuts = rebuts >> shift // Ponemos a 1 únicamente NSERVERS
-	//while(1) {
-		alarm(TIMEOUTTHREAD);
-		while(rebuts && timeout) {
-			for(it=servers.begin();it!=servers.end();it++) { //Per a tots els servidors
-				std::thread t(solicitarCarga, *it); //solicitar carga con thread nuevo
-			}
-						
-		}
-		if(rebuts) { //s'ha sortit del bucle pel tiemout
-			cout << "No responde el server:" << endl; //TODO: hacer que repase la máscara para saber que servers no responden
-		}
-    
-		//Ens parem fins que l'algoritme de balanceig hagi acabat
-		//while(semafor_balanceig) {}
-	//}
-}
-
-volatile int breakflag = 1;
-
+volatile int breakflag = 1; //Variable que fa de sincronització pel timeout de l'espera entre rebalancejos
 void handle(int sig) {
     breakflag = 1;
 }
 
+volatile int timeout = 1; //Variable que fa de sincronització pel timeout de l'espera de peticion
+void handleSolicitarCarga(int sig){
+  timeout = 0;
+}
+
+int timeout;
+int rebuts;
+std::mutex rebuts_mutex;
+
 int main() {
 
-	signal(SIGALRM, handle);
-	list<server*>::iterator it;
-
 	inicializarConexiones();
+	//std::thread t(consola);
+	signal(SIGALRM, handle);
+	signal(SIGALRM, handleSolicitarCarga); //TODO: comprovar si el signal despierta a las 2 funciones handler
+	list<server*>::iterator it;
+	timeout = 1;	
+	rebuts = 0;
+	int shift = (sizeof(int) * 8) - NSERVERS;	
+	rebuts = ~rebuts;
+	rebuts = rebuts >> shift // Ponemos a 1 únicamente NSERVERS
 
 	while(1) {
 		if(breakflag) {
-			/*int res;
-        	for(it=servers.begin();it!=servers.end();it++) {
-          	  //solicitar_carga
-          	  res = solicitarCarga(*it);
-          	  if(res < 0) {
-            	server* aux = *it;
-            	cout << "No responde el server:" << (*aux).id << endl;
-          	  }
-        	}*/
-			std::thread t(managerConexiones); //crear thread del manager de conexiones
-			servers.sort();
-			balanceo(); //ejecutar algoritmo balanceo
-			//enviar las ordenes de balanceo necesarias a los servidores o hacerlo es cambiarZona?
-			semafor_balanceig = 0;
-        
-			//contar TIME segundos
+			for(it=servers.begin();it!=servers.end();it++) { //Para todos los servidores...
+				GetServerLoad* getServerLoad = new GetServerLoad(*it, &rebuts, &rebuts_mutex);
+				(*it)->c->send(getServerLoad); //Enviamos la instruccion de solicitud de carga			 
+			}
+			alarm(WAITING_RESPONSE_TIME);
+			while(rebuts && timeout) { 
+				//Esperamos sin hacer nada o...								
+				//...mirar si se puede poner el proceso a dormir y que se despierte con un signal también
+			}
+			if(rebuts) { //s'ha sortit del bucle pel tiemout
+				cout << "No responde el server:" << endl; //TODO: hacer que repase la máscara para saber que servers no responden
+			}
+			servers.sort(); //ordenamos la lista
+			balanceo(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
+			//poner la alarma para el proximo rebalanceo
 			breakflag = 0;
-			alarm(TIME);
+			timeout = 1;
+			alarm(REBALANCING_TIME);
 		}
 		//para una segunda version implementar un listener que escuche peticiones de emergencia
 	}

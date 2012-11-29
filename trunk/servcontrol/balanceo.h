@@ -8,8 +8,8 @@
 
 #define MAXDESV 2
 #define NSERVERS 10
-#define TIME 5
-#define TIMEOUTTHREAD 10
+#define REBALANCING_TIME 5
+#define WAITING_RESPONSE_TIME 10
 #define ZONES 9
 #define IPLOGIN "192.168.0.1"
 #define PUERTOLOGIN 3456
@@ -24,8 +24,6 @@
 
 void inicializarListaServidores();
 void inicializarConexiones();
-void managerConexiones();
-int solicitarCarga(server* server);
 void balanceo();
 void cambioZona(server* serverMaxCarga, int posicionZonaACambiar, server* serverMinCarga);
 
