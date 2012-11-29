@@ -26,7 +26,7 @@ public:
 		Transferable* create(void* tr) const throw(TransferableVersionException&) {
 			//if (tr.size() != typeSize()) throw WrongTransferableException("Sizes are different.");
 			T* ret = new T();
-			memcpy(ret + sizeof(Datagram<T>), tr, typeSize());
+			memcpy(((char*)ret) + sizeof(Datagram<T>), tr, typeSize());
 			return ret;
 		}
 
@@ -39,7 +39,7 @@ public:
 		}
 	};
 
-	void* transferableObject() const throw() { return (void*) (this+sizeof(Datagram<T>)); }
+	void* transferableObject() const throw() { return (void*) (((char*)this)+sizeof(Datagram<T>)); }
 
 	size_t size() const throw() { return mSize; }
 
