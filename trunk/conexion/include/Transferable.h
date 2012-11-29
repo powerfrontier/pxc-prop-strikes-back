@@ -4,6 +4,7 @@
 #define TRANSFERABLE_LAST_VERSION "0.1a"
 
 #include <map>
+#include <vector>
 #include <string>
 #include <typeinfo>
 #include <exception>
@@ -56,10 +57,17 @@ class TransferableCreator {
 
 /* Factory */
 
+class TransferableProfile {
+	public:
+	typedef std::vector<TransferableCreator*> Creators;
+	virtual const Creators& getCreators(const std::string& protocol) const throw(TransferableVersionException&) = 0;
+};
+
 class TransferableFactory : public Singleton<TransferableFactory> {
-	std::string mProtocolVersion;
-	std::map<int, TransferableCreator*> mCreators;
-	std::map<std::string, int> mSendingType;
+	TransferableProfile*	mProfile;
+	std::string		mProtocolVersion;
+	std::map<int, TransferableCreator*>	mCreators;
+	std::map<std::string, int>		mSendingType;
 
 	friend class Singleton<TransferableFactory>;
 	TransferableFactory();
@@ -67,7 +75,7 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	protected:
 	void clear() throw();
 	void addCreator(TransferableCreator& creator) throw(TransferableVersionException&);
-	virtual void setLatestVersion()  throw(TransferableVersionException&);
+	virtual void setLatestVersion() throw(TransferableVersionException&);
 
 	public:
 	static const std::string NO_PROTOCOL;
@@ -82,7 +90,9 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	//
 	// - Note: This method should read from a protocol file and add Creators
 	// 	via another factory, virtual reimplementable method, etc... Kept simple for the sake of practice
-	void setProtocol(const std::string& version) throw(TransferableVersionException&);
+	void protocolVersion(const std::string& version) throw(TransferableVersionException&);
+
+	void setProfile(TransferableProfile*) throw();
 
 	//Method called by the sending side to send the instruction ID
 	int type(const std::string& type) const throw(TransferableVersionException&);
