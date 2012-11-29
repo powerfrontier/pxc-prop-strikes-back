@@ -55,12 +55,15 @@ class TransferableCreator {
 	virtual int type() const throw(TransferableVersionException&) = 0;
 };
 
-/* Factory */
+/* Transferable Factory Profile for getting desired creators for each side (client, server, balance) */
 
 class TransferableProfile {
 	public:
-	typedef std::vector<TransferableCreator*> Creators;
+	typedef std::vector<std::pair<int, TransferableCreator*>> Creators;
+	typedef std::vector<std::pair<std::string, int>> CreatorIds;
+
 	virtual const Creators& getCreators(const std::string& protocol) const throw(TransferableVersionException&) = 0;
+	virtual const CreatorIds& getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) = 0;
 };
 
 class TransferableFactory : public Singleton<TransferableFactory> {

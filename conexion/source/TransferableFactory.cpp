@@ -16,8 +16,12 @@ TransferableFactory::~TransferableFactory() throw() {
 void TransferableFactory::clear() throw() {
 	std::map<int, TransferableCreator*>::iterator it;
 
+	mProtocolVersion = NO_PROTOCOL;
+
 	for (it = mCreators.begin(); it != mCreators.end(); ++it) delete it->second;
 	mCreators.clear();
+	mSendingType();
+	mProtocolVersion = NO_PROTOCOL;
 }
 
 void TransferableFactory::addCreator(TransferableCreator& creator) throw(TransferableVersionException&) {
@@ -40,28 +44,34 @@ const std::string& TransferableFactory::protocolVersion() const throw() {
 	return mProtocolVersion;
 }
 
-void TransferableFactory::setProtocol(const std::string& version) throw(TransferableVersionException&) {
-	clear();
-	
-	try {
-		if (version == NO_PROTOCOL) {
+void TransferableFactory::protocolVersion(const std::string& version) throw(TransferableVersionException&) {
+	TransferableProfile::Creators* creators = NULL;
+	TransferableProfile::CreatorIds* creatorIds = NULL;
 
-		} else if (version == "0.1a") {
-			//TODO
-			/* addCreator(new MyTransferableCreator());
-			 *
-			 *
-			 */
-		} else throw TransferableVersionException("Protocol unavailable");
+	clear();
+	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
+	try {
+		if (version != NO_PROTOCOL) {
+			//TODO: Cargar del profile
+			creators = mProfile->getCreators(version);
+			creatorIds = mProfile->getCreatorIds(version);
+
+			mProtocolVersion = version;	
+		}
 	} catch (TransferableVersionException& e) {
 		clear();
 		throw e;
 	}
 }
 
+void TransferableFactory::setProfile(TransferableProfile* profile) throw() {
+	mProfile = profile;
+}
+
 int TransferableFactory::type(const std::string& type) const throw(TransferableVersionException&) {
 	std::map<std::string, int>::const_iterator it;
 
+	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
 	if (mProtocolVersion == NO_PROTOCOL) throw TransferableVersionException("No protocol stablished");
 
 	it = mSendingType.find(type);
@@ -72,7 +82,8 @@ int TransferableFactory::type(const std::string& type) const throw(TransferableV
 
 TransferableCreator* TransferableFactory::creator(int creatorType) const throw(TransferableVersionException&){
 	std::map<int, TransferableCreator*>::const_iterator it;
-
+	
+	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
 	if (mProtocolVersion == NO_PROTOCOL) throw TransferableVersionException("No protocol stablished");
 
 	it = mCreators.find(creatorType);
