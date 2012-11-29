@@ -72,9 +72,13 @@ void balanceo() {
 }
 
 
-int solicitarCarga(server* server) {
-	GetServerLoad* instrucion = new GetServerLoad();
-	return server->c->send(instrucion);
+void solicitarCarga(server* server) {
+	int result;
+	GetServerLoad* getServerLoad = new GetServerLoad(server);
+	server->c->send(getServerLoad);	
+	result = server->c->read();	
+	
+	
 }
 
 void inicializarListaServidores() {
@@ -92,19 +96,32 @@ void inicializarConexiones() {
 	conexionRedireccion.connect(IPREDIRECCION, PUERTOREDIRECCION);
 }
 
-int rebuts = 0;
-int timeout = 1; //Variable que fa de sincronització pel timeout
-int semafor_balanceig = 1;
+
+void handleSolicitarCarga(int sig){
+  timeout = 0;
+}
+
+volatile int timeout = 1; //Variable que fa de sincronització pel timeout
+int rebuts;
+std::mutex rebuts_mutex;
 
 void managerConexiones() {
-	// El manager de conexions creo threads y els hi asigna una conexió per a fer les comunicacions amb els servidors de joc
+	// El manager de conexions crea threads i els hi asigna una conexió per a fer les comunicacions amb els servidors de joc
+	
+	rebuts = 0;
+	int shift = (sizeof(int) * 8) - NSERVERS; 
 	list<server*>::iterator it;
-	rebuts = rebuts << NSERVERS; //Mirar si posar el bits a 1 per fer la mascara fent shift a nivell de bits
-	while(1) {
-		while(rebuts || timeout) {
+	signal(SIGALRM, handleSolicitarCarga);
+	timeout = 1
+	rebuts = ~rebuts;
+	rebuts = rebuts >> shift // Ponemos a 1 únicamente NSERVERS
+	//while(1) {
+		alarm(TIMEOUTTHREAD);
+		while(rebuts && timeout) {
 			for(it=servers.begin();it!=servers.end();it++) { //Per a tots els servidors
 				std::thread t(solicitarCarga, *it); //solicitar carga con thread nuevo
 			}
+						
 		}
 		if(rebuts) { //s'ha sortit del bucle pel tiemout
 			cout << "No responde el server:" << endl; //TODO: hacer que repase la máscara para saber que servers no responden
@@ -112,7 +129,7 @@ void managerConexiones() {
     
 		//Ens parem fins que l'algoritme de balanceig hagi acabat
 		//while(semafor_balanceig) {}
-	}
+	//}
 }
 
 volatile int breakflag = 1;

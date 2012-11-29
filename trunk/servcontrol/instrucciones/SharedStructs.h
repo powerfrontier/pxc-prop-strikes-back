@@ -9,7 +9,7 @@ struct zona_carga {
 };
 
 struct server_carga {
-		std::vector<zona_carga> distribucion;
+	std::vector<zona_carga> distribucion;
         double cargaTotal;
 };
 
