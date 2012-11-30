@@ -2,6 +2,8 @@
 #define _SharedStructs_h
 
 #include <vector>
+#include <Connection.h>
+
 
 struct zona_carga {
         int zona;
