@@ -10,16 +10,16 @@
 #define NSERVERS 2
 #define REBALANCING_TIME 5
 #define WAITING_RESPONSE_TIME 10
-#define ZONES 4
-#define IPLOGIN "192.168.0.1"
-#define PUERTOLOGIN "3456"
-#define IPREDIRECCION "192.168.0.1"
-#define PUERTOREDIRECCION "3457"
-#define IPJUEGO1 "192.168.0.1"
-#define IPJUEGO2 "192.168.0.1"
-#define IPJUEGO3 "192.168.0.1"
-#define IPJUEGO4 "192.168.0.1"
-#define PUERTOJUEGO "3458"
+#define NZONES 4
+#define IP_LOGIN "192.168.0.1"
+#define PORT_LOGIN "3456"
+#define IP_ROUTER "192.168.0.1"
+#define PORT_ROUTER "3457"
+#define IP_GAME_1 "192.168.0.1"
+#define IP_GAME_2 "192.168.0.1"
+#define IP_GAME_3 "192.168.0.1"
+#define IP_GAME_4 "192.168.0.1"
+#define PORT_GAME "3458"
 
 class Control : Singleton {
 	double getAverage();
@@ -29,7 +29,7 @@ class Control : Singleton {
 	void writeDownServer();
 
 public:
-	Server zoneServer[ZONES];
+	Server zoneServer[NZONES];
 	std::list<Server> servers;
 	std::mutex recievedMutex;
 	int recievedConnectionMask;
