@@ -1,11 +1,12 @@
 #include <string>
 #include "Datagram.h"
-#include "ConnectionManager"
+#include "ConnectionManager.h"
 #include "Connection.h"
+#include <iostream>
 
-int main(){
+int main(int argc, char** argv){
 	ConnectionManager* n = new ConnectionManager();
-	n->listen(std::string("8030"));
+	n->listen(std::string(argv[1]));
 	while (1){
 	}
 }
