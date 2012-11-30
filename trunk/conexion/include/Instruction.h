@@ -1,7 +1,7 @@
 #ifndef _INSTRUCTION_H_
 #define _INSTRUCTION_H_
 
-#include <Connection.h>
+class Connection;
 
 class Instruction {
 	public:
