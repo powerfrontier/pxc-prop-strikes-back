@@ -1,8 +1,11 @@
 #include "SendServerLoad.h"
 
-void exec() {
+void SendServerLoad::exec(Connection* c) const throw(){
 	//Inserir la carrega a la carrega del server que toca i actualitzar la mascara on toca també
 	s->carga = carga;
-	rebut = rebut || (1 << s->id);
-	//TODO: falta actualitzar la mascara
+	
+	rebut_mutex->lock();
+	*rebut = *rebut || (1 << s->id);
+	rebut_mutex->unlock();
+
 }

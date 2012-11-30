@@ -1,7 +1,8 @@
 #include "SharedStructs.h"
+#include <Instruction.h>
 #include <mutex>
 
-class SendServerLoad :: public Instruction {
+class SendServerLoad : public Datagram<SendServerLoad> {
 
 	struct server_carga carga;
 	server* s;
@@ -9,7 +10,7 @@ class SendServerLoad :: public Instruction {
 	std::mutex* rebut_mutex;
 
 	public:
-	SendServerLoad() : Instruction("SendServerLoad") {}
-	void exec();
+	SendServerLoad() : Datagram<SendServerLoad>("SendServerLoad") {}
+	void exec(Connection*) const throw();
 };
 

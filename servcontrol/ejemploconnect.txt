@@ -16,11 +16,11 @@ class SetZoneLoad : public Instruction {
 };
 
 
-class InstrGetZoneLoad : public Instruction {
+class InstrGetZoneLoad : public Datagram<InstrGetZoneLoad> {  // És una instrucció! De debò!
   int mZone;
 
   public:
-  InstrGetZoneLoad() : Instruction("InstrGetZoneLoad") {}
+  InstrGetZoneLoad() : Datagram<InstrGetZoneLoad>("InstrGetZoneLoad") {}
   void exec();
 };
 
