@@ -9,16 +9,8 @@
 
 using namespace std;
 
-server* zona_servidor[ZONES];
-std::list<server*> servers;
-Connection* conexionLogin = new TCPConnection();
-Connection* conexionRedireccion = new TCPConnection();
-int rebuts;
-std::mutex rebuts_mutex;
-volatile int breakflag = 1; //Variable que fa de sincronització pel timeout de l'espera entre rebalancejos
-volatile int timeout = 1; //Variable que fa de sincronització pel timeout de l'espera de peticion
 
-double getAverage() {
+double Control::getAverage() {
 	//Obte la mitjana de carrega dels servidors
 	double incr = 0;
 	list<server*>::iterator it;
@@ -28,7 +20,7 @@ double getAverage() {
 	return incr/NSERVERS;
 }
 
-double getStDev() {
+double Control::getStDev() {
 	//Obte la desviacio estandar de la carrega dels servidors
 	double avg = getAverage();
 	double incr = 0;
@@ -39,11 +31,11 @@ double getStDev() {
 	return sqrt(incr / (NSERVERS - 1));
 }
 
-void cambioZona(server* serverMaxCarga, int posicionZonaACambiar, server* serverMinCarga) {
+void Control::zoneChange(Server sourceServer, int changedZonePosition, Server destinationServer) {
 	//TODO: hacer cambioZona
 }
 
-void balanceo() {
+void Control::balance() {
 	server* serverMaxCarga = servers.back();
 	server* serverMinCarga = servers.front();
 	double standardDev = getStDev();
@@ -76,12 +68,12 @@ void balanceo() {
 	}
 }
 
-void inicializarListaServidores() {
+void Control::initializeServerList() {
 	//TODO: hacer inicializarListaServidores
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial y un reparto de las zonas arbitrario
 }
 
-void inicializarConexiones() {
+void Control::initializeConnections() {
 	list<server*>::iterator it;
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnection();
@@ -92,16 +84,16 @@ void inicializarConexiones() {
 }
 
 
-void balanceHandle(int sig) {
+void Control::balanceHandle() {
     breakflag = 1;
 }
 
 
-void handleSolicitarCarga(int sig){
+void Control::loadRequestHandle(){
   timeout = 0;
 }
 
-void writeDownServer(){
+void Control::writeDownServer(){
 	int i;
 	int serverMask = 1;
 	int serverNum = 0;
