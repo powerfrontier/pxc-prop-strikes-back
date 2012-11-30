@@ -11,22 +11,22 @@ using namespace std;
 
 
 double Control::getAverage() {
-	//Obte la mitjana de carrega dels servidors
+	//Gets the average load of servers.
 	double incr = 0;
-	list<server*>::iterator it;
-	for (it=servers.begin(); it!=servers.end(); it++) {
-		incr += (*it)->carga.cargaTotal;
+	list<Server>::iterator it;
+	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+		incr += (*it)->load.totalLoad;
 	}
 	return incr/NSERVERS;
 }
 
 double Control::getStDev() {
-	//Obte la desviacio estandar de la carrega dels servidors
+	//Gets the standar desviation load of servers.
 	double avg = getAverage();
 	double incr = 0;
-	list<server*>::iterator it;
-	for (it=servers.begin(); it!=servers.end(); it++) {
-	    	incr += pow((*it)->carga.cargaTotal - avg, 2);
+	list<Server>::iterator it;
+	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+	    	incr += pow((*it)->load.totalLoad - avg, 2);
 	}
 	return sqrt(incr / (NSERVERS - 1));
 }
@@ -36,13 +36,13 @@ void Control::zoneChange(Server sourceServer, int changedZonePosition, Server de
 }
 
 void Control::balance() {
-	server* serverMaxCarga = servers.back();
-	server* serverMinCarga = servers.front();
+	Server maxLoadServer = servers.back();
+	Server minLoadServer = servers.front();
 	double standardDev = getStDev();
 	int numIterations = 0;
-	double cargaMinZona = 1.0;
-	int zonaCargaMin = 0;
-	int posicionZonaACambiar;
+	double minLoadZone = 1.0;//cargaMinZona = 1.0;
+	int minLoadZone = 0; //zonaCargaMin = 0;
+	int changeZonePosition; //posicionZonaACambiar;
 	double minDev = 1.0; //TODO S'ha d'ajustar bé el valor
 
 	while ( standardDev > minDev && numIterations < servers.size() && serverMaxCarga->carga.distribucion.size() != 1)

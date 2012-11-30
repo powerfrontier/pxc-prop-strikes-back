@@ -5,25 +5,25 @@
 #include <Connection.h>
 
 
-struct zona_carga {
-        int zona;
-        double carga;
+struct zoneLoad {
+        int zone;
+        double load;
 };
 
-struct server_carga {
-	std::vector<zona_carga> distribucion;
-        double cargaTotal;
+struct serverLoad {
+	std::vector<zoneLoad> distribution;
+        double totalLoad;
 };
 
-struct server {
+class Server {
   int id;
   char* ip;
   Connection* c;
-  server_carga carga;
+  serverLoad load;
   
-  bool operator < (const server& s) const
+  bool operator < (const Server& s) const
   {
-    return (carga.cargaTotal < s.carga.cargaTotal);
+    return (load.totalLoad < s.load.totalLoad);
   }
   
 };
