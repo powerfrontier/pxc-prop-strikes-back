@@ -1,12 +1,12 @@
-#include <SharedStructs.h>
-#include <mutex.h>
+#include "SharedStructs.h"
+#include <mutex>
 
-class SendServerLoad : public Instruction {
+class SendServerLoad :: public Instruction {
 
-	struct server_carga carga
-	server* s
-	int* rebut
-	std::mutex* rebut_mutex
+	struct server_carga carga;
+	server* s;
+	int* rebut;
+	std::mutex* rebut_mutex;
 
 	public:
 	SendServerLoad() : Instruction("SendServerLoad") {}

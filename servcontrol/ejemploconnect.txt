@@ -40,6 +40,8 @@ Connection* c = new Connection("192.168.0.1");
 c->send(t);
 
 
+
+
 ----------------------------
 Instruction* i = NULL;
 ...
@@ -47,14 +49,7 @@ i = c->read();  // Recibimos la orden de ejecutar i
 i->exec();	// Se ejecuta i
 ----------------------------
 
-servidor control
-enviar getzoneload
+compilació:
 
-servidor joc
-rep instruccio instrgetzoneload
+g++ balanceo.cpp -o balanceo -std=c++0x -I../conexion/include -I./instrucciones
 
-servidor joc
-envia datagrama sendzoneload
-
-servidor control
-rep instruccio sendzoneload
