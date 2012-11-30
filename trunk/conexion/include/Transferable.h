@@ -59,8 +59,8 @@ class TransferableCreator {
 
 class TransferableProfile {
 	public:
-	typedef std::vector<std::pair<int, TransferableCreator*>> Creators;
-	typedef std::vector<std::pair<std::string, int>> CreatorIds;
+	typedef std::vector<std::pair<int, TransferableCreator*> > Creators;
+	typedef std::vector<std::pair<std::string, int> > CreatorIds;
 
 	virtual const Creators& getCreators(const std::string& protocol) const throw(TransferableVersionException&) = 0;
 	virtual const CreatorIds& getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) = 0;
@@ -73,7 +73,7 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	std::map<std::string, int>		mSendingType;
 
 	friend class Singleton<TransferableFactory>;
-	TransferableFactory();
+	TransferableFactory() throw();
 
 	protected:
 	void clear() throw();
@@ -86,14 +86,14 @@ class TransferableFactory : public Singleton<TransferableFactory> {
 	virtual ~TransferableFactory() throw();
 
 	//Get and set for the protocol used in the communication
-	const std::string& protocolVersion() const throw();
+	const std::string& protocol() const throw();
 	//Any new version of the protocol (new instructions, etc) must be handled within this method
 	//Calling this method will set the Factory in the given version.
 	//An invalid version will throw a TransferableVersionException
 	//
 	// - Note: This method should read from a protocol file and add Creators
 	// 	via another factory, virtual reimplementable method, etc... Kept simple for the sake of practice
-	void protocolVersion(const std::string& version) throw(TransferableVersionException&);
+	void setProtocol(const std::string& version) throw(TransferableVersionException&);
 
 	void setProfile(TransferableProfile*) throw();
 
