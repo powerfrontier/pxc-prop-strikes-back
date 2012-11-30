@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <exception>
 #include <Singleton.h>
+#include <Instruction.h>
 
 /* Exceptions */
 
@@ -30,7 +31,7 @@ class TransferableVersionException : public std::exception {
 
 /* Basic transferable interface */
 
-class Transferable {
+class Transferable : public Instruction {
 	public:
 
 	//Returns a raw pointer to the data to be sent
