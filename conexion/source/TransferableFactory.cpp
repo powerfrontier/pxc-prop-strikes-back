@@ -45,14 +45,20 @@ void TransferableFactory::setProtocol(const std::string& version) throw(Transfer
 	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
 	try {
 		if (version != NO_PROTOCOL) {
-			//TODO: Cargar del profile
+			
 			creators = &mProfile->getCreators(version);
 			creatorIds = &mProfile->getCreatorIds(version);
 
+			for (int i = 0; i < creators->size(); ++i) {
+				mCreators.insert((*creators)[i]);
+				mSendingType.insert((*creatorIds)[i]);
+			}
+			
 			mProtocolVersion = version;	
 		}
 	} catch (TransferableVersionException& e) {
 		clear();
+		setProtocol(NULL);
 		throw e;
 	}
 }
