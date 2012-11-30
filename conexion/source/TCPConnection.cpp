@@ -43,7 +43,7 @@ TCPConnection::TCPConnection() throw() : Connection() {
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
 
-TCPConnection::TCPConnection(BIO b) throw() : Connection() {
+TCPConnection::TCPConnection(BIO* b) throw() : Connection() {
     /* call the standard SSL init functions */
     SSL_load_error_strings();
     SSL_library_init();
@@ -66,6 +66,7 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	/* Create a new connection */
 	char *ipAddrToChar = new char[ipAddr.size()+1] ;
 	strcpy(ipAddrToChar, ipAddr.c_str());
+	strcat(ipAddrToChar, ":");
 	strcat(ipAddrToChar, port.c_str());
 	sbio = BIO_new_connect(ipAddrToChar);
     	if (sbio == NULL) {
@@ -85,13 +86,6 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	return true;
 }
 
-void TCPConnection::asignBio(BIO* s) throw(ConnectionException){
-	if (sbio == NULL){
-		sbio = s;
-	}else{
-		//TODO: ERROR
-	}
-}
 
 void TCPConnection::close() throw(){
     int r = 0;
@@ -130,7 +124,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	// Send the protocol
 	r = -1;	
 	while (r< 0){
-		std::string protocol = TransferableFactory::instance().protocolVersion();
+		std::string protocol = TransferableFactory::instance().protocol();
 		strcpy(buffer, protocol.c_str());
 		r = BIO_write(sbio, buffer, 8);
 		if (r<=0) {
@@ -297,7 +291,7 @@ void TCPConnection::receive() throw(ConnectionException){
         	}else if (r == length){
 			Transferable *t;
 			try{
-				t = c->create((Transferable&)buffer);
+				t = c->create((void*)buffer);
 				if (!mCallback) t->exec(this);
 				else mCallback->callbackFunction(t, this);
 			}catch(TransferableVersionException& e){

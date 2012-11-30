@@ -76,7 +76,7 @@ private:
 BIO *sbio;
 public:
 TCPConnection() throw();
-TCPConnection(BIO b) throw();
+TCPConnection(BIO*) throw();
 virtual ~TCPConnection() throw();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
 virtual void close() throw();
