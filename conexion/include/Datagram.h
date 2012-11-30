@@ -21,7 +21,7 @@ public:
 	class Creator : public TransferableCreator {
 		std::string mType;
 		public:
-		Creator(const std::string& type) : mType(type) {}
+		Creator(const std::string& type) : TransferableCreator(), mType(type) {}
 
 		Transferable* create(void* tr) const throw(TransferableVersionException&) {
 			//if (tr.size() != typeSize()) throw WrongTransferableException("Sizes are different.");
