@@ -3,12 +3,14 @@
 #include "Connection.h"
 class ConnectionManager{
 private:
-BIO* bioStack;
-void listen(const std::string& port) throw(ConnectionException);
+
+ConnectionCallback *cCallB;
+void listenThread(const std::string& port) throw(ConnectionException);
+void ConnectionManager::receive(Connection con) throw(ConnectionException);
 public:
 ConnectionManager() throw();
 ~ConnectionManager() throw();
-void listenPort(const std::string& port) throw(ConnectionException);
+void listen(const std::string& port) throw(ConnectionException);
 void setCallbackFunction(ConnectionCallback*) throw();
 };
 #endif

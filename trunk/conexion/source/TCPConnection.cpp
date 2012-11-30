@@ -43,6 +43,18 @@ TCPConnection::TCPConnection() throw() : Connection() {
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
 
+TCPConnection::TCPConnection(BIO b) throw() : Connection() {
+    /* call the standard SSL init functions */
+    SSL_load_error_strings();
+    SSL_library_init();
+    ERR_load_BIO_strings();
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+    sbio = b;
+    /* seed the random number system - only really nessecary for systems without '/dev/random' */
+    /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
+}
+
 TCPConnection::~TCPConnection() throw(){
 	if (isLinkOnline())
 		close();

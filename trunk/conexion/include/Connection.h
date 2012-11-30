@@ -76,14 +76,11 @@ private:
 BIO *sbio;
 public:
 TCPConnection() throw();
+TCPConnection(BIO b) throw();
 virtual ~TCPConnection() throw();
-
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
-void asignBio(BIO* s) throw(ConnectionException);
 virtual void close() throw();
-
 virtual bool isLinkOnline() throw();
-
 virtual void send(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
