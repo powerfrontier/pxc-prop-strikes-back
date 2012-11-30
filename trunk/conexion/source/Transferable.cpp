@@ -9,3 +9,5 @@ TransferableVersionException::~TransferableVersionException() throw() { }
 const char* TransferableVersionException::what() const throw() { return mWhat.c_str(); }
 
 bool Transferable::validate() const throw() { return true; }
+Transferable::~Transferable() { }
+

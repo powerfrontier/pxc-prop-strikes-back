@@ -9,6 +9,12 @@
 
 #include <Transferable.h>
 
+
+#include <iostream>
+
+
+class Connection;
+
 //Datagram DOES NOT ALLOW classes with non-static members
 template <class T>
 class Datagram : public Transferable {
@@ -27,6 +33,7 @@ public:
 			//TODO: Comprobar que es del mismo tipo
 			T* ret = new T();
 			memcpy(((char*)ret) + sizeof(Datagram<T>), orig, typeSize());
+
 			return ret;
 		}
 
@@ -39,6 +46,8 @@ public:
 		}
 	};
 
+	virtual ~Datagram() { }
+
 	void* transferableObject() const throw() { return (void*) (((char*)this)+sizeof(Datagram<T>)); }
 
 	size_t size() const throw() { return mSize; }
@@ -47,7 +56,7 @@ public:
 		return TransferableFactory::instance().type(mType);
 	}
 
-	virtual void exec() const throw() {}
+	virtual void exec(Connection* c) const throw() {}
 };
 
 #endif

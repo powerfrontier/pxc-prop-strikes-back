@@ -33,6 +33,7 @@ class TransferableVersionException : public std::exception {
 
 class Transferable : public Instruction {
 	public:
+	virtual ~Transferable();
 
 	//Returns a raw pointer to the data to be sent
 	virtual void* transferableObject() const throw() = 0;
