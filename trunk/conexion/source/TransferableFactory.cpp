@@ -2,26 +2,19 @@
 
 const std::string TransferableFactory::NO_PROTOCOL = "none";
 
-TransferableFactory::TransferableFactory() 	: mProtocolVersion(NO_PROTOCOL)
-						, mCreators() {
-	try {
-		setLatestVersion();
-	} catch ( TransferableVersionException& e) { mProtocolVersion = NO_PROTOCOL; }
-}
+TransferableFactory::TransferableFactory() throw()	: mProtocolVersion(NO_PROTOCOL)
+							, mCreators() { }
 
 TransferableFactory::~TransferableFactory() throw() {
 	clear();
+	setProfile(NULL);
 }
 
 void TransferableFactory::clear() throw() {
-	std::map<int, TransferableCreator*>::iterator it;
-
 	mProtocolVersion = NO_PROTOCOL;
 
-	for (it = mCreators.begin(); it != mCreators.end(); ++it) delete it->second;
 	mCreators.clear();
-	mSendingType();
-	mProtocolVersion = NO_PROTOCOL;
+	mSendingType.clear();
 }
 
 void TransferableFactory::addCreator(TransferableCreator& creator) throw(TransferableVersionException&) {
@@ -40,21 +33,21 @@ void TransferableFactory::setLatestVersion() throw(TransferableVersionException&
 	setProtocol(TRANSFERABLE_LAST_VERSION);
 }
 
-const std::string& TransferableFactory::protocolVersion() const throw() {
+const std::string& TransferableFactory::protocol() const throw() {
 	return mProtocolVersion;
 }
 
-void TransferableFactory::protocolVersion(const std::string& version) throw(TransferableVersionException&) {
-	TransferableProfile::Creators* creators = NULL;
-	TransferableProfile::CreatorIds* creatorIds = NULL;
+void TransferableFactory::setProtocol(const std::string& version) throw(TransferableVersionException&) {
+	const TransferableProfile::Creators* creators = NULL;
+	const TransferableProfile::CreatorIds* creatorIds = NULL;
 
 	clear();
 	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
 	try {
 		if (version != NO_PROTOCOL) {
 			//TODO: Cargar del profile
-			creators = mProfile->getCreators(version);
-			creatorIds = mProfile->getCreatorIds(version);
+			creators = &mProfile->getCreators(version);
+			creatorIds = &mProfile->getCreatorIds(version);
 
 			mProtocolVersion = version;	
 		}
@@ -65,6 +58,7 @@ void TransferableFactory::protocolVersion(const std::string& version) throw(Tran
 }
 
 void TransferableFactory::setProfile(TransferableProfile* profile) throw() {
+	if (mProfile) delete mProfile;
 	mProfile = profile;
 }
 

@@ -50,7 +50,7 @@ class Transferable {
 
 class TransferableCreator {
 	public:
-	virtual Transferable* create(Transferable& orig) const throw(TransferableVersionException&) = 0;
+	virtual Transferable* create(void* orig) const throw(TransferableVersionException&) = 0;
 	virtual size_t typeSize() const throw() = 0;
 	virtual int type() const throw(TransferableVersionException&) = 0;
 };
