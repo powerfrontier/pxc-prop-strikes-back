@@ -2,11 +2,13 @@
 
 class GetServerLoad : public Datagram<GetServerLoad> {
 	//atributos de la clase
-	server* s;
-	int* rebut;
-	std::mutex* rebut_mutex;
+	//Server s;
+	//int* rebut;
+	//std::mutex* rebut_mutex;
+	int idServer;
+	
 
 public:
-	GetServerLoad(server* gameServer, int* r, std::mutex* rm): Datagram<GetServerLoad>("GetServerLoad"), s(gameServer), rebut(r), rebut_mutex(rm)  {} 
-
+	//GetServerLoad(Server gameServer, int* r, std::mutex* rm): Datagram<GetServerLoad>("GetServerLoad"), s(gameServer), rebut(r), rebut_mutex(rm)  {} 
+	GetServerLoad(int id): Datagram<GetServerLoad>("GetServerLoad"), idServer(id)  {};
 };
