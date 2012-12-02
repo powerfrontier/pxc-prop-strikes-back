@@ -50,7 +50,17 @@ ConnectionManager::~ConnectionManager() throw(){
 }
 
 void ConnectionManager::listen(const std::string& port) throw(ConnectionException){
+	char buff[64];
+	str.copy(buff, str.size(), 0);
+	printf(buff);
+    printf("Voy a crear un thread que haga el listen");
+    fflush(stdout);
 	t = new std::thread(&ConnectionManager::listenThread, this, port);
+	str.copy(buff, str.size(), 0);
+	printf(buff);
+    printf("Thread creado");
+    fflush(stdout);
+
 }
 
 
