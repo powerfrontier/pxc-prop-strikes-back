@@ -15,7 +15,7 @@ double Control::getAverage() {
 	double incr = 0;
 	list<Server>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
-		incr += (*it)->load.totalLoad;
+		incr += (*it).load.totalLoad;
 	}
 	return incr/NSERVERS;
 }
@@ -26,7 +26,7 @@ double Control::getStDev() {
 	double incr = 0;
 	list<Server>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
-	    	incr += pow((*it)->load.totalLoad - avg, 2);
+	    	incr += pow((*it).load.totalLoad - avg, 2);
 	}
 	return sqrt(incr / (NSERVERS - 1));
 }
@@ -40,31 +40,30 @@ void Control::balance() {
 	Server minLoadServer = servers.front();
 	double standardDev = getStDev();
 	int numIterations = 0;
-	double minLoadZone = 1.0;//cargaMinZona = 1.0;
-	int minLoadZone = 0; //zonaCargaMin = 0;
-	int changeZonePosition; //posicionZonaACambiar;
+	double minLoadZone = 1.0;//minLoadZone = 1.0;
+	int changedZonePosition; //posicionZonaACambiar;
 	double minDev = 1.0; //TODO S'ha d'ajustar bé el valor
 
-	while ( standardDev > minDev && numIterations < servers.size() && serverMaxCarga->carga.distribucion.size() != 1)
+	while ( standardDev > minDev && numIterations < servers.size() && maxLoadServer.load.distribution.size() != 1)
 	{
-		// Escogemos la zona menos cargada de serverMaxCarga
-		for(int i = 0; i < serverMaxCarga->carga.distribucion.size();++i)
+		// Escogemos la zona menos cargada de maxLoadServer
+		for(int i = 0; i < maxLoadServer.load.distribution.size();++i)
 		{
-			if(serverMaxCarga->carga.distribucion.at(i).carga < cargaMinZona){
-				cargaMinZona = serverMaxCarga->carga.distribucion.at(i).carga;
-				zonaCargaMin = i; // Guardamos la zona donde esta la carga minima
+			if(maxLoadServer->load.distribution.at(i).load < minLoadZone){
+				minLoadZone = maxLoadServer.load.distribution.at(i).carga;
+				minLoadZone = i; // Guardamos la zona donde esta la carga minima
 			}
 		}
 		// Faltaria mirar quin es el servidor amb les zones mes properes
-		posicionZonaACambiar = zonaCargaMin; // de moment faig aixo perque funcioni
-		cambioZona(serverMaxCarga, posicionZonaACambiar, serverMinCarga);
+		changedZonePosition = minLoadZone; // de moment faig aixo perque funcioni
+		zoneChange(maxLoadServer, changedZonePosition, minLoadServer);
 		servers.sort();
 		standardDev = getStDev();
 		numIterations++;
 		// Preparación variables para la siguiente iteracion
-		cargaMinZona = 1;
-		serverMaxCarga = servers.back();
-		serverMinCarga = servers.front();
+		minLoadZone = 1;
+		maxLoadServer = servers.back();
+		minLoadServer = servers.front();
 	}
 }
 
@@ -74,13 +73,13 @@ void Control::initializeServerList() {
 }
 
 void Control::initializeConnections() {
-	list<server*>::iterator it;
+	list<Server>::iterator it;
 	for(it=servers.begin();it!=servers.end();it++) {
-		(*it)->c = new TCPConnection();
-		(*it)->c->connect((*it)->ip, PUERTOJUEGO);
+		(*it).c = new TCPConnection();
+		(*it).c->connect((*it).ip, PORT_GAME);
 	}
-	conexionLogin->connect(IPLOGIN, PUERTOLOGIN);
-	conexionRedireccion->connect(IPREDIRECCION, PUERTOREDIRECCION);
+	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
+	routerConnection->connect(IP_REDIRECTION, PORT_ROUTER);
 }
 
 
@@ -97,7 +96,7 @@ void Control::writeDownServer(){
 	int i;
 	int serverMask = 1;
 	int serverNum = 0;
-	int serverConnectList = ~rebuts;
+	int serverConnectList = ~recievedConnectionMask;
 	for( i = 0; i < NSERVERS; i++){
 		serverNum = serverConnectList & serverMask;
 		if(!serverNum){
@@ -111,39 +110,39 @@ void Control::writeDownServer(){
 
 
 int main() {
-	inicializarConexiones();
+	Control::instance().initializeConnections();
 	//std::thread t(consola);
 	//signal(SIGALRM, handle);
-	list<server*>::iterator it;
-	timeout = 1;	
-	rebuts = 0;
+	list<Server>::iterator it;
+	Control::instance().timeout = 1;	
+	Control::instance().recievedConnectionMask = 0;
 	int shift = (sizeof(int) * 8) - NSERVERS;	
-	rebuts = ~rebuts;
-	rebuts = rebuts >> shift; // Ponemos a 1 únicamente NSERVERS
-	breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
+	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
+	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
+	Control::instance().breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
 	while(1) {
-		if(breakflag) {
+		if(Control::instance().breakflag) {
 			alarm(0);	// Apagamos el timer
-			for(it=servers.begin();it!=servers.end();it++) { //Para todos los servidores...
-				GetServerLoad* getServerLoad = new GetServerLoad(*it, &rebuts, &rebuts_mutex);
-				(*it)->c->send(*getServerLoad); //Enviamos la instruccion de solicitud de carga			 
+			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { //Para todos los servidores...
+				GetServerLoad* getServerLoad = new GetServerLoad(*it, &Control::instance().recievedConnectionMask, &Control::instance().recievedMutex);
+				(*it).c->send(*getServerLoad); //Enviamos la instruccion de solicitud de carga			 
 			}
-			signal(SIGALRM, handleSolicitarCarga);
+			signal(SIGALRM, Control::instance().loadRequestHandle);
 			alarm(WAITING_RESPONSE_TIME);
-			while(rebuts && timeout) { 
+			while(Control::instance().recievedConnectionMask && Control::instance().timeout) { 
 				//Esperamos sin hacer nada o...								
 				//...mirar si se puede poner el proceso a dormir y que se despierte con un signal también
 			}
 			alarm(0);
-			if(rebuts) { //s'ha sortit del bucle pel timeout
-				writeDownServer();
+			if(Control::instance().recievedConnectionMask) { //s'ha sortit del bucle pel timeout
+				Control::instance().writeDownServer();
 			}
-			servers.sort(); //ordenamos la lista
-			balanceo(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
+			Control::instance().servers.sort(); //ordenamos la lista
+			Control::instance().balance(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
 			//poner la alarma para el proximo rebalanceo
-			breakflag = 0; 
-			timeout = 1;  
-			signal(SIGALRM, balanceHandle);
+			Control::instance().breakflag = 0; 
+			Control::instance().timeout = 1;  
+			signal(SIGALRM, Control::instance().balanceHandle);
 			alarm(REBALANCING_TIME);
 		}
 		//para una segunda version implementar un listener que escuche peticiones de emergencia

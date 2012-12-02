@@ -21,11 +21,9 @@
 #define IP_GAME_4 "192.168.0.1"
 #define PORT_GAME "3458"
 
-class Control : Singleton {
+class Control : Singleton<Control> {
 	double getAverage();
-	double getStDev();
-	void balanceHandle();
-	void loadRequestHandle();
+	double getStDev();	
 	void writeDownServer();
 
 public:
@@ -43,7 +41,8 @@ public:
 	void initializeConnections();
 	void balance();
 	void zoneChange(Server sourceServer, int changedZonePosition, Server destinationServer);
-
+	void loadRequestHandle();
+	void balanceHandle();
 
 }
 
