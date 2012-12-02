@@ -5,24 +5,14 @@
 #include <iostream>
 
 int main(int argc, char** argv){
-	char buff[64];
-	str.copy(buff, str.size(), 0);
-	printf(buff);
-    printf("Ready");
-    fflush(stdout);
-
+	printf("Main: Primera instruccion\n");
+ 	fflush(stdout);
 	ConnectionManager* n = new ConnectionManager();
-	str.copy(buff, str.size(), 0);
-	printf(buff);
-    printf("OBJETO ConnectionManager Creado");
-    fflush(stdout);
-
+	printf("Main: Objeto creado\n");
+ 	fflush(stdout);
 	n->listen(std::string(argv[1]));
-	str.copy(buff, str.size(), 0);
-	printf(buff);
-    printf("Listen");
-    fflush(stdout);
-
+	printf("Main: Estoy en listen\n");
+ 	fflush(stdout);
 	while (1){
 	}
 }

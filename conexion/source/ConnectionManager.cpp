@@ -34,13 +34,29 @@ void print_ssl_error_23(char* message, char* content, FILE* out) {
 
 ConnectionManager::ConnectionManager() throw(){
     /* call the standard SSL init functions */
+	printf("ConnectionManager(): Primera instruccion\n");
+ 	fflush(stdout);
     SSL_load_error_strings();
+	printf("ConnectionManager(): 2 instruccion\n");
+ 	fflush(stdout);
     SSL_library_init();
+	printf("ConnectionManager(): 3 instruccion\n");
+ 	fflush(stdout);
     ERR_load_BIO_strings();
+	printf("ConnectionManager(): 4 instruccion\n");
+ 	fflush(stdout);
     ERR_load_crypto_strings();
+	printf("ConnectionManager(): 5 instruccion\n");
+ 	fflush(stdout);
     OpenSSL_add_all_algorithms();
+	printf("ConnectionManager(): 6 instruccion\n");
+ 	fflush(stdout);
     t = NULL;
+	printf("ConnectionManager(): 7 instruccion\n");
+ 	fflush(stdout);
     cCallB = NULL;
+	printf("ConnectionManager(): Ok\n");
+ 	fflush(stdout);
 }
 
 ConnectionManager::~ConnectionManager() throw(){
@@ -50,17 +66,11 @@ ConnectionManager::~ConnectionManager() throw(){
 }
 
 void ConnectionManager::listen(const std::string& port) throw(ConnectionException){
-	char buff[64];
-	str.copy(buff, str.size(), 0);
-	printf(buff);
-    printf("Voy a crear un thread que haga el listen");
-    fflush(stdout);
+	printf("Listen(): 1 instruccion\n");
+ 	fflush(stdout);
 	t = new std::thread(&ConnectionManager::listenThread, this, port);
-	str.copy(buff, str.size(), 0);
-	printf(buff);
-    printf("Thread creado");
-    fflush(stdout);
-
+	printf("Listen(): Ok\n");
+ 	fflush(stdout);
 }
 
 
@@ -73,14 +83,23 @@ void ConnectionManager::receive(Connection *con) throw (ConnectionException){
 }
 
 void ConnectionManager::listenThread(const std::string& port) throw(ConnectionException){
+	printf("ListenThread(): 1 instruccion\n");
+ 	fflush(stdout);
 	BIO* bioStack, *cbio;
+	printf("ListenThread(): 2 instruccion\n");
+ 	fflush(stdout);
 	std::string str = port;
+	printf("ListenThread(): 3 instruccion\n");
+ 	fflush(stdout);
 	char buff[64];
+	printf("ListenThread(): 4 instruccion\n");
+ 	fflush(stdout);
 	str.copy(buff, str.size(), 0);
-	printf(buff);
-    printf("1");
-    fflush(stdout);
+	printf("ListenThread(): 5 instruccion\n");
+ 	fflush(stdout);
 	bioStack = BIO_new_accept(buff);
+	printf("ListenThread(): 6 instruccion\n");
+ 	fflush(stdout);
 	if (bioStack == NULL) {
 		char message[] = "bioStack = NULL.\n";
  		print_ssl_error2(message, stdout);
