@@ -9,6 +9,8 @@
 
 using namespace std;
 
+	volatile int breakflag; // = 1; //Variable que fa de sincronització pel timeout de l'espera entre rebalancejos
+	volatile int timeout; // = 1; //Variable que fa de sincronització pel timeout de l'espera de peticion
 
 double Control::getAverage() {
 	//Gets the average load of servers.
@@ -49,8 +51,8 @@ void Control::balance() {
 		// Escogemos la zona menos cargada de maxLoadServer
 		for(int i = 0; i < maxLoadServer.load.distribution.size();++i)
 		{
-			if(maxLoadServer->load.distribution.at(i).load < minLoadZone){
-				minLoadZone = maxLoadServer.load.distribution.at(i).carga;
+			if(maxLoadServer.load.distribution.at(i).load < minLoadZone){
+				minLoadZone = maxLoadServer.load.distribution.at(i).load;
 				minLoadZone = i; // Guardamos la zona donde esta la carga minima
 			}
 		}
@@ -79,18 +81,10 @@ void Control::initializeConnections() {
 		(*it).c->connect((*it).ip, PORT_GAME);
 	}
 	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
-	routerConnection->connect(IP_REDIRECTION, PORT_ROUTER);
+	routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
 
 
-void Control::balanceHandle() {
-    breakflag = 1;
-}
-
-
-void Control::loadRequestHandle(){
-  timeout = 0;
-}
 
 void Control::writeDownServer(){
 	int i;
@@ -107,29 +101,36 @@ void Control::writeDownServer(){
 }
 
 
+void balanceHandle(int signum) {
+    breakflag = 1;
+}
 
+
+void loadRequestHandle(int signum){
+  timeout = 0;
+}
 
 int main() {
 	Control::instance().initializeConnections();
 	//std::thread t(consola);
 	//signal(SIGALRM, handle);
 	list<Server>::iterator it;
-	Control::instance().timeout = 1;	
+	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
 	int shift = (sizeof(int) * 8) - NSERVERS;	
 	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
 	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
-	Control::instance().breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
+	breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
 	while(1) {
-		if(Control::instance().breakflag) {
+		if(breakflag) {
 			alarm(0);	// Apagamos el timer
 			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { //Para todos los servidores...
 				GetServerLoad* getServerLoad = new GetServerLoad(*it, &Control::instance().recievedConnectionMask, &Control::instance().recievedMutex);
 				(*it).c->send(*getServerLoad); //Enviamos la instruccion de solicitud de carga			 
 			}
-			signal(SIGALRM, Control::instance().loadRequestHandle);
+			signal(SIGALRM, loadRequestHandle);
 			alarm(WAITING_RESPONSE_TIME);
-			while(Control::instance().recievedConnectionMask && Control::instance().timeout) { 
+			while(Control::instance().recievedConnectionMask && timeout) { 
 				//Esperamos sin hacer nada o...								
 				//...mirar si se puede poner el proceso a dormir y que se despierte con un signal también
 			}
@@ -140,9 +141,9 @@ int main() {
 			Control::instance().servers.sort(); //ordenamos la lista
 			Control::instance().balance(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
 			//poner la alarma para el proximo rebalanceo
-			Control::instance().breakflag = 0; 
-			Control::instance().timeout = 1;  
-			signal(SIGALRM, Control::instance().balanceHandle);
+			breakflag = 0; 
+			timeout = 1;  
+			signal(SIGALRM, balanceHandle);
 			alarm(REBALANCING_TIME);
 		}
 		//para una segunda version implementar un listener que escuche peticiones de emergencia
