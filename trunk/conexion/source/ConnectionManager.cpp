@@ -79,7 +79,17 @@ void ConnectionManager::setCallbackFunction(ConnectionCallback* callB) throw(){
 }
 
 void ConnectionManager::receive(Connection *con) throw (ConnectionException){
-	con->receive();
+	printf("receive(): Thread con receive creado\n");
+	fflush(stdout);
+	//while (1){
+	try{
+		con->receive();
+	}catch (std::exception e){	
+		printf("Excepcion\n");
+		std::cout << e.what() << std::endl;
+		fflush(stdout);
+	}	
+	//}
 }
 
 void ConnectionManager::listenThread(const std::string& port) throw(ConnectionException){
@@ -101,40 +111,44 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 	printf("ListenThread(): 6 instruccion\n");
  	fflush(stdout);
 	if (bioStack == NULL) {
-		char message[] = "bioStack = NULL.\n";
+		char message[] = "ListenThread(): bioStack = NULL.\n";
  		print_ssl_error2(message, stdout);
 	}
-      printf("2");
-    fflush(stdout);
+        printf("ListenThread(): bioStack != NULL");
+        fflush(stdout);
 	/* First call to BIO_accept() sets up accept BIO */
 	if(BIO_do_accept(bioStack) <= 0) {
-		char message[] = "bioStack <= 0.\n";
+		char message[] = "ListenThread(): bioStack <= 0.\n";
  		print_ssl_error2(message, stdout);
 	}
-    printf("3");
-    fflush(stdout);
+        printf("ListenThread(): Primer Bio_do_accept Done\n");
+        fflush(stdout);
 	while (1){
 
-    printf("5");
-    fflush(stdout);
+        	printf("ListenThread(): Im on a loop\n");
+    		fflush(stdout);
 		cbio = BIO_pop(bioStack);
-    printf("YIPYIYPIY");
-    fflush(stdout);
+    		printf("ListenThread(): BIO_pop\n");
+    		fflush(stdout);
 		if (cbio != NULL){
-    printf("sHURMANO");
-    fflush(stdout);
+    			printf("ListenThread(): BIO_pop Not null\n");
+    			fflush(stdout);
 			Connection *c = new TCPConnection(cbio);
+    			printf("ListenThread(): BIO_pop Connection creada\n");
+    			fflush(stdout);
 			c->setCallbackFunction(cCallB);
-			std::thread t(&ConnectionManager::receive, this ,c);
+    			printf("ListenThread(): setCallBack\n");
+    			fflush(stdout);
+			std::thread* t = new std::thread(&ConnectionManager::receive, this ,c);
+    			printf("ListenThread(): Thread con receive creado\n");
+    			fflush(stdout);
 		}
-    printf("sHURPRIMO");
-    fflush(stdout);
-	/* Wait for incoming connection */
-	if(BIO_do_accept(bioStack) <= 0) {
+    		printf("ListenThread(): cbio Done o BIO_pop null");
+    		fflush(stdout);
+		/* Wait for incoming connection */
+		if(BIO_do_accept(bioStack) <= 0) {
         		char message[] = "bioStack <= 0 x2.\n";
 	 		print_ssl_error2(message, stdout);
-    printf("OMG");
-    fflush(stdout);
 		}
 		
 	}
