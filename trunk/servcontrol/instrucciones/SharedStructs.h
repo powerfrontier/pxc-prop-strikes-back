@@ -24,15 +24,11 @@ class Server {
 	bool operator < (const Server& s) const
 	{
 		return (load.totalLoad < s.load.totalLoad);
-	}	
-	void setLoad(serverLoad sl){
-		load = sl;
 	}
 
-	serverLoad getLoad(){
-		return load;
-	}
-  
+	Server(int idServer, char* ipServer): id(idServer), ip(ipServer){} 	
 };
+
+
 
 #endif
