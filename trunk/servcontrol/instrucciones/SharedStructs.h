@@ -8,32 +8,23 @@
 
 
 class Server {
-		public:
-
-
+	public:
 	struct zoneLoad {
 		      int zone;
 		      double load;
 	};
-
 	struct serverLoad {
 		std::vector<zoneLoad> distribution;
 		double totalLoad;
 	};  
 	int id;
-  char* ip;
-  Connection* c;
-  serverLoad load;
-  
-
-
-
-  bool operator < (const Server& s) const
-  {
-    return (load.totalLoad < s.load.totalLoad);
-  }
-
-	
+	char* ip;
+	Connection* c;
+	serverLoad load;
+	bool operator < (const Server& s) const
+	{
+		return (load.totalLoad < s.load.totalLoad);
+	}	
 	void setLoad(serverLoad sl){
 		load = sl;
 	}
@@ -41,9 +32,6 @@ class Server {
 	serverLoad getLoad(){
 		return load;
 	}
-
-	
-	
   
 };
 
