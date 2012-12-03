@@ -53,3 +53,6 @@ compilació:
 
 g++ balanceo.cpp -o balanceo -std=c++0x -I../conexion/include -I./instrucciones
 
+pk no peti el linker(s'han de crear també els .o de conexion)
+g++ balanceo.cpp ../conexion/bin/*.o -o balanceo -std=c++0x -I./instrucciones -I../conexion/include -lcrypto -pthread -lssl
+

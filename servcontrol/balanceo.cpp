@@ -72,6 +72,10 @@ void Control::balance() {
 void Control::initializeServerList() {
 	//TODO: hacer inicializarListaServidores
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial y un reparto de las zonas arbitrario
+	int i;
+	for(i = 0; i < NSERVERS; ++i){
+		servers.push_back(new Server());
+	}
 }
 
 void Control::initializeConnections() {
