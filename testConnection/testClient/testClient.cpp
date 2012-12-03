@@ -15,21 +15,23 @@ int main(int argc, char** argv){
 	Connection* n = new TCPConnection();
 	printf("MainClient(): objeto Conexion creado\n");
         fflush(stdout);
-	n->connect(std::string(argv[1]),std::string(argv[2]));
-	printf("MainClient(): Connected\n");
-        fflush(stdout);
+	if (n->connect(std::string(argv[1]),std::string(argv[2]))){
+		printf("MainClient(): Connected\n");
+        	fflush(stdout);
 
-	TestTransferableSent* sent = NULL;
-	sent = new TestTransferableSent();
-	int i = 0;
-	sent->m1(i);
-	printf("MainClient(): Sending...\n");
-        fflush(stdout);
-	n->send(*sent);
-	printf("MainClient(): sent\n");
-        fflush(stdout);
-	n->receive();
-	while (1){
+		TestTransferableSent* sent = NULL;
+		sent = new TestTransferableSent();
+		int i = 0;
+		sent->m1(i);
+		printf("MainClient(): Sending...\n");
+		fflush(stdout);
+		n->send(*sent);
+		printf("MainClient(): sent\n");
+       		fflush(stdout);
+		while (1){
+		}
+	}else{
+		printf("No se ha conectado correctamente\n");
 	}
 }
 

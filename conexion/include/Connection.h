@@ -77,9 +77,12 @@ void setCallbackFunction(ConnectionCallback*) throw();
 class TCPConnection : public Connection {
 private:
 BIO *sbio;
-std::thread *t;
+std::thread *tListen;
+std::mutex mOnlineMutex;
+bool online;
 void receiveThread();
 void receiveTransfThread() throw(ConnectionException);
+void setLinkOnline(bool);
 public:
 TCPConnection() throw();
 TCPConnection(BIO*) throw();
