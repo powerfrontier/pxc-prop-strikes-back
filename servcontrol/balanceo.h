@@ -19,32 +19,33 @@
 #define PORT_ROUTER "3457"
 #define IP_GAME_1 "192.168.0.1"
 #define IP_GAME_2 "192.168.0.1"
-#define IP_GAME_3 "192.168.0.1"
-#define IP_GAME_4 "192.168.0.1"
 #define PORT_GAME "3458"
 
 class Control : public Singleton<Control> {
 	double getAverage();
-	double getStDev();	
+	double getStDev();
+	char* ipServers[NSERVERS];
+	void fillIpServerTable();	
 	//friend class Singleton<Control>;	
 
 
 public:
 
-	Server zoneServer[NZONES];
-	std::list<Server> servers;
+	Server* zoneServer[NZONES];
+	std::list<Server*> servers;
 	std::mutex recievedMutex;
 	int recievedConnectionMask;
 	Connection* loginConnection;  //= new TCPConnection();
 	Connection* routerConnection; // = new TCPConnection();
-	
+	virtual ~Control();
 
 	//Control();
 	void initializeServerList();
 	void initializeConnections();
 	void balance();
-	void zoneChange(Server sourceServer, int changedZonePosition, Server destinationServer);
+	void zoneChange(Server* sourceServer, int changedZonePosition, Server* destinationServer);
 	void writeDownServer();
+	void zoneAssignment();
 
 };
 

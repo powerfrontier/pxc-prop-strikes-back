@@ -4,8 +4,11 @@
 #include <list>
 
 class SendServerLoad : public Datagram<SendServerLoad> {
-
-	Server s;
+	
+	int idServer;
+	int idZone;
+	double zoneLoad;
+	int remainingZones;
 	public:
 	SendServerLoad() : Datagram<SendServerLoad>("SendServerLoad") {}
 	virtual ~SendServerLoad();
