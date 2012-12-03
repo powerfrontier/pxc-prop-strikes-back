@@ -10,16 +10,17 @@ void ZoneHandler::setGameCreator(ZoneCallbackCreator* zcb) {
 }
 
 ZoneHandler::ZoneHandler(int zoneId) throw()	: mGame(sGameCreator->create(zoneId))
+						, mDetachableZone(-1)
 						, mRunThread(NULL)
 						, mGameMutex()
 						, mParamMutex()
-						, mMaxSteps(0.0)
-						, mMinSteps(0.0)
-						, mMinStepTime(0.0)
-						, mMaxStepTime(0.0)
+						, mMaxSteps(DEFAULT_MAX_STEPS_PER_SEC)
+						, mMinSteps(DEFAULT_MIN_STEPS_PER_SEC)
+						, mMinStepTime(1.0 / DEFAULT_MAX_STEPS_PER_SEC)
+						, mMaxStepTime(1.0 / DEFAULT_MIN_STEPS_PER_SEC)
 						, mTDBoundary(TD_DEFAULT_BOUNDARY)
 						, mTDCriticalBoundary(TD_DEFAULT_CRITICAL_BOUNDARY)
-						, mTDDelay(0.0)
+						, mTDDelay(1.0)
 						, mTDDecreaser(TD_DEFAULT_DECREASER)
 						, mAvgStepTime(0.0)
 						, mLoad(0.0)
@@ -192,6 +193,16 @@ void ZoneHandler::startThread() throw() {
 	}
 
 	mGame->dispose();
+}
+
+void ZoneHandler::maskAsDetachable(int newServer) {
+	std::lock_guard<std::mutex> lk(mParamMutex);
+	mDetachableZone = newServer;
+}
+
+int ZoneHandler::detachable() {
+	std::lock_guard<std::mutex> lk(mParamMutex);
+	return mDetachableZone;
 }
 
 void ZoneHandler::start() throw() {
