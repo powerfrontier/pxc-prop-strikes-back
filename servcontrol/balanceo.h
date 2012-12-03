@@ -37,7 +37,7 @@ public:
 	int recievedConnectionMask;
 	Connection* loginConnection;  //= new TCPConnection();
 	Connection* routerConnection; // = new TCPConnection();
-
+	
 
 	//Control();
 	void initializeServerList();

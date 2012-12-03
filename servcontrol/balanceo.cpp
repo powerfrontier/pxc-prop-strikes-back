@@ -84,8 +84,6 @@ void Control::initializeConnections() {
 	routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
 
-
-
 void Control::writeDownServer(){
 	int i;
 	int serverMask = 1;
@@ -125,7 +123,7 @@ int main() {
 		if(breakflag) {
 			alarm(0);	// Apagamos el timer
 			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { //Para todos los servidores...
-				GetServerLoad* getServerLoad = new GetServerLoad(*it, &Control::instance().recievedConnectionMask, &Control::instance().recievedMutex);
+				GetServerLoad* getServerLoad = new GetServerLoad();
 				(*it).c->send(*getServerLoad); //Enviamos la instruccion de solicitud de carga			 
 			}
 			signal(SIGALRM, loadRequestHandle);
