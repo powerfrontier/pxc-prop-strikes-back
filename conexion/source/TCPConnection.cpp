@@ -119,6 +119,8 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 		}else{
 			throw ConnectionException("TCPConnection Wrong: Guru meditation 1");
 		}
+		std::cout << r << std::endl;
+	 	fflush(stdout);
 	}
 
 	// Send the protocol
@@ -133,12 +135,15 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
                                 print_ssl_error(message, stdout);
                                 continue;
                         }
-                }else if (r==sizeof(int)){
+                }else if (r==8){
                         break;
                 }else{
+			printf("%d",r);
+			fflush(stdout);
                         throw ConnectionException("TCPConnection Wrong: Guru meditation 2");
 		}
 	}
+
 	int type; 
 	try{
 		type = message.type();
@@ -197,7 +202,6 @@ void TCPConnection::receiveThread(){
 }
 
 void TCPConnection::receiveTransfThread() throw(ConnectionException){
-//void TCPConnection::receive() throw(ConnectionException){
 	size_t length;
 	char bufsize[sizeof(size_t)];
 	char protocol[8];
@@ -208,7 +212,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	while (r<0){
 		r = BIO_read(sbio, &length, sizeof(size_t));
 	 	if (r == 0){
-			char message[] = "The size of the packet is incorrect.\n";
+			char message[] = "The size of the packet is 0.\n";
 			print_ssl_error(message, stdout);
 			continue;
 		}else if (r<0){
@@ -223,7 +227,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
                         throw ConnectionException("TCPConnection Wrong: Guru meditation 5");
 		}
 	}
-	
+
 	//receive protocol
 	r = -1;
 	while (r < 0){
@@ -245,7 +249,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
                 }
 
 	}
-
+	
 	//receive the instruction
 	r = -1;
 	while (r < 0){
