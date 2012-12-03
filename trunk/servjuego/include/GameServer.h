@@ -35,12 +35,14 @@ public:
 	//Receiving order from balance to set a zone as detachable for given server
 	void markForDetach(int zoneId, int idServer);
 	
+	//Receiving order from balance to connect with given server to retrieve the zone
+	void receiveZone(int zoneId, Connection* oldServer);
+	
 	//Start cloning a zone to a new server, sending its current Zone data to the new server
 	//And sending zone's events to the new server untill all data is copied.
 	void detachZone(int zoneId, Connection* newServer);
 
-	//Receiving order from balance to connect with given server to retrieve the zone
-	void receiveZone(int zoneId, Connection* oldServer);
+	
 	
 	
 };
