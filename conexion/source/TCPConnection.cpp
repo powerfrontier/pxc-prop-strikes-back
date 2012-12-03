@@ -181,22 +181,23 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
  	}
 }
 
-
-/*
-
-*/
-/*void TCPConnection::receive() throw(ConnectionException){
-	TODO: Receive ha de crear un thread que ejecuta receiveThread
+void TCPConnection::receive() throw(ConnectionException){
+	t = new std::thread(&TCPConnection::receiveThread, this);
 }
 
 void TCPConnection::receiveThread(){
 	while(1){
-		this.receiveTransfThread();
+		try{
+			receiveTransfThread();
+		}catch (std::exception e){	
+			std::cout << e.what() << std::endl;
+			fflush(stdout);
+		}
 	}
-}*/
-// TODO:Cambiar la cabecera cuando el thread creado
-//void TCPConnection::receiveTransfThread() throw(ConnectionException){
-void TCPConnection::receive() throw(ConnectionException){
+}
+
+void TCPConnection::receiveTransfThread() throw(ConnectionException){
+//void TCPConnection::receive() throw(ConnectionException){
 	size_t length;
 	char bufsize[sizeof(size_t)];
 	char protocol[8];
