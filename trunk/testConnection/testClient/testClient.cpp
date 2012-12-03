@@ -21,10 +21,15 @@ int main(int argc, char** argv){
 
 	TestTransferableSent* sent = NULL;
 	sent = new TestTransferableSent();
-	sent->m1(5);
+	int i = 0;
+	sent->m1(i);
+	printf("MainClient(): Sending...\n");
+        fflush(stdout);
 	n->send(*sent);
+	printf("MainClient(): sent\n");
+        fflush(stdout);
+	n->receive();
 	while (1){
-
 	}
 }
 

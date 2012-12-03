@@ -1,5 +1,6 @@
 #include <TestClasses.h>
 #include <iostream>
+#include <Connection.h>
 
 TestTransferableSent::TestTransferableSent() 	: Datagram<TestTransferableSent>("TestTransferableSent")
 						, m_1(0)
@@ -33,6 +34,7 @@ TestTransferableRcvd::~TestTransferableRcvd() {
 
 void TestTransferableRcvd::exec(Connection* c) const throw() {
 	std::cout << "Ha llegado un: " << m_1 << std::endl;
+	c->send(((new TestTransferableSent())->m1(m_1+1)));
 }
 
 TestProfile::TestProfile() : TransferableProfile(), mCreators(), mCreatorIds() {

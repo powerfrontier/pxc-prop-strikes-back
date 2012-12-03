@@ -1,5 +1,5 @@
 Done: testClient.exe testServer.exe
-	make clean
+	rm *.o
 	echo "DONE"
 
 testClient.exe: testClient.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TestClasses.o
@@ -9,7 +9,7 @@ testServer.exe: testServer.o Connection.o ConnectionException.o TCPConnection.o 
 	g++ TestClasses.o ConnectionException.o Connection.o TCPConnection.o testServer.o TransferableFactory.o Transferable.o ConnectionManager.o -o testServer.exe -lssl -lcrypto -pthread
 
 TestClasses.o: testClasses/TestClasses.cpp
-	g++ -c testClasses/TestClasses.cpp -I../conexion/include/ -I./testClasses/
+	g++ -c testClasses/TestClasses.cpp -I../conexion/include/ -I./testClasses/ -std=c++0x
 testServer.o: testServer/testServer.cpp
 	g++ -c testServer/testServer.cpp -I../conexion/include/ -I./testClasses/ -std=c++0x
 testClient.o: testClient/testClient.cpp
@@ -28,4 +28,4 @@ TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
 
 clean:
-	rm *.o
+	rm *.exe

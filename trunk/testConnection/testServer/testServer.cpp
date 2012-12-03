@@ -16,13 +16,13 @@ int main(int argc, char** argv){
 	TransferableFactory::instance().setProtocol("0.1a");
 
 
-	printf("Main: Primera instruccion\n");
+	printf("MainServer: Primera instruccion\n");
  	fflush(stdout);
 	ConnectionManager* n = new ConnectionManager();
-	printf("Main: Objeto creado\n");
+	printf("MainServer: Objeto ConnectionManager creado\n");
  	fflush(stdout);
 	n->listen(std::string(argv[1]));
-	printf("Main: Estoy en listen\n");
+	printf("MainServer: Estoy en listen\n");
  	fflush(stdout);
 	while (1){
 	}
