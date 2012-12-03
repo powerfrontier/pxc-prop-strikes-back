@@ -114,7 +114,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 		char message[] = "ListenThread(): bioStack = NULL.\n";
  		print_ssl_error2(message, stdout);
 	}
-        printf("ListenThread(): bioStack != NULL");
+        printf("ListenThread(): bioStack != NULL\n");
         fflush(stdout);
 	/* First call to BIO_accept() sets up accept BIO */
 	if(BIO_do_accept(bioStack) <= 0) {

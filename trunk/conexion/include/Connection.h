@@ -10,6 +10,9 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+#include <thread>
+
+
 class Connection;
 
 struct ConnectionCallback {
@@ -74,6 +77,9 @@ void setCallbackFunction(ConnectionCallback*) throw();
 class TCPConnection : public Connection {
 private:
 BIO *sbio;
+std::thread *t;
+void receiveThread();
+void receiveTransfThread() throw(ConnectionException);
 public:
 TCPConnection() throw();
 TCPConnection(BIO*) throw();
