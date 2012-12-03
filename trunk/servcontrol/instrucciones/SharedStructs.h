@@ -21,12 +21,14 @@ class Server {
 	char* ip;
 	Connection* c;
 	serverLoad load;
-	bool operator < (const Server& s) const
+	bool operator < (const Server & s) const
 	{
 		return (load.totalLoad < s.load.totalLoad);
 	}
 
+
 	Server(int idServer, char* ipServer): id(idServer), ip(ipServer){} 	
+	Server(){}
 };
 
 
