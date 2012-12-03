@@ -9,6 +9,8 @@
 #define TD_DEFAULT_BOUNDARY 0.75
 #define TD_DEFAULT_CRITICAL_BOUNDARY 0.9
 #define TD_DEFAULT_DECREASER 0.9
+#define DEFAULT_MIN_STEPS_PER_SEC 25.0
+#define DEFAULT_MAX_STEPS_PER_SEC 100.0
 
 
 class Zone {
@@ -49,7 +51,9 @@ class ZoneHandler {
 	static ZoneCallbackCreator* sGameCreator;
 	
 	ZoneCallback* 	mGame;
-
+	int		mDetachableZone;
+	
+	//Thread related data
 	std::thread*	mRunThread;
 	std::mutex	mGameMutex;
 	std::mutex	mParamMutex;
@@ -73,6 +77,7 @@ class ZoneHandler {
 	double 		mAvgStepTime;
 	double		mLoad;
 
+	//Is running
 	bool		mRun;
 
 protected:
@@ -102,6 +107,9 @@ public:
 	double timeDilationBoundary () throw();
 	double timeDilationDecreaser () throw();
 
+	void maskAsDetachable(int newServer);
+	int detachable();
+	
 	void start () throw();
 	void stop () throw();
 	void doBackup () throw();
