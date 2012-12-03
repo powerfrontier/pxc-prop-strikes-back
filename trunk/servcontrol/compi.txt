@@ -1,0 +1,1 @@
+g++ instrucciones/SendServerLoad.cpp -std=c++0x -I../conexion/include -I./ -I./instrucciones
