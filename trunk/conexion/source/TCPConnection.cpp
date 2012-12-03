@@ -38,7 +38,7 @@ TCPConnection::TCPConnection() throw() : Connection() {
     ERR_load_BIO_strings();
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
- 
+    setLinkOnline(false);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
@@ -51,6 +51,7 @@ TCPConnection::TCPConnection(BIO* b) throw() : Connection() {
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
     sbio = b;
+    setLinkOnline(true);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
@@ -72,6 +73,7 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
     	if (sbio == NULL) {
 		char message[] = "Unable to create a new unencrypted BIO object.\n";
  		print_ssl_error(message, stdout);
+		close();
         	return false;
     	}
 
@@ -82,22 +84,33 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
         	close();
         	return false;
     	}
-
+	setLinkOnline(true);
+	receive();
 	return true;
 }
 
 
 void TCPConnection::close() throw(){
-    int r = 0;
-    r = BIO_free(sbio);
-    if (r == 0) {
-        /* TODO:Error unable to free BIO */
-    } 
+	int r = 0;
+	setLinkOnline(false);
+	if (tListen != NULL){
+		tListen->join();
+		delete tListen;
+	}
+	r = BIO_free(sbio);
+	if (r == 0) {
+	/* TODO:Error unable to free BIO */
+	} 
 }
 
 bool TCPConnection::isLinkOnline() throw(){
-	//TODO:crear "Ping"
-	return true;
+	std::lock_guard<std::mutex> lk(mOnlineMutex);
+	return online;
+}
+
+void TCPConnection::setLinkOnline(bool b){
+	std::lock_guard<std::mutex> lk(mOnlineMutex);
+	online = b;
 }
 
 void TCPConnection::send(Transferable& message) throw (ConnectionException){
@@ -112,12 +125,21 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 			if (!BIO_should_retry(sbio)) {
 				char message[] = "BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				continue;
+				setLinkOnline(false);
+				return;
+			}else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
 			}
 		}else if (r== sizeof(size_t)){
 			break;
 		}else{
-			throw ConnectionException("TCPConnection Wrong: Guru meditation 1");
+                        char message[] = "TCPConnection Wrong: Guru meditation 1\n";
+                        print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
 		}
 		std::cout << r << std::endl;
 	 	fflush(stdout);
@@ -133,14 +155,21 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
                         if (!BIO_should_retry(sbio)) {
                                 char message[] ="BIO_read should retry test failed.\n";
                                 print_ssl_error(message, stdout);
-                                continue;
-                        }
+				setLinkOnline(false);
+				return;
+                        }else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
+			}
                 }else if (r==8){
                         break;
                 }else{
-			printf("%d",r);
-			fflush(stdout);
-                        throw ConnectionException("TCPConnection Wrong: Guru meditation 2");
+                        char message[] = "TCPConnection Wrong: Guru meditation 2\n";
+                        print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
 		}
 	}
 
@@ -148,6 +177,8 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	try{
 		type = message.type();
 	}catch(TransferableVersionException& e){
+	        char message[] = "PETE AQUI\n";
+                print_ssl_error(message, stdout);
 		throw ConnectionException(e.what());
 	}
 
@@ -159,12 +190,21 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 			if (!BIO_should_retry(sbio)) {
                 		char message[] ="BIO_read should retry test failed.\n";
 	                        print_ssl_error(message, stdout);
-        	                continue;
+				setLinkOnline(false);
+				return;
+			}else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
 			}
 		}else if (r==sizeof(int)){
 			break;
 		}else{
-                        throw ConnectionException("TCPConnection Wrong: Guru meditation 3");
+                        char message[] = "TCPConnection Wrong: Guru meditation 3\n";
+                        print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
 		}
 	}
 	
@@ -176,22 +216,31 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 			if (!BIO_should_retry(sbio)) {
 				char message[] ="BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				continue;
+				setLinkOnline(false);
+				return;
+			}else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
 			}
 		}else if(r == length){
 			break;
 		}else{
-                        throw ConnectionException("TCPConnection Wrong: Guru meditation 4");
+                        char message[] = "TCPConnection Wrong: Guru meditation 4\n";
+                        print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
 		}
  	}
 }
 
 void TCPConnection::receive() throw(ConnectionException){
-	t = new std::thread(&TCPConnection::receiveThread, this);
+	tListen = new std::thread(&TCPConnection::receiveThread, this);
 }
 
 void TCPConnection::receiveThread(){
-	while(1){
+	while(isLinkOnline()){
 		try{
 			receiveTransfThread();
 		}catch (std::exception e){	
@@ -212,19 +261,29 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	while (r<0){
 		r = BIO_read(sbio, &length, sizeof(size_t));
 	 	if (r == 0){
-			char message[] = "The size of the packet is 0.\n";
+			char message[] = "Closing connection.\n";
 			print_ssl_error(message, stdout);
-			continue;
+			setLinkOnline(false);
+			return;
 		}else if (r<0){
 			if (!BIO_should_retry(sbio)){
 				char message[] = "BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				continue;
+				setLinkOnline(false);
+				return;
+			}else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
 			}
 		}else if (r == sizeof(size_t)){
 			break;
 		}else{ 
-                        throw ConnectionException("TCPConnection Wrong: Guru meditation 5");
+			char message[] = "TCPConnection Wrong: Guru meditation 5.\n";
+			print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
 		}
 	}
 
@@ -233,19 +292,29 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	while (r < 0){
 		r = BIO_read(sbio, protocol, 8);
                 if (r == 0){
-                        char message[] = "The size of the packet is incorrect.\n";
+                        char message[] = "Closing Connection\n";
                         print_ssl_error(message, stdout);
-                        continue;
+			setLinkOnline(false);
+			return;
                 }else if (r<0){
                         if (!BIO_should_retry(sbio)){
                                 char message[] = "BIO_read should retry test failed.\n";
                                 print_ssl_error(message, stdout);
-                                continue;
-                        }
+				setLinkOnline(false);
+				return;
+                        }else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
+			}
                 }else if (r == 8){
                         break;
                 }else{ 
-                        throw ConnectionException("TCPConnection Wrong: Guru meditation 6");
+                        char message[] = "TCPConnection Wrong: Guru meditation 6\n";
+			print_ssl_error(message,stdout);
+			setLinkOnline(false);
+			return;
                 }
 
 	}
@@ -255,19 +324,29 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	while (r < 0){
                 r = BIO_read(sbio, &instruction, sizeof(int));
                 if (r == 0){
-                        char message[] = "The size of the packet is incorrect.\n";
+                        char message[] = "The size of the packet is incorrect.Close\n";
                         print_ssl_error(message, stdout);
-                        continue;
+			setLinkOnline(false);
+			return;
                 }else if (r<0){
                         if (!BIO_should_retry(sbio)){
                                 char message[] = "BIO_read should retry test failed.\n";
                                 print_ssl_error(message, stdout);
-                                continue;
-                        }
+				setLinkOnline(false);
+				return;
+                        }else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
+			}
                 }else if (r == sizeof(int)){
                         break;
                 }else{
-                        throw ConnectionException("TCPConnection Wrong: Guru meditation 7");
+                        char message[] = "TCPConnection Wrong: Guru meditation 7\n";
+                        print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
                 }
 	}
 	TransferableCreator* c;
@@ -275,6 +354,8 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 		TransferableFactory::instance().setProtocol(protocol);
 		c = TransferableFactory::instance().creator(instruction);
 	}catch(TransferableVersionException& e){
+	        char message[] = "PETE AQUIx2\n";
+                print_ssl_error(message, stdout);
 		throw ConnectionException(e.what());
 	}
 
@@ -286,12 +367,19 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 		if (r == 0) {
 			char message[] ="Reached the end of the data stream.\n";
 			print_ssl_error(message, stdout);
-			continue;
+			setLinkOnline(false);
+			return;
  		} else if (r < 0) {
  			if (!BIO_should_retry(sbio)) {
 				char message[] ="BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				continue;
+				setLinkOnline(false);
+				return;
+			}else{
+				char message[] = "WHAT\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;				
 			}
         	}else if (r == length){
 			Transferable *t;
@@ -303,7 +391,10 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 				throw ConnectionException(e.what());
 			}
 		}else{
-			throw ConnectionException("TCPConnection Wrong: Guru meditation 8");
+                        char message[] = "TCPConnection Wrong: Guru meditation 8\n";
+                        print_ssl_error(message, stdout);
+			setLinkOnline(false);
+			return;
 		}
 	}
 	
