@@ -1,7 +1,7 @@
 #include <ControlProfile.h>
 
 ControlProfile::ControlProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
-	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new SendServerLoad::Creator("SendServerLoad")));
+	//mCreators.push_back(std::pair<int, TransferableCreator*>(0, new SendServerLoad::Creator("SendServerLoad")));
 
 	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
 }
