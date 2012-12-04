@@ -2,8 +2,8 @@ Done: balanceo.exe
 	rm *.o
 	echo "DONE"
 
-balanceo.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o SendServerLoad.o SharedStructs.o
-	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o SendServerLoad.o SharedStructs.o balanceo.o -o balanceo.exe -lssl -lcrypto -pthread -std=c++0x
+balanceo.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o SendServerLoad.o SharedStructs.o ControlProfile.o
+	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o SendServerLoad.o SharedStructs.o ControlProfile.o balanceo.o -o balanceo.exe -lssl -lcrypto -pthread -std=c++0x
 
 
 
@@ -27,5 +27,9 @@ TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
 balanceo.o: balanceo.cpp
 	g++ -c balanceo.cpp -I./ -I../conexion/include -I./instrucciones -std=c++0x
+
+ControlProfile.o: ./instrucciones/ControlProfile.cpp
+	g++ -c ./instrucciones/ControlProfile.cpp -I../conexion/include -I./instrucciones -std=c++0x
+
 clean:
 	rm *.exe
