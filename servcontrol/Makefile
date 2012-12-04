@@ -1,5 +1,4 @@
 Done: Control
-	rm *.o
 	echo "DONE"
 
 Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ServerLoad.o Server.o ControlProfile.o Control.o
@@ -31,3 +30,4 @@ ControlProfile.o: ./src/ControlProfile.cpp
 
 clean:
 	rm Control
+	rm *.o
