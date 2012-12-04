@@ -83,6 +83,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 			c->receive();
 		}
 		/* Wait for incoming connection */
+		printf("ESPERANDO CONEXION\n");
 		if(BIO_do_accept(bioStack) <= 0) {
         		char message[] = "bioStack <= 0 x2.\n";
 	 		print_ssl_error2(message, stdout);
