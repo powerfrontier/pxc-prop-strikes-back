@@ -1,9 +1,9 @@
-Done: Control.exe
+Done: Control
 	rm *.o
 	echo "DONE"
 
-Control.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ServerLoad.o Server.o ControlProfile.o Control.o
-	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o ServerLoad.o Server.o ControlProfile.o Control.o -o Control.exe -lssl -lcrypto -pthread -std=c++0x
+Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ServerLoad.o Server.o ControlProfile.o Control.o
+	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o ServerLoad.o Server.o ControlProfile.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
 
 ServerLoad.o: ./src/ServerLoad.cpp
 	g++ -c ./src/ServerLoad.cpp -I./ -I../conexion/include -I./include -std=c++0x
@@ -30,4 +30,4 @@ ControlProfile.o: ./src/ControlProfile.cpp
 	g++ -c ./src/ControlProfile.cpp -I../conexion/include -I./include -std=c++0x
 
 clean:
-	rm *.exe
+	rm Control

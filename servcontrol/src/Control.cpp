@@ -173,6 +173,8 @@ int main() {
 		if(breakflag) {
 			alarm(0);	// Apagamos el timer
 			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { //Para todos los servidores...
+				// Inicializamos la carga total del server
+				(*it)->load.totalLoad = 0;
 				ServerLoadSend* serverLoadSend = new ServerLoadSend();
 				(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga			 
 			}
