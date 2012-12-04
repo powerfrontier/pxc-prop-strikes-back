@@ -2,7 +2,7 @@ Done: balanceo.exe
 	rm *.o
 	echo "DONE"
 
-balanceo.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o SendServerLoad.o SharedStructs.o ControlProfile.o
+balanceo.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o SendServerLoad.o SharedStructs.o ControlProfile.o balanceo.o
 	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o SendServerLoad.o SharedStructs.o ControlProfile.o balanceo.o -o balanceo.exe -lssl -lcrypto -pthread -std=c++0x
 
 
