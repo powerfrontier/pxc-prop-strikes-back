@@ -1,17 +1,15 @@
-Done: balanceo.exe
+Done: Control.exe
 	rm *.o
 	echo "DONE"
 
-balanceo.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o SendServerLoad.o SharedStructs.o ControlProfile.o balanceo.o
-	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o SendServerLoad.o SharedStructs.o ControlProfile.o balanceo.o -o balanceo.exe -lssl -lcrypto -pthread -std=c++0x
+Control.exe: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ServerLoad.o Server.o ControlProfile.o Control.o
+	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o ServerLoad.o Server.o ControlProfile.o Control.o -o Control.exe -lssl -lcrypto -pthread -std=c++0x
 
+ServerLoad.o: ./src/ServerLoad.cpp
+	g++ -c ./src/ServerLoad.cpp -I./ -I../conexion/include -I./include -std=c++0x
 
-
-SendServerLoad.o: ./instrucciones/SendServerLoad.cpp
-	g++ -c ./instrucciones/SendServerLoad.cpp -I./ -I../conexion/include -I./instrucciones -std=c++0x
-
-SharedStructs.o: ./instrucciones/SharedStructs.cpp
-	g++ -c ./instrucciones/SharedStructs.cpp -I./ -I../conexion/include -I./instrucciones -std=c++0x
+Server.o: ./src/Server.cpp
+	g++ -c ./src/Server.cpp -I./ -I../conexion/include -I./include -std=c++0x
 
 ConnectionManager.o: ../conexion/source/ConnectionManager.cpp
 	g++ -c ../conexion/source/ConnectionManager.cpp -I../conexion/include -std=c++0x
@@ -25,11 +23,11 @@ Transferable.o: ../conexion/source/Transferable.cpp
 	g++ -c ../conexion/source/Transferable.cpp -I../conexion/include/ -std=c++0x
 TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
-balanceo.o: balanceo.cpp
-	g++ -c balanceo.cpp -I./ -I../conexion/include -I./instrucciones -std=c++0x
+Control.o: ./src/Control.cpp
+	g++ -c ./src/Control.cpp -I./ -I../conexion/include -I./include -std=c++0x
 
-ControlProfile.o: ./instrucciones/ControlProfile.cpp
-	g++ -c ./instrucciones/ControlProfile.cpp -I../conexion/include -I./instrucciones -std=c++0x
+ControlProfile.o: ./src/ControlProfile.cpp
+	g++ -c ./src/ControlProfile.cpp -I../conexion/include -I./include -std=c++0x
 
 clean:
 	rm *.exe
