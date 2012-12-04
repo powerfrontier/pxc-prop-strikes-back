@@ -112,24 +112,21 @@ void Control::writeDownServer(){
 }
 
 void Control::zoneAssignment(){
-	int modZonesPerServer = NZONES mod NSERVERS;
+	int modZonesPerServer = NZONES % NSERVERS;
 	int zoneIndex = modZonesPerServer;
 	int i;
-	Server* server = servers.front();
-//	GetServerLoad* getServerLoad = new GetServerLoad();
-//				(*it)->c->send(*getServerLoad);
 	SetZoneToServer* setZoneToServer;
 	Server* server = servers.front();
 	for(i = 0; i < modZonesPerServer; ++i){
 		setZoneToServer = new SetZoneToServer(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
-		server->c->send(*SetZoneToServer);
+		server->c->send(*setZoneToServer);
 		zoneServer[i] = server;		
 	}
 	
 	list<Server*>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 		setZoneToServer = new SetZoneToServer(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
-		(*it)->c->send(*SetZoneToServer);
+		(*it)->c->send(*setZoneToServer);
 		zoneServer[zoneIndex] = (*it);
 		zoneIndex++;
 		if ( zoneIndex == NZONES ){

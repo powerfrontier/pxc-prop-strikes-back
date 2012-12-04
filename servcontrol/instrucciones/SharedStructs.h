@@ -29,6 +29,7 @@ class Server {
 
 	Server(int idServer, char* ipServer): id(idServer), ip(ipServer){} 	
 	Server(){}
+	virtual ~Server();
 };
 
 

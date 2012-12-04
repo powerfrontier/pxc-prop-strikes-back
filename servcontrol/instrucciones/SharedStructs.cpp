@@ -3,7 +3,7 @@
 
 
 Server::~Server(){
-	c.close();
+	c->close();
 	delete c;	
 }
 
