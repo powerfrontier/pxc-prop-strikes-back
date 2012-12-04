@@ -1,19 +1,15 @@
 #ifndef _GAME_SERVER_H_
 #define _GAME_SERVER_H_
 
-#include <set>
+#include <map>
 
 #include <Zone.h>
 #include <Singleton.h>
 
 class GameServer : public Singleton<GameServer>, public ConnectionCallback {
-	struct ZoneHandlerComparer {
-		bool operator()(const ZoneHandler*& lhs, const ZoneHandler*& rhs) {
-			return lhs->zone()->id() < rhs->zone()->id();
-		}
-	};
-	
-	std::set<ZoneHandler*, ZoneHandlerComparer> mZones;
+	int idServer;
+	std::map<int, ZoneHandler*> mZones;
+	std::map<int, int> mClients;
 
 protected:
 	bool hasZone(int zoneId) const;
@@ -26,11 +22,19 @@ public:
 	
 	virtual void callbackFunction(Transferable* received, Connection*) throw();
 	
+	void serverId(int id);
+	int serverId() const;
+	
+	void addClient(int clientId, int token);
+	void delClient(int clientId);
+
+	bool validateClient(int clientId, int token);
+
 	//Start managing a zone from DB
 	void startZone(int zoneId);
 	
 	//Totally stop managing a zone, destroying all its related objects
-	void stopZone(int zoneId);
+	void stopZone(int zoneId, bool force);
 	
 	//Receiving order from balance to set a zone as detachable for given server
 	void markForDetach(int zoneId, int idServer);
@@ -42,9 +46,8 @@ public:
 	//And sending zone's events to the new server untill all data is copied.
 	void detachZone(int zoneId, Connection* newServer);
 
-	
-	
-	
+	//Start collecting zone loads and sending then back to balance 
+	void getLoads();
 };
 
 
