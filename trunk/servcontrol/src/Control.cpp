@@ -76,13 +76,14 @@ void Control::balance() {
 }
 
 void Control::fillIpServerTable(){
-	strcpy(ipServers[0],IP_GAME_1);
-	strcpy(ipServers[1],IP_GAME_2);	
+	strcpy(Control::instance().ipServers[0],IP_GAME_1);
+	strcpy(Control::instance().ipServers[1],IP_GAME_2);	
 }
 
 void Control::initializeServerList() {
 	
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
+	Control::fillIpServerTable();	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
 		servers.push_back(new Server(i,ipServers[i]));
@@ -159,9 +160,12 @@ int main() {
 	//ControlProfile
 	TransferableFactory::instance().setProfile(new ControlProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
+	
 	//Inicialización
 	Control::instance().initializeServerList();
+
 	Control::instance().initializeConnections();
+
 	list<Server*>::iterator it;
 	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
