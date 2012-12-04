@@ -154,12 +154,12 @@ void loadRequestHandle(int signum){
 }
 
 int main() {
-
+	//ControlProfile
+	TransferableFactory::instance().setProfile(new ControlProfile());
+	TransferableFactory::instance().setProtocol("0.1a");
+	//Inicialización
 	Control::instance().initializeServerList();
 	Control::instance().initializeConnections();
-	//std::thread t(consola);
-	//signal(SIGALRM, handle);
-	//cout << "hola";
 	list<Server*>::iterator it;
 	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
