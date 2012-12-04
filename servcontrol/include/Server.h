@@ -1,11 +1,8 @@
-#ifndef _SharedStructs_h
-#define _SharedStructs_h
+#ifndef _Server_h
+#define _Server_h
 
 #include <vector>
 #include <Connection.h>
-
-
-
 
 class Server {
 	public:
@@ -31,7 +28,6 @@ class Server {
 	Server(){}
 	virtual ~Server();
 };
-
 
 
 #endif

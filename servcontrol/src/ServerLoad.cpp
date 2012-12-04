@@ -1,8 +1,8 @@
-#include "SendServerLoad.h"
-#include <balanceo.h>
+#include <ServerLoad.h>
+#include <Control.h>
 
 
-void SendServerLoad::exec(Connection* c) const throw(){
+void ServerLoadRcvd::exec(Connection* c) const throw(){
 	//Inserir la carrega a la carrega del server que toca i actualitzar la mascara on toca també
 	std::list<Server*>::iterator it;
 	int i;
@@ -24,7 +24,7 @@ void SendServerLoad::exec(Connection* c) const throw(){
 	}
 }
 
-SendServerLoad::~SendServerLoad(){
+ServerLoadRcvd::~ServerLoadRcvd(){
 	
 }
 
