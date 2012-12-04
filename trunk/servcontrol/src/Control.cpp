@@ -103,8 +103,11 @@ cout << (*it)->ip << endl;
 		(*it)->c->connect((*it)->ip, PORT_GAME);
 cout << "2" << endl;
 	}
+	loginConnection = new TCPConnection();
 	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
+	routerConnection = new TCPConnection();
 	routerConnection->connect(IP_ROUTER, PORT_ROUTER);
+cout << "3" << endl;
 }
 
 void Control::writeDownServer(){
@@ -115,7 +118,7 @@ void Control::writeDownServer(){
 	for( i = 0; i < NSERVERS; i++){
 		serverNum = serverConnectList & serverMask;
 		if(!serverNum){
-			cout << "El servidor: " << i << " no responde.";
+			cout << "El servidor: " << i << " no responde." << endl;
 		}
 		serverMask *= 2;
 	}
@@ -189,7 +192,9 @@ cout << "final inicializacion" << endl;
 				// Inicializamos la carga total del server
 				(*it)->load.totalLoad = 0;
 				ServerLoadSend* serverLoadSend = new ServerLoadSend();
-				(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga			 
+			cout << "antes de enviar instruccion" << endl;
+				(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
+			cout << "despues de enviar instruccion" << endl;
 			}
 			signal(SIGALRM, loadRequestHandle);
 			alarm(WAITING_RESPONSE_TIME);
