@@ -76,14 +76,19 @@ void Control::balance() {
 }
 
 void Control::fillIpServerTable(){
-	strcpy(Control::instance().ipServers[0],IP_GAME_1);
-	strcpy(Control::instance().ipServers[1],IP_GAME_2);	
+	for(int i=0; i<NZONES; i++) { // Se necesita memoria dinamica
+		ipServers[i] = (char*) malloc (17);
+	}
+	strcpy(ipServers[0],IP_GAME_1);
+	strcpy(ipServers[1],IP_GAME_2);
+	//cout << ipServers[0] << endl;
 }
 
 void Control::initializeServerList() {
 	
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();	
+	//cout << ipServers[0] << endl;	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
 		servers.push_back(new Server(i,ipServers[i]));
@@ -94,7 +99,9 @@ void Control::initializeConnections() {
 	list<Server*>::iterator it;
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnection();
+cout << (*it)->ip << endl;
 		(*it)->c->connect((*it)->ip, PORT_GAME);
+cout << "2" << endl;
 	}
 	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
 	routerConnection->connect(IP_ROUTER, PORT_ROUTER);
@@ -163,9 +170,9 @@ int main() {
 	
 	//Inicialización
 	Control::instance().initializeServerList();
-
+cout << "final inicializar servers" << endl;
 	Control::instance().initializeConnections();
-
+cout << "final inicializar conexiones" << endl;
 	list<Server*>::iterator it;
 	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
@@ -173,8 +180,10 @@ int main() {
 	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
 	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
 	breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
-	while(1) {
+cout << "final inicializacion" << endl;	
+	while(1) { 
 		if(breakflag) {
+			cout << "rebalanceo" << endl;	
 			alarm(0);	// Apagamos el timer
 			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { //Para todos los servidores...
 				// Inicializamos la carga total del server
