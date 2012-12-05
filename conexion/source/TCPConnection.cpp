@@ -119,12 +119,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	
 	// Send the size of Transferable
 	ssize_t r = -1;
-	try{
-		r = BIO_write(sbio, &length, sizeof(size_t)); 
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_write(sbio, &length, sizeof(size_t)); 
 	if (r <=0){
 		if (!BIO_should_retry(sbio)) {
 			char message[] = "BIO_read should retry test failed.\n";
@@ -151,12 +146,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	std::string protocol = TransferableFactory::instance().protocol();
 	strcpy(buffer, protocol.c_str());
 	
-	try{
-		r = BIO_write(sbio, buffer, 8);
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_write(sbio, buffer, 8);
 	if (r<=0) {
 		if (!BIO_should_retry(sbio)) {
 			char message[] ="BIO_read should retry test failed.\n";
@@ -190,12 +180,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 
 	// Send the instruction
 	r = -1;	
-	try{
-		r = BIO_write(sbio, (char*) &type, sizeof(int));
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_write(sbio, (char*) &type, sizeof(int));
 	if (r<=0) {
 		if (!BIO_should_retry(sbio)) {
                		char message[] ="BIO_read should retry test failed.\n";
@@ -220,12 +205,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	
 	// Send the Transferable
 	r = -1;
-	try{
-		r = BIO_write(sbio,(char *)message.transferableObject(), length);
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_write(sbio,(char *)message.transferableObject(), length);
 	if (r <= 0) {
 		if (!BIO_should_retry(sbio)) {
 			char message[] ="BIO_read should retry test failed.\n";
@@ -271,12 +251,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 
 	//receive the size of transferable
 	ssize_t r = -1;
-	try {
-		r = BIO_read(sbio, &length, sizeof(size_t));
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_read(sbio, &length, sizeof(size_t));
  	if (r == 0){
 		char message[] = "Closing connection.\n";
 		print_ssl_error(message, stdout);
@@ -306,12 +281,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 
 	//receive protocol
 	r = -1;
-	try {
-		r = BIO_read(sbio, protocol, 8);
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_read(sbio, protocol, 8);
         if (r == 0){
 		char message[] = "Closing Connection\n";
 		print_ssl_error(message, stdout);
@@ -341,12 +311,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	
 	//receive the instruction
 	r = -1;
-	try {
-	        r = BIO_read(sbio, &instruction, sizeof(int));
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+        r = BIO_read(sbio, &instruction, sizeof(int));
         if (r == 0){
 	        char message[] = "The size of the packet is incorrect.Close\n";
 	        print_ssl_error(message, stdout);
@@ -386,12 +351,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	//receive the Transferable
 	char buffer[length];
 	r = -1;
-	try{
-		r = BIO_read(sbio, buffer, length);
-	}catch(int e){
-		print_ssl_error("PAM\n",stdout);
-		r = -1;
-	}
+	r = BIO_read(sbio, buffer, length);
 	if (r == 0) {
 		char message[] ="Reached the end of the data stream.\n";
 		print_ssl_error(message, stdout);
