@@ -9,7 +9,9 @@
 #include <ServerLoad.h>
 #include <SetZoneToServerSend.h>
 #include <ControlProfile.h>
-
+#include <RemoveZone.h>
+#include <GetZone.h>
+#include <RouterChangeZone.h>
 
 using namespace std;
 
@@ -38,7 +40,13 @@ double Control::getStDev() {
 }
 
 void Control::zoneChange(Server* sourceServer, int changedZonePosition, Server* destinationServer) {
-	//TODO: hacer cambioZona
+	// Ordenamos quitar la zona de un servidor
+	RemoveZoneSend* removeZoneSend = new RemoveZoneSend(changedZonePosition);
+	sourceServer->c->send(*removeZoneSend);  	
+	GetZoneSend* getZoneSend = new GetZoneSend(changedZonePosition, sourceServer->id);
+	destinationServer->c->send(*getZoneSend);  
+	//RouterChangeZoneSend* routerChangeZoneSend = new RouterChangeZoneSend(changedZonePosition, sourceServer->id, destinationServer->id );
+	
 }
 
 void Control::balance() {
