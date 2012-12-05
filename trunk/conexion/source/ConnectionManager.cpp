@@ -39,20 +39,22 @@ ConnectionManager::ConnectionManager() throw(){
     ERR_load_BIO_strings();
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
-    t = NULL;
     cCallB = NULL;
 }
 
 ConnectionManager::~ConnectionManager() throw(){
 	//TODO: KILL THREADS
-	t = NULL;
 	cCallB = NULL;
+	if (tListen != NULL){
+		delete tListen;
+		tListen = NULL;
+	}
 }
 
 void ConnectionManager::listen(const std::string& port) throw(ConnectionException){
-	t = new std::thread(&ConnectionManager::listenThread, this, port);
+	std::thread *t = new std::thread(&ConnectionManager::listenThread, this, port);
+	tListenN.push_back(t);
 }
-
 
 void ConnectionManager::setCallbackFunction(ConnectionCallback* callB) throw(){
 	cCallB = callB;
