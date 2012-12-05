@@ -104,13 +104,47 @@ void Control::initializeServerList() {
 }
 
 void Control::initializeConnections() {
+
+
 	list<Server*>::iterator it;
+	char* gamePortchar;
+	long double i = 0;
+	string gamePortStr;
+	int gamePort;
+	cout << "inici Conexions";
+fflush(stdout);	
+	gamePortchar = (char*) malloc(5);
+	strcpy(gamePortchar,PORT_GAME_1);
+		cout << "preatoi";
+fflush(stdout);
+	gamePort = atoi(gamePortchar);
+			cout << "postatoi";
+fflush(stdout);
+	
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnection();
-cout << (*it)->ip << endl;
-		(*it)->c->connect((*it)->ip, PORT_GAME);
-cout << "2" << endl;
+		cout << (*it)->c << endl;
+		cout << to_string(gamePort + i);
+		/*if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
+			cout << (gamePort + i) << endl;
+		}*/
+
+		if(i == 0){
+			//(*it)->c->connect((*it)->ip, PORT_GAME_1);
+			while ((*it)->c->connect((*it)->ip, PORT_GAME_1) == false);
+		}else if( i == 1){
+			//(*it)->c->connect((*it)->ip, PORT_GAME_2);
+			while ((*it)->c->connect((*it)->ip, PORT_GAME_2) == false){
+				cout << "trololololo";
+			}
+		}
+			//sleep(5);
+//cout << "salgo del sleep" << endl;
+
+				++i;
 	}
+	cout << "salgo del bucle" << endl;
+
 	loginConnection = new TCPConnection();
 	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
 	routerConnection = new TCPConnection();
@@ -157,6 +191,8 @@ void Control::zoneAssignment(){
 }
 
 Control::~Control(){
+	cout << "Destruct control";
+	fflush(stdout);
 	list<Server*>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 		delete *it;		
