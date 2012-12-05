@@ -78,14 +78,28 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
     	}
 
 	/* Verify successful connection */
-	if (BIO_do_connect(sbio) != 1) {
-		char message[] = "Unable to connect unencrypted.\n";
-		print_ssl_error(message, stdout);
-        	close();
-        	return false;
-    	}
+	
+	bool repeat;
+	repeat = true;
+	while (repeat){
+		if (BIO_do_connect(sbio) != 1) {
+			if (BIO_should_retry(sbio)){
+				repeat = true;
+			}else{
+				repeat = false;
+				char message[] = "Unable to connect unencrypted.\n";
+				print_ssl_error(message, stdout);
+	       		 	close();
+	      	 	 	return false;
+			}
+
+    		}else{
+			repeat = false;
+		}
+	}
 	setLinkOnline(true);
 	receive();
+	std::cout << "Si si, se ha conectado, de verdad de la buena";
 	return true;
 }
 

@@ -131,24 +131,39 @@ fflush(stdout);
 
 		if(i == 0){
 			//(*it)->c->connect((*it)->ip, PORT_GAME_1);
-			while ((*it)->c->connect((*it)->ip, PORT_GAME_1) == false);
-		}else if( i == 1){
-			//(*it)->c->connect((*it)->ip, PORT_GAME_2);
-			while ((*it)->c->connect((*it)->ip, PORT_GAME_2) == false){
-				cout << "trololololo";
+			if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
+				cout << "Servidor " << i << " conectado\n";
+			}else{
+				cout << "Servidor " << i << " NO conectado\n";
 			}
+		}else if( i == 1){
+			if((*it)->c->connect((*it)->ip, PORT_GAME_2)){
+					cout << "Servidor " << i << " conectado\n";
+			}else{
+				cout << "Servidor " << i << " NO conectado\n";
+			}
+			//while ((*it)->c->connect((*it)->ip, PORT_GAME_2) == false){
+			//	cout << "5 ingenieros, nuff said";
+			//}
 		}
-			//sleep(5);
-//cout << "salgo del sleep" << endl;
-
-				++i;
+		++i;
 	}
 	cout << "salgo del bucle" << endl;
 
 	loginConnection = new TCPConnection();
-	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
+	if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
+		cout << "Servidor login conectado\n";
+				sleep(5);
+	}else{
+		cout << "Servidor login NO conectado\n";
+	}
 	routerConnection = new TCPConnection();
-	routerConnection->connect(IP_ROUTER, PORT_ROUTER);
+	if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
+		cout << "Servidor redireccion conectado\n";
+				sleep(5);
+	}else{
+		cout << "Servidor redireccion NO conectado\n";
+	}
 cout << "3" << endl;
 }
 
