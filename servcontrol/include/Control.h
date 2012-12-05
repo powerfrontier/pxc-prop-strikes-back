@@ -13,13 +13,14 @@
 #define REBALANCING_TIME 4
 #define WAITING_RESPONSE_TIME 2
 #define NZONES 4
-#define IP_LOGIN "192.168.1.1"
+#define IP_LOGIN "0.0.0.0"
 #define PORT_LOGIN "3456"
-#define IP_ROUTER "192.168.1.1"
+#define IP_ROUTER "0.0.0.0"
 #define PORT_ROUTER "3457"
 #define IP_GAME_1 "0.0.0.0"
 #define IP_GAME_2 "0.0.0.0"
-#define PORT_GAME "3458"
+#define PORT_GAME_1 "3458"
+#define PORT_GAME_2 "3459"
 
 class Control : public Singleton<Control> {
 	double getAverage();
