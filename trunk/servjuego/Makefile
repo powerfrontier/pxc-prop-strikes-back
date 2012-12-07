@@ -3,7 +3,7 @@ SRCPATH = src/
 BINPATH = bin/
 CC      = g++
 CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -std=c++0x
-LDFLAGS = -lssl -lcrypto -lConnection -L$(BINPATH)
+LDFLAGS = -lssl -lcrypto -lConnection -L$(BINPATH) -pthread
 
 all: $(BINPATH)gameServer
 
