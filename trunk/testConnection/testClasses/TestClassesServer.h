@@ -30,8 +30,7 @@ public:
 };
 
 class TestProfile : public TransferableProfile {
-	std::vector<std::pair<int, TransferableCreator*> > mCreators;
-	std::vector<std::pair<std::string, int> > mCreatorIds;
+	
 public:
 	TestProfile();
 	virtual ~TestProfile();
