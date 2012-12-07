@@ -9,3 +9,6 @@ Connection::~Connection() throw(ConnectionException){
 void Connection::setCallbackFunction(ConnectionCallback* t) throw(){
 	mCallback = t;
 }
+
+ConnectionCallback::ConnectionCallback() {}
+ConnectionCallback::~ConnectionCallback() {}
