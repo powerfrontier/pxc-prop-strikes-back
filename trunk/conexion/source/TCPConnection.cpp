@@ -126,11 +126,13 @@ std::string TCPConnection::getIp(){
 	if (isLinkOnline()){
 		std::cout << "WTF" <<std::endl;
 		fflush(stdout);
-		printf("%lu",  BIO_get_conn_int_port(sbio));
+		printf("PORT: %lu",  BIO_get_conn_int_port(sbio));
 		std::cout << "WTF2" <<std::endl;
 		fflush(stdout);
 		char *s = BIO_get_conn_ip(sbio);
-		std::cout << s << std::endl;
+		std::cout << "IP ";
+		printf(s);
+		std::cout << std::endl;
 		//char *s =BIO_get_conn_int_port(sbio);
 		return std::string();
 	}else{
