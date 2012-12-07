@@ -41,6 +41,7 @@ public:
 	virtual ~Control();
 
 	//Control();
+	char* getIpServerById(int id);
 	void initializeServerList();
 	void initializeConnections();
 	void balance();
