@@ -43,6 +43,8 @@ void TransferableFactory::setProtocol(const std::string& version) throw(Transfer
 	const TransferableProfile::Creators* creators = NULL;
 	const TransferableProfile::CreatorIds* creatorIds = NULL;
 
+	std::cout << "SetProtocol in" << std::endl;
+	
 	clear();
 	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
 	try {
@@ -63,10 +65,14 @@ void TransferableFactory::setProtocol(const std::string& version) throw(Transfer
 			mProtocolVersion = version;	
 		}
 	} catch (TransferableVersionException& e) {
+		
+		std::cout << "SetProtocol exception" << std::endl;
 		clear();
 		setProtocol(NULL);
 		throw e;
 	}
+	
+	std::cout << "SetProtocol out" << std::endl;
 }
 
 void TransferableFactory::setProfile(TransferableProfile* profile) throw() {
