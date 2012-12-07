@@ -1,7 +1,5 @@
 #include <Transferable.h>
 
-#include <iostream>
-
 const std::string TransferableFactory::NO_PROTOCOL = "none";
 
 TransferableFactory::TransferableFactory() throw()	: mProtocolVersion(NO_PROTOCOL)
@@ -42,8 +40,6 @@ const std::string& TransferableFactory::protocol() const throw() {
 void TransferableFactory::setProtocol(const std::string& version) throw(TransferableVersionException&) {
 	const TransferableProfile::Creators* creators = NULL;
 	const TransferableProfile::CreatorIds* creatorIds = NULL;
-
-	std::cout << "SetProtocol in" << std::endl;
 	
 	clear();
 	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
@@ -53,34 +49,22 @@ void TransferableFactory::setProtocol(const std::string& version) throw(Transfer
 			creators = &mProfile->getCreators(version);
 			creatorIds = &mProfile->getCreatorIds(version);
 			
-			std::cout << "creators->size(): " << creators->size() << std::endl;
-			std::cout << "creatorIds->size(): " << creatorIds->size() << std::endl;
 			fflush(stdout);
 			
 			for (int i = 0; i < creators->size(); ++i) {
 				mCreators.insert((*creators)[i]);
-				std::cout << "mCreators: " << (*creators)[i].first << " , " << (void*)(*creators)[i].second << std:: endl;
-				fflush(stdout);
 			}
 			for (int i = 0; i < creatorIds->size(); ++i) {
 				mSendingType.insert((*creatorIds)[i]);
-				std::cout << "mCreatorIds: " << (*creatorIds)[i].first << " , " << (*creatorIds)[i].second << std:: endl;
-				fflush(stdout);
 			}
 			mProtocolVersion = version;	
 		} else {
-			std::cout << "version == NO_PROTOCOL!" << std::endl;
-			fflush(stdout);
 		}
 	} catch (TransferableVersionException& e) {
-		
-		std::cout << "SetProtocol exception" << std::endl;
 		clear();
 		setProtocol(NULL);
 		throw e;
 	}
-	
-	std::cout << "SetProtocol out" << std::endl;
 }
 
 void TransferableFactory::setProfile(TransferableProfile* profile) throw() {
