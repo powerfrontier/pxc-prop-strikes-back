@@ -7,7 +7,7 @@
 
 #include <Control.h>
 #include <ServerLoad.h>
-#include <SetZoneToServerSend.h>
+#include <SetZoneToServer.h>
 #include <ControlProfile.h>
 #include <RemoveZone.h>
 #include <GetZone.h>
