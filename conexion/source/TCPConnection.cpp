@@ -101,7 +101,6 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	}
 	setLinkOnline(true);
 	receive();
-	std::cout << "Si si, se ha conectado, de verdad de la buena";
 	return true;
 }
 

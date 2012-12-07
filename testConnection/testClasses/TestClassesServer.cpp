@@ -26,7 +26,11 @@ TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("
 						, m_2(0){
 
 }
+TestTransferableRcvd::TestTransferableRcvd(int zone, int server): Datagram<TestTransferableRcvd>("TestTransferableRcvd")
+						, m_1(zone)
+						, m_2(server){
 
+}
 TestTransferableRcvd::~TestTransferableRcvd() {
 
 }
@@ -47,7 +51,7 @@ TestProfile::~TestProfile() {
 	for(int i = 0; i < mCreators.size(); ++i) delete mCreators[i].second;
 	mCreators.clear();
 }
-
+/*
 const TransferableProfile::Creators& TestProfile::getCreators(const std::string& protocol) const throw(TransferableVersionException&) {
 	if(protocol == "0.1a") return mCreators;
 	else throw TransferableVersionException("Unknown protocol");
@@ -57,3 +61,4 @@ const TransferableProfile::CreatorIds& TestProfile::getCreatorIds(const std::str
 	if(protocol == "0.1a") return mCreatorIds;
 	else throw TransferableVersionException("Unknown protocol");
 }
+*/
