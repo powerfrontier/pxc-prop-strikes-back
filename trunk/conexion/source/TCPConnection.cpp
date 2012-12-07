@@ -65,7 +65,7 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	sbio = NULL;
  
 	/* Create a new connection */
-	char *ipAddrToChar = new char[ipAddr.size()+1] ;
+	char *ipAddrToChar = new char[ipAddr.size()+1+port.size()] ;
 	strcpy(ipAddrToChar, ipAddr.c_str());
 	strcat(ipAddrToChar, ":");
 	strcat(ipAddrToChar, port.c_str());
@@ -129,6 +129,8 @@ std::string TCPConnection::getIp(){
 		printf("%lu",  BIO_get_conn_int_port(sbio));
 		std::cout << "WTF2" <<std::endl;
 		fflush(stdout);
+		char *s = BIO_get_conn_ip(sbio);
+		std::cout << s << std::endl;
 		//char *s =BIO_get_conn_int_port(sbio);
 		return std::string();
 	}else{
