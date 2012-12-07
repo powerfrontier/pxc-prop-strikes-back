@@ -21,6 +21,8 @@ public:
 class TestTransferableRcvd : public Datagram<TestTransferableRcvd> {
 	int m_zona;
 	int m_server;
+	double m_3;
+	int m_4;
 public:
 	TestTransferableRcvd();
 	TestTransferableRcvd(int zone, int server);
