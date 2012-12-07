@@ -163,6 +163,7 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	// Send the protocol
 	r = -1;	
 	std::string protocol = TransferableFactory::instance().protocol();
+//TODO: Comprobar tamaño
 	strcpy(buffer, protocol.c_str());
 	
 	r = BIO_write(sbio, buffer, 8);
@@ -319,6 +320,8 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 			return;				
 		}
 	}else if (r == 8){
+		std::cout << "ENVIO " << protocol << std::endl;
+		fflush(stdout);
 //		break;
 	}else{ 
 		char message[] = "TCPConnection Wrong: Guru meditation 6\n";
@@ -359,11 +362,19 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 
 	TransferableCreator* c;
 	try {
+		std::cout << " AAAAAA" << std::endl;
+		fflush(stdout);
 		TransferableFactory::instance().setProtocol(protocol);
+		std::cout << " BBBBBB" << std::endl;
+		fflush(stdout);
 		c = TransferableFactory::instance().creator(instruction);
+		std::cout << " CCCCC " << std::endl;
+		fflush(stdout);
 	}catch(TransferableVersionException& e){
 	        char message[] = "PETE AQUIx2\n";
                 print_ssl_error(message, stdout);
+		print_ssl_error(protocol,stdout);
+		fflush(stdout);
 		throw ConnectionException(e.what());
 	}
 
