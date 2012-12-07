@@ -29,6 +29,7 @@ public:
 };
 
 class ZoneCallback {
+	Zone* mZone;
 	public:
 	ZoneCallback(int idZone);
 	virtual ~ZoneCallback();	

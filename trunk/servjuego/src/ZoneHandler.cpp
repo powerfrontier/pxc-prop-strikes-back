@@ -3,6 +3,12 @@
 #include <unistd.h>
 #include <assert.h>
 
+// ZoneCallback::ZoneCallback() : mZone(NULL) {}
+
+ZoneCallback::~ZoneCallback() { delete mZone; }
+
+const Zone* ZoneCallback::zone() const { return mZone; }
+
 ZoneCallbackCreator* ZoneHandler::sGameCreator = NULL;
 
 void ZoneHandler::setGameCreator(ZoneCallbackCreator* zcb) {
