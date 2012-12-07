@@ -89,7 +89,6 @@ void Control::fillIpServerTable(){
 	}
 	strcpy(ipServers[0],IP_GAME_1);
 	strcpy(ipServers[1],IP_GAME_2);
-	//cout << ipServers[0] << endl;
 }
 
 char* Control::getIpServerById(int id){
@@ -100,7 +99,6 @@ void Control::initializeServerList() {
 	
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();	
-	//cout << ipServers[0] << endl;	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
 		servers.push_back(new Server(i,ipServers[i]));
@@ -111,30 +109,30 @@ void Control::initializeConnections() {
 
 
 	list<Server*>::iterator it;
-	char* gamePortchar;
-	long double i = 0;
-	string gamePortStr;
-	int gamePort;
-	cout << "inici Conexions";
-fflush(stdout);	
-	gamePortchar = (char*) malloc(5);
-	strcpy(gamePortchar,PORT_GAME_1);
-		cout << "preatoi";
-fflush(stdout);
-	gamePort = atoi(gamePortchar);
-			cout << "postatoi";
-fflush(stdout);
+	//char* gamePortchar;
+	//long double i = 0;
+	int i=0;
+	//string gamePortStr;
+	//int gamePort;
+	//cout << "inici Conexions";
+	//fflush(stdout);	
+	//gamePortchar = (char*) malloc(5);
+	//strcpy(gamePortchar,PORT_GAME_1);
+	//cout << "preatoi";
+	//fflush(stdout);
+	//gamePort = atoi(gamePortchar);
+	//		cout << "postatoi";
+	//fflush(stdout);
 	
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnection();
-		cout << (*it)->c << endl;
-		cout << to_string(gamePort + i);
+		//cout << (*it)->c << endl;
+		//cout << to_string(gamePort + i);
 		/*if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
 			cout << (gamePort + i) << endl;
 		}*/
 
 		if(i == 0){
-			//(*it)->c->connect((*it)->ip, PORT_GAME_1);
 			if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
 				cout << "Servidor " << i << " conectado\n";
 			}else{
@@ -142,7 +140,7 @@ fflush(stdout);
 			}
 		}else if( i == 1){
 			if((*it)->c->connect((*it)->ip, PORT_GAME_2)){
-					cout << "Servidor " << i << " conectado\n";
+				cout << "Servidor " << i << " conectado\n";
 			}else{
 				cout << "Servidor " << i << " NO conectado\n";
 			}
@@ -152,23 +150,26 @@ fflush(stdout);
 		}
 		++i;
 	}
-	cout << "salgo del bucle" << endl;
+	//cout << "salgo del bucle" << endl;
 
-	loginConnection = new TCPConnection();
-	if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
-		cout << "Servidor login conectado\n";
+	//loginConnection = new TCPConnection();
+	//if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
+	//	cout << "Servidor login conectado\n";
 				
-	}else{
-		cout << "Servidor login NO conectado\n";
-	}
-	routerConnection = new TCPConnection();
-	if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
-		cout << "Servidor redireccion conectado\n";
+	//}else{
+	//	cout << "Servidor login NO conectado\n";
+	//}
+	//routerConnection = new TCPConnection();
+	//if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
+	//	cout << "Servidor redireccion conectado\n";
 				
-	}else{
-		cout << "Servidor redireccion NO conectado\n";
-	}
-cout << "3" << endl;
+	//}else{
+	//	cout << "Servidor redireccion NO conectado\n";
+	//}
+	//cout << "3" << endl;
+
+	//loginConnection->connect(IP_LOGIN, PORT_LOGIN);
+	//routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
 
 void Control::writeDownServer(){
@@ -186,13 +187,17 @@ void Control::writeDownServer(){
 }
 
 void Control::zoneAssignment(){
+	cout << "asignando zonas" << endl;
 	int modZonesPerServer = NZONES % NSERVERS;
 	int zoneIndex = modZonesPerServer;
 	int i;
 	SetZoneToServerSend* setZoneToServerSend;
 	Server* server = servers.front();
 	for(i = 0; i < modZonesPerServer; ++i){
+
+		fflush(stdout);
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
+		
 		server->c->send(*setZoneToServerSend);
 		zoneServer[i] = server;		
 	}
@@ -200,7 +205,9 @@ void Control::zoneAssignment(){
 	list<Server*>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 		setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
+//cout << zoneIndex << " " << (*it)->id << endl;
 		(*it)->c->send(*setZoneToServerSend);
+//cout << zoneIndex << " " << (*it)->id << endl;
 		zoneServer[zoneIndex] = (*it);
 		zoneIndex++;
 		if ( zoneIndex == NZONES ){
@@ -210,8 +217,6 @@ void Control::zoneAssignment(){
 }
 
 Control::~Control(){
-	cout << "Destruct control";
-	fflush(stdout);
 	list<Server*>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 		delete *it;		
@@ -238,6 +243,7 @@ int main() {
 	Control::instance().initializeServerList();
 cout << "final inicializar servers" << endl;
 	Control::instance().initializeConnections();
+	Control::instance().zoneAssignment();
 cout << "final inicializar conexiones" << endl;
 	list<Server*>::iterator it;
 	timeout = 1;	
@@ -255,9 +261,9 @@ cout << "final inicializacion" << endl;
 				// Inicializamos la carga total del server
 				(*it)->load.totalLoad = 0;
 				ServerLoadSend* serverLoadSend = new ServerLoadSend();
-			cout << "antes de enviar instruccion" << endl;
+			cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;
 				(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
-			cout << "despues de enviar instruccion" << endl;
+			cout << "despues de enviar instruccion carga al server" << (*it)->id << endl;
 			}
 			signal(SIGALRM, loadRequestHandle);
 			alarm(WAITING_RESPONSE_TIME);
