@@ -122,6 +122,20 @@ bool TCPConnection::isLinkOnline() throw(){
 	return online;
 }
 
+std::string TCPConnection::getIp(){
+	if (isLinkOnline()){
+		std::cout << "WTF" <<std::endl;
+		fflush(stdout);
+		printf("%lu",  BIO_get_conn_int_port(sbio));
+		std::cout << "WTF2" <<std::endl;
+		fflush(stdout);
+		//char *s =BIO_get_conn_int_port(sbio);
+		return std::string();
+	}else{
+		return std::string();
+	}
+}
+
 void TCPConnection::setLinkOnline(bool b){
 	std::lock_guard<std::mutex> lk(mOnlineMutex);
 	online = b;

@@ -19,6 +19,7 @@ struct ConnectionCallback {
 ConnectionCallback();
 virtual ~ConnectionCallback();
 
+
 virtual void callbackFunction(Transferable* received, Connection*) throw() = 0;
 };
 
@@ -38,12 +39,12 @@ class Connection {
 protected:
 ConnectionCallback* mCallback;
 bool	mIsOpen;
-std::string mIp;
 public:
 Connection() throw();
 virtual ~Connection() throw(ConnectionException);
 
 //Set the objective ip and try to connect to 
+virtual std::string getIp() = 0;
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException) = 0;
 virtual void close() throw() = 0;
 
@@ -69,6 +70,7 @@ public:
 TCPConnection() throw();
 TCPConnection(BIO*) throw();
 virtual ~TCPConnection() throw();
+virtual std::string getIp();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
 virtual void close() throw();
 virtual bool isLinkOnline() throw();
@@ -86,7 +88,7 @@ virtual bool connect(std::string& ipAddr, const std::string& port) throw(Connect
 virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
-
+virtual std::string getIp();
 virtual void send(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
