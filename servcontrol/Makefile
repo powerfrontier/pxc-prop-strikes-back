@@ -1,8 +1,8 @@
 Done: Control
 	echo "DONE"
 
-Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ServerLoad.o Server.o ControlProfile.o Control.o
-	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o ServerLoad.o Server.o ControlProfile.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
+Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o ServerLoad.o Server.o ControlProfile.o IPServer.o Control.o
+	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o TransferableProfile.o ServerLoad.o Server.o ControlProfile.o IPServer.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
 
 ServerLoad.o: ./src/ServerLoad.cpp
 	g++ -c ./src/ServerLoad.cpp -I./ -I../conexion/include -I./include -std=c++0x
@@ -22,8 +22,14 @@ Transferable.o: ../conexion/source/Transferable.cpp
 	g++ -c ../conexion/source/Transferable.cpp -I../conexion/include/ -std=c++0x
 TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
+TransferableProfile.o: ../conexion/source/TransferableProfile.cpp
+	g++ -c ../conexion/source/TransferableProfile.cpp -I../conexion/include/ -std=c++0x
+IPServer.o: ./src/IPServer.cpp
+	g++ -c ./src/IPServer.cpp -I./ -I../conexion/include -I./include -std=c++0x
 Control.o: ./src/Control.cpp
 	g++ -c ./src/Control.cpp -I./ -I../conexion/include -I./include -std=c++0x
+
+
 
 ControlProfile.o: ./src/ControlProfile.cpp
 	g++ -c ./src/ControlProfile.cpp -I../conexion/include -I./include -std=c++0x

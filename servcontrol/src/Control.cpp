@@ -92,6 +92,10 @@ void Control::fillIpServerTable(){
 	//cout << ipServers[0] << endl;
 }
 
+char* Control::getIpServerById(int id){
+	return ipServers[id];
+}
+
 void Control::initializeServerList() {
 	
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
@@ -153,14 +157,14 @@ fflush(stdout);
 	loginConnection = new TCPConnection();
 	if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
 		cout << "Servidor login conectado\n";
-				sleep(5);
+				
 	}else{
 		cout << "Servidor login NO conectado\n";
 	}
 	routerConnection = new TCPConnection();
 	if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
 		cout << "Servidor redireccion conectado\n";
-				sleep(5);
+				
 	}else{
 		cout << "Servidor redireccion NO conectado\n";
 	}
