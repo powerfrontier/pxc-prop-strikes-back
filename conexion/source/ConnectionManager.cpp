@@ -78,7 +78,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 	while (1){
 		cbio = BIO_pop(bioStack);
 		if (cbio != NULL){
-			Connection *c = new TCPConnection(cbio);
+			Connection *c = new TCPConnection(cbio, port);
 			if (cCallB != NULL){
 				c->setCallbackFunction(cCallB);
 			}

@@ -43,7 +43,7 @@ TCPConnection::TCPConnection() throw() : Connection() {
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
 
-TCPConnection::TCPConnection(BIO* b) throw() : Connection() {
+TCPConnection::TCPConnection(BIO* b, std::string port) throw() : Connection() {
     /* call the standard SSL init functions */
     SSL_load_error_strings();
     SSL_library_init();
@@ -51,6 +51,7 @@ TCPConnection::TCPConnection(BIO* b) throw() : Connection() {
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
     sbio = b;
+    mPort = port;
     setLinkOnline(true);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
@@ -69,6 +70,7 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	strcpy(ipAddrToChar, ipAddr.c_str());
 	strcat(ipAddrToChar, ":");
 	strcat(ipAddrToChar, port.c_str());
+	mPort = port;
 	sbio = BIO_new_connect(ipAddrToChar);
     	if (sbio == NULL) {
 		char message[] = "Unable to create a new unencrypted BIO object.\n";
@@ -122,22 +124,8 @@ bool TCPConnection::isLinkOnline() throw(){
 	return online;
 }
 
-std::string TCPConnection::getIp(){
-	if (isLinkOnline()){
-		std::cout << "WTF" <<std::endl;
-		fflush(stdout);
-		printf("PORT: %lu",  BIO_get_conn_int_port(sbio));
-		std::cout << "WTF2" <<std::endl;
-		fflush(stdout);
-		char *s = BIO_get_conn_ip(sbio);
-		std::cout << "IP ";
-		printf(s);
-		std::cout << std::endl;
-		//char *s =BIO_get_conn_int_port(sbio);
-		return std::string();
-	}else{
-		return std::string();
-	}
+std::string TCPConnection::getPort(){
+	return mPort;
 }
 
 void TCPConnection::setLinkOnline(bool b){
