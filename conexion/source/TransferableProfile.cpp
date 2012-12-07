@@ -1,8 +1,8 @@
 #include <Transferable.h>
 
-TransferableProfile::TransferableProfile() : mCreators(), mCreatorIds {}
+TransferableProfile::TransferableProfile() : mCreators(), mCreatorIds() {}
 
-virtual TransferableProfile::~TransferableProfile() {
+TransferableProfile::~TransferableProfile() {
 	Creators::iterator it = mCreators.begin();
 	
 	while(it != mCreators.end()) {
@@ -11,10 +11,10 @@ virtual TransferableProfile::~TransferableProfile() {
 	}
 }
 
-const Creators& TransferableProfile::getCreators(const std::string& protocol) const throw(TransferableVersionException&) {
+const TransferableProfile::Creators& TransferableProfile::getCreators(const std::string& protocol) const throw(TransferableVersionException&) {
 	return mCreators;
 }
 
-const CreatorIds& TransferableProfile::getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) {
+const TransferableProfile::CreatorIds& TransferableProfile::getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) {
 	return mCreatorIds;
 }
