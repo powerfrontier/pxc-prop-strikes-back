@@ -34,8 +34,8 @@ TestTransferableRcvd::~TestTransferableRcvd() {
 
 void TestTransferableRcvd::exec(Connection* c) const throw() {
 	std::cout <<"Ha llegado un: " << m_1 << std::endl;
-	std::string n = c->getIp();
-	std::cout << "La ip que devuelve es: ";
+	std::string n = c->getPort();
+	std::cout << "El puerto: ";
 	std::cout << n << std::endl;
 	c->send(((new TestTransferableSent())->m1(m_1+1)));
 }
