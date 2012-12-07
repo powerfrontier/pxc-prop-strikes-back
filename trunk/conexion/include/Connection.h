@@ -34,24 +34,6 @@ const char* what() const throw();
 };
 
 
-/* Connection interface
- * Usage:
- *
- * Connection* myConnection; //Create with prefered subclass
- * try {
- * if (myConnection->connect("127.0.0.1")) {
- * myConnection->send(myDatagramToSend);
- *	myDatagramToReceive = myConnection->receive(); //Blocking
- * myConnection->setCallbackFunction(myCallback); //All new receiving datagrams will be sent to myCallback
- *	doOtherThings();
-}
- * }
- * catch (ConnectionException ce) {
- * cout << ce.what();
- * }
- * myConnection->close();
- * delete myConnection;
- */
 class Connection {
 protected:
 ConnectionCallback* mCallback;
