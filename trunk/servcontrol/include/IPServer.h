@@ -1,14 +1,19 @@
 #include <Datagram.h>
-#include <Server.h>
+#include <Control.h>
 #include <Instruction.h>
 #include <mutex>
 #include <list>
 
 class IPServerSend : public Datagram<IPServerSend> {
-  //char ipSourceServer[16];
-  
+  char ipSourceServer[IPLENGTH];  
 public:
-	IPServerSend(): Datagram<IPServerSend>("IPServerSend")   {};
+	IPServerSend(char ip[IPLENGTH]): Datagram<IPServerSend>("IPServerSend") {
+		int i = 0;
+		for( i = 0; i < IPLENGTH; ++i){
+			ipSourceServer[i] = ip[i];
+			if(ip[i] == '\0' ) return;
+		}	
+	};
 };
 
 class IPServerRcvd : public Datagram<IPServerRcvd> {
