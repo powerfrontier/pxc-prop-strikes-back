@@ -2,12 +2,11 @@ Done: testClient.exe testServer.exe
 	rm *.o
 	echo "DONE"
 
-testClient.exe: testClient.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TestClasses.o
-	g++ TestClasses.o ConnectionException.o Connection.o TCPConnection.o testClient.o TransferableFactory.o Transferable.o -o testClient.exe -lssl -lcrypto -pthread
+testClient.exe: testClient.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TestClasses.o TransferableProfile.o
+	g++ TestClasses.o ConnectionException.o Connection.o TCPConnection.o testClient.o TransferableFactory.o Transferable.o TransferableProfile.o -o testClient.exe -lssl -lcrypto -pthread
 
-testServer.exe: testServer.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ConnectionManager.o TestClasses.o
-	g++ TestClasses.o ConnectionException.o Connection.o TCPConnection.o testServer.o TransferableFactory.o Transferable.o ConnectionManager.o -o testServer.exe -lssl -lcrypto -pthread
-
+testServer.exe: testServer.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ConnectionManager.o TestClasses.o TransferableProfile.o
+	g++ TestClasses.o ConnectionException.o Connection.o TCPConnection.o testServer.o TransferableFactory.o Transferable.o TransferableProfile.o ConnectionManager.o -o testServer.exe -lssl -lcrypto -pthread
 TestClasses.o: testClasses/TestClasses.cpp
 	g++ -c testClasses/TestClasses.cpp -I../conexion/include/ -I./testClasses/ -std=c++0x
 testServer.o: testServer/testServer.cpp
@@ -24,6 +23,8 @@ TCPConnection.o: ../conexion/source/TCPConnection.cpp
 	g++ -c ../conexion/source/TCPConnection.cpp -I../conexion/include/ -std=c++0x
 Transferable.o: ../conexion/source/Transferable.cpp
 	g++ -c ../conexion/source/Transferable.cpp -I../conexion/include/ -std=c++0x
+TransferableProfile.o: ../conexion/source/TransferableProfile.cpp
+	g++ -c  ../conexion/source/TransferableProfile.cpp -I../conexion/include/ -std=c++0x
 TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
 
