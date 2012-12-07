@@ -52,7 +52,11 @@ void TransferableFactory::setProtocol(const std::string& version) throw(Transfer
 			
 			creators = &mProfile->getCreators(version);
 			creatorIds = &mProfile->getCreatorIds(version);
-
+			
+			std::cout << "creators->size(): " << creators->size() << std::endl;
+			std::cout << "creatorIds->size(): " << creatorIds->size() << std::endl;
+			fflush(stdout);
+			
 			for (int i = 0; i < creators->size(); ++i) {
 				mCreators.insert((*creators)[i]);
 				std::cout << "mCreators: " << (*creators)[i].first << " , " << (void*)(*creators)[i].second << std:: endl;
