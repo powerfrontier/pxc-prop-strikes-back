@@ -17,6 +17,14 @@ public:
 	TestTransferableSent& m1(int);
 };
 
+class test : public Datagram<test> {
+	public:
+		test();
+		virtual ~test();
+		
+		void exec(Connection *c) const throw();
+};
+
 //Orden que se recibe
 class TestTransferableRcvd : public Datagram<TestTransferableRcvd> {
 	int m_zona;
