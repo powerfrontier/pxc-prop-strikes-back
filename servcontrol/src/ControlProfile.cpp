@@ -27,12 +27,4 @@ ControlProfile::~ControlProfile() {
 	fflush(stdout);
 }
 
-/*const TransferableProfile::Creators& ControlProfile::getCreators(const std::string& protocol) const throw(TransferableVersionException&) {
-	if(protocol == "0.1a") return mCreators;
-	else throw TransferableVersionException("Unknown protocol");
-}*/
 
-/*const TransferableProfile::CreatorIds& ControlProfile::getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) {
-	if(protocol == "0.1a") return mCreatorIds;
-	else throw TransferableVersionException("Unknown protocol");
-}*/

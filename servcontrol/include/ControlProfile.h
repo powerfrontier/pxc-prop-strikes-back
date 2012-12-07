@@ -9,8 +9,6 @@ class ControlProfile : public TransferableProfile {
 public:
 	ControlProfile();
 	virtual ~ControlProfile();
-	//const TransferableProfile::Creators& getCreators(const std::string& protocol) const throw(TransferableVersionException&);
-	//const TransferableProfile::CreatorIds& getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&);
 };
 
 #endif
