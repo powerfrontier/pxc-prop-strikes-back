@@ -7,7 +7,7 @@
 #include <Server.h>
 #include <Singleton.h>
 
-
+#define IPLENGTH 16
 #define MAXDESV 2
 #define NSERVERS 2
 #define REBALANCING_TIME 4

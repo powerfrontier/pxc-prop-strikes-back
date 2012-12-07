@@ -16,11 +16,12 @@ void IPServerRcvd::exec(Connection* c) const throw(){
 		i++;
 	}
 
-	std::list<Server*>::iterator it;	
+	std::list<Server*>::iterator it;
+
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {		
 		if ((*it)->id == idServer) {
-			//IPServerSend* ipServerSend = new IPServerSend(ipSend);
-			//(*it)->c->send(*ipServerSend);		
+			IPServerSend* ipServerSend = new IPServerSend(ipSend);
+			(*it)->c->send(*ipServerSend);		
 		}		
 	}	
 	
