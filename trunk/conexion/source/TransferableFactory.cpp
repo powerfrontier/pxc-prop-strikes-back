@@ -64,6 +64,9 @@ void TransferableFactory::setProtocol(const std::string& version) throw(Transfer
 				fflush(stdout);
 			}
 			mProtocolVersion = version;	
+		} else {
+			std::cout << "version == NO_PROTOCOL!" << std::endl;
+			fflush(stdout);
 		}
 	} catch (TransferableVersionException& e) {
 		
