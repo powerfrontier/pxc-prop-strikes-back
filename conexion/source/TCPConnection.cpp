@@ -374,6 +374,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	        char message[] = "PETE AQUIx2\n";
                 print_ssl_error(message, stdout);
 		print_ssl_error(protocol,stdout);
+		std::cout << instruction << std::endl;
 		fflush(stdout);
 		throw ConnectionException(e.what());
 	}
