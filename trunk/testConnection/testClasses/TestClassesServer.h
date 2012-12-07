@@ -23,6 +23,7 @@ class TestTransferableRcvd : public Datagram<TestTransferableRcvd> {
 	int m_server;
 public:
 	TestTransferableRcvd();
+	TestTransferableRcvd(int zone, int server);
 	virtual ~TestTransferableRcvd();
 	
 	void exec(Connection* c) const throw();
@@ -34,8 +35,8 @@ class TestProfile : public TransferableProfile {
 public:
 	TestProfile();
 	virtual ~TestProfile();
-	const TransferableProfile::Creators& getCreators(const std::string& protocol) const throw(TransferableVersionException&);
-	const TransferableProfile::CreatorIds& getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&);
+	//const TransferableProfile::Creators& getCreators(const std::string& protocol) const throw(TransferableVersionException&);
+	//const TransferableProfile::CreatorIds& getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&);
 };
 
 #endif
