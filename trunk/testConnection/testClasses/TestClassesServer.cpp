@@ -14,6 +14,19 @@ TestTransferableSent::~TestTransferableSent() {
 
 }
 
+test::test() : Datagram<test>("test"){
+
+}
+
+test::~test(){
+}
+
+void test::exec(Connection *c) const throw() {
+	std::cout << " ME HA LLEGADO LA INSTR 2, envio" << std::endl;
+	TestTransferableSent* sent = NULL;
+	sent = new TestTransferableSent();
+	c->send(*sent);
+}
 
 TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("TestTransferableRcvd")
 						, m_zona(0)
@@ -37,8 +50,8 @@ void TestTransferableRcvd::exec(Connection* c) const throw() {
 
 TestProfile::TestProfile() : TransferableProfile() {
 	mCreators.push_back(std::pair<int, TransferableCreator*>(7, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
-
-//	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
+	mCreators.push_back(std::pair<int, TransferableCreator*>(2, new TestTransferableRcvd::Creator("test")));
+	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 2));
 }
 
 TestProfile::~TestProfile() {
