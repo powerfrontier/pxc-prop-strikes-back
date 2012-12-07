@@ -1,9 +1,6 @@
 #include <ControlProfile.h>
 #include <ServerLoad.h>
-#include <RemoveZone.h>
-#include <GetZone.h>
 #include <IPServer.h>
-#include <RouterChangeZone.h>
 #include <iostream>
 
 
@@ -11,13 +8,14 @@ using namespace std;
 
 ControlProfile::ControlProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
 	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new ServerLoadRcvd::Creator("ServerLoadRcvd"))); // Recibo x con id y
-	mCreators.push_back(std::pair<int, TransferableCreator*>(6, new IPServerRcvd::Creator("IPServerRcvd"))); // Recibo x con id y
+	mCreators.push_back(std::pair<int, TransferableCreator*>(1, new IPServerRcvd::Creator("IPServerRcvd"))); // Recibo x con id y
 
-	mCreatorIds.push_back(std::pair<std::string, int>("ServerLoadSend", 1)); // Envio x con id y
-	mCreatorIds.push_back(std::pair<std::string, int>("RemoveZoneSend", 2)); // Envio x con id y
-	mCreatorIds.push_back(std::pair<std::string, int>("GetZoneSendSend", 3)); // Envio x con id y
-	mCreatorIds.push_back(std::pair<std::string, int>("RouterChangeZoneSend", 4)); // Envio x con id y
-	mCreatorIds.push_back(std::pair<std::string, int>("IPServerSend", 5)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("ServerLoadSend", 2)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("RemoveZoneSend", 3)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("GetZoneSendSend", 4)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("RouterChangeZoneSend", 5)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("IPServerSend", 6)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("SetZoneToServerSend", 7)); // Envio x con id y
 }
 
 ControlProfile::~ControlProfile() {
