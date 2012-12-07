@@ -14,19 +14,19 @@ $(BINPATH)libConnection.a:
 	$(MAKE) -C ../conexion/
 	cp ../conexion/bin/libConnection.a $(BINPATH)
 
-$(BINPATH)GameServer.o: $(SRCPATH)GameServer.cpp
+$(BINPATH)GameServer.o: $(SRCPATH)GameServer.cpp $(INCLUDEPATH)GameServer.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(BINPATH)GameServerProfile.o: $(SRCPATH)GameServerProfile.cpp
+$(BINPATH)GameServerProfile.o: $(SRCPATH)GameServerProfile.cpp $(INCLUDEPATH)GameServerProfile.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)main.o: $(SRCPATH)main.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(BINPATH)Zone.o: $(SRCPATH)Zone.cpp
+$(BINPATH)Zone.o: $(SRCPATH)Zone.cpp $(INCLUDEPATH)Zone.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(BINPATH)ZoneHandler.o: $(SRCPATH)ZoneHandler.cpp
+$(BINPATH)ZoneHandler.o: $(SRCPATH)ZoneHandler.cpp $(INCLUDEPATH)Zone.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
@@ -36,4 +36,4 @@ clean:
 cleanest: clean
 	rm -f $(BINPATH)gameServer
 
-.PHONY: clean cleanest
+.PHONY: all clean cleanest $(BINPATH)libConnection.a
