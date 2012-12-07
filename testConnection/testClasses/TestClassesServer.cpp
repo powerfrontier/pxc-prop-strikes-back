@@ -14,21 +14,15 @@ TestTransferableSent::~TestTransferableSent() {
 
 }
 
-TestTransferableSent& TestTransferableSent::m1(int m),m2(int m2) {
-	m_zona = m;
-	m_server = m2;
-	return *this;
-}
-
 
 TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("TestTransferableRcvd")
-						, m_1(0)
-						, m_2(0){
+						, m_zona(0)
+						, m_server(0){
 
 }
 TestTransferableRcvd::TestTransferableRcvd(int zone, int server): Datagram<TestTransferableRcvd>("TestTransferableRcvd")
-						, m_1(zone)
-						, m_2(server){
+						, m_zona(zone)
+						, m_server(server){
 
 }
 TestTransferableRcvd::~TestTransferableRcvd() {
