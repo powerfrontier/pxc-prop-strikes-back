@@ -4,8 +4,6 @@
 #include <Datagram.h>
 
 class ControlProfile : public TransferableProfile {
-	std::vector<std::pair<int, TransferableCreator*> > mCreators;
-	std::vector<std::pair<std::string, int> > mCreatorIds;
 public:
 	ControlProfile();
 	virtual ~ControlProfile();

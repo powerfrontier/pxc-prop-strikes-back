@@ -6,7 +6,7 @@
 
 using namespace std;
 
-ControlProfile::ControlProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
+ControlProfile::ControlProfile() : TransferableProfile() {
 	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new ServerLoadRcvd::Creator("ServerLoadRcvd"))); // Recibo x con id y
 	mCreators.push_back(std::pair<int, TransferableCreator*>(1, new IPServerRcvd::Creator("IPServerRcvd"))); // Recibo x con id y
 
