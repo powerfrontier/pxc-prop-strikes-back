@@ -42,9 +42,9 @@ void TestTransferableRcvd::exec(Connection* c) const throw() {
 }
 
 TestProfile::TestProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
-	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
+	mCreators.push_back(std::pair<int, TransferableCreator*>(7, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
 
-	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
+//	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
 }
 
 TestProfile::~TestProfile() {
