@@ -25,7 +25,7 @@ int main(int argc, char** argv){
 	n->listen(std::string(argv[1]));
 	printf("MainServer: Estoy en listen\n");
  	fflush(stdout);
-	while (1){ sleep(0); }
+	while (1){ sleep(5);  }
 }
 
 
