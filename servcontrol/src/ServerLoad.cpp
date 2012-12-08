@@ -1,10 +1,13 @@
 #include <ServerLoad.h>
 #include <Control.h>
 
+#include <iostream>
 
 void ServerLoadRcvd::exec(Connection* c) const throw(){
 	
 	//Inserir la carrega a la carrega del server que toca i actualitzar la mascara on toca també
+	std::cout << "recibiendo mensaje del server: " << idServer << std::endl;
+
 	std::list<Server*>::iterator it;
 	int i;
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
