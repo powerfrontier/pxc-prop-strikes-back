@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <string.h>
+#include <unistd.h>
 
 #include <Control.h>
 #include <ServerLoad.h>
@@ -268,8 +269,8 @@ cout << "final inicializacion" << endl;
 			signal(SIGALRM, loadRequestHandle);
 			alarm(WAITING_RESPONSE_TIME);
 			while(Control::instance().recievedConnectionMask && timeout) { 
-				//Esperamos sin hacer nada o...								
-				//...mirar si se puede poner el proceso a dormir y que se despierte con un signal también
+				//Esperamos sin hacer nada o con sleep()
+				sleep(50);
 			}
 			alarm(0);
 			if(Control::instance().recievedConnectionMask) { //s'ha sortit del bucle pel timeout
@@ -283,7 +284,8 @@ cout << "final inicializacion" << endl;
 			signal(SIGALRM, balanceHandle);
 			alarm(REBALANCING_TIME);
 		}
-		//para una segunda version implementar un listener que escuche peticiones de emergencia
+		sleep(50);
+		//para una segunda version implementar un listener que escuche peticiones de emergencia		
 	}
 
 	return 0;
