@@ -1,29 +1,46 @@
-EnvÌos: Control envÌa a Juego
+Env√≠os: Control env√≠a a Juego
 
-SetZoneToServerSend - Se envÌan las zonas iniciales que cargar·n los servidores en su encendido.
+SetZoneToServerSend - Se env√≠an las zonas iniciales que cargar√°n los servidores en su encendido.
+  ID instrucci√≥n: 7
 	Params:
 	- idZone: id de la zona a cargar
-	- idServer: id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le har· falta saber la id de este
+	- idServer: id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le har√° falta saber la id de este
 
-GetZoneSend - Se envÌa a un servidor de destino la zona que tiene que recoger
+GetZoneSend - Se env√≠a a un servidor de destino la zona que tiene que recoger
+  ID instrucci√≥n: 4
 	Params:
 	- idZone: id de la zona a cargar
 	- idServerSource: id del servidor origen que tiene la zona
 
-RemoveZoneSend - Se envÌa a un servidor la orden de dejar de gestionar la zona
+RemoveZoneSend - Se env√≠a a un servidor la orden de dejar de gestionar la zona
+  ID instrucci√≥n: 3
 	Params:
 	- idZone: id de la zona a eliminar
 
-ServerLoadSend - Se envÌa a un servidor una peticiÛn para que envÌe la carga de todas sus zonas
+ServerLoadSend - Se env√≠a a un servidor una petici√≥n para que env√≠e la carga de todas sus zonas
+  ID instrucci√≥n: 2
 	Params:
-	- Sin par·metros
+	- Sin par√°metros
+   
+IPServerSend - Se env√≠a la IP del servidor pedido
+  ID instrucci√≥n: 6
+  Params:
+   - IPSourceServer: Char[16] con la IP del server
 
-RecepciÛn: Control recibe de Juego
+Recepci√≥n: Control recibe de Juego
 
 ServerLoadRcvd - Control recibe la carga de una zona
+  ID instrucci√≥n: 0
 	Params:
 	- idServer: id del server que pasa la zona(id enviada en SetZoneToServerSend  )
-	- idZone: id de la zona cuya carga se est· pasando
-	- zoneLoad: carga de la zona que se est· pasando
+	- idZone: id de la zona cuya carga se est√° pasando
+	- zoneLoad: carga de la zona que se est√° pasando
 	- remainingZones: zonas restantes que quedan para pasar (recuerdo que se tiene que control tiene que recibir un datagrama por cada zona que tiene el servidor de juego,
-en el datagrama en que el remainingZones devuelto sea 0, Control dejar· de esperar nuevas zonas)
+en el datagrama en que el remainingZones devuelto sea 0, Control dejar√° de esperar nuevas zonas)
+
+IPServerRcvd - Control recibe la petici√≥n para enviar la ip de un server
+  ID instrucci√≥n: 1
+  Params:
+  - idServer: id del server del cual se quiere la IP
+
+
