@@ -38,6 +38,8 @@ TCPConnection::TCPConnection() throw() : Connection() {
     ERR_load_BIO_strings();
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
+    tListen = NULL;
+    sbio =  NULL;
     setLinkOnline(false);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
@@ -51,6 +53,7 @@ TCPConnection::TCPConnection(BIO* b, std::string port) throw() : Connection() {
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
     sbio = b;
+    tListen = NULL;
     mPort = port;
     setLinkOnline(true);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
@@ -59,11 +62,10 @@ TCPConnection::TCPConnection(BIO* b, std::string port) throw() : Connection() {
 
 TCPConnection::~TCPConnection() throw(){
 	if (isLinkOnline())
-		close();
+		close(false);
 }
 
 bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException){
-	sbio = NULL;
  
 	/* Create a new connection */
 	char *ipAddrToChar = new char[ipAddr.size()+1+port.size()] ;
@@ -75,7 +77,7 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
     	if (sbio == NULL) {
 		char message[] = "Unable to create a new unencrypted BIO object.\n";
  		print_ssl_error(message, stdout);
-		close();
+		close(false);
         	return false;
     	}
 
@@ -91,7 +93,7 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 				repeat = false;
 				char message[] = "Unable to connect unencrypted.\n";
 				print_ssl_error(message, stdout);
-	       		 	close();
+	       		 	close(false);
 	      	 	 	return false;
 			}
 
@@ -104,17 +106,26 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	return true;
 }
 
-void TCPConnection::close() throw(){
-	int r = 0;
+void TCPConnection::close(bool threadListen) throw(){
 	setLinkOnline(false);
-	if (tListen != NULL){
-		tListen->join();
-		delete tListen;
+	int r = 0;
+	if (sbio != NULL){
+		if (!threadListen && tListen != NULL){
+			std::cout << "CERRANDO LISTEN" << std::endl;
+			tListen->join();
+			delete tListen;
+		}
+		tListen = NULL;
+		std::cout << "CERRANDO SOCKET" << std::endl;
+		r = BIO_free(sbio);
+		if (r == 0) {
+			std::cout << "ERROR AL CERRAR SOCKET" << std::endl;
+		} 
+		sbio = NULL;
+		std::cout << "CONEXION CERRADA" << std::endl;
+	}else{
+		std::cout << "LA CONEXION ESTABA CERRADA" << std::endl;
 	}
-	r = BIO_free(sbio);
-	if (r == 0) {
-	/* TODO:Error unable to free BIO */
-	} 
 }
 
 bool TCPConnection::isLinkOnline() throw(){
@@ -152,28 +163,43 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
 	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
 	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
-	ssize_t r = BIO_write(sbio,buffer, lengthPacket);
+	ssize_t r;
+	if (isLinkOnline()){
+		std::cout << "LINK ONLINE " << std::endl;
+		r = BIO_write(sbio,buffer, lengthPacket);
+	}else{
+		r = 0;
+	}
 	while (r != lengthPacket){
-		if (r <= 0) {
+		if (r == 0) {	
+			std::cout << "NOBODY LISTENING" << std::endl;
+			close(false);
+			return;
+		}else if (r < 0){
 			if (!BIO_should_retry(sbio)) {
 				char message[] ="TCPConnection::send() BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				setLinkOnline(false);
+				close(false);
 				return;
 			}
 		}else{
 			char message[] = "TCPConnection::send() Wrong: Guru meditation 1\n";
 			print_ssl_error(message, stdout);
-			setLinkOnline(false);
+			close(false);
 			return;
 		}
-		r = BIO_write(sbio,buffer, lengthPacket);
+		if (isLinkOnline()){
+			std::cout << "LINK ONLINE " << std::endl;
+			r = BIO_write(sbio,buffer, lengthPacket);
+		}else{
+			r = 0;
+		}
 	}
 
 }
 
 void TCPConnection::receive() throw(ConnectionException){
-	tListen = new std::thread(&TCPConnection::receiveThread, this);
+	if (tListen == NULL) tListen = new std::thread(&TCPConnection::receiveThread, this);
 }
 
 void TCPConnection::receiveThread(){
@@ -193,22 +219,32 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	char bufsizeCommunication[lengthCommunication];
 	char protocol[8];
 	int instruction;
-	
-	size_t r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
+	size_t r;
+	if (isLinkOnline()){
+		std::cout << "RLINK ONLINE " << std::endl;
+		r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
+	}else{
+		r = 0;
+	}
 	while (r != lengthCommunication){
 		if (r == 0) {
-			std::cout << "Reached the end of the data stream." << std::endl;
-			setLinkOnline(false);
+			std::cout << "Reached the end of the data stream" << std::endl;
+			close(true);
 			return;
 		} else if (r < 0) {
 			if (!BIO_should_retry(sbio)) {
 				char message[] ="BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				setLinkOnline(false);
+				close(true);
 				return;
 			}
 		}
-		r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
+		if (isLinkOnline()){
+			std::cout << "RLINK ONLINE " << std::endl;
+			r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
+		}else{
+			r = 0;
+		}
        	}	
 	memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
 	memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
@@ -225,22 +261,31 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 
 	//receive the Transferable
 	char bufferMessage[sizeMessage];
-	r = BIO_read(sbio, bufferMessage, sizeMessage);
+	if (isLinkOnline()){
+		std::cout << "R2LINK ONLINE " << std::endl;
+		r = BIO_read(sbio, bufferMessage, sizeMessage);
+	}else{
+		r = 0;
+	}
 	while (r != sizeMessage){
 		if (r == 0) {
-			char message[] ="Reached the end of the data stream.\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
+			std::cout << "Reached the end of the data stream" << std::endl;
+			close(true);
 			return;
 		} else if (r < 0) {
 			if (!BIO_should_retry(sbio)) {
 				char message[] ="BIO_read should retry test failed.\n";
 				print_ssl_error(message, stdout);
-				setLinkOnline(false);
+				close(true);
 				return;
 			}
 		}
-		r = BIO_read(sbio, bufferMessage, sizeMessage);		
+		if (isLinkOnline()){
+			std::cout << "R2LINK ONLINE " << std::endl;
+			r = BIO_read(sbio, bufferMessage, sizeMessage);
+		}else{
+			r = 0;
+		}
 	}
        	
 	Transferable *t;

@@ -73,7 +73,7 @@ TCPConnection(BIO*, std::string port) throw();
 virtual ~TCPConnection() throw();
 virtual std::string getPort();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
-virtual void close() throw();
+virtual void close(bool) throw();
 virtual bool isLinkOnline() throw();
 virtual void send(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
