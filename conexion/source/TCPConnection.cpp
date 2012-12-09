@@ -104,7 +104,6 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	return true;
 }
 
-
 void TCPConnection::close() throw(){
 	int r = 0;
 	setLinkOnline(false);
@@ -133,119 +132,44 @@ void TCPConnection::setLinkOnline(bool b){
 }
 
 void TCPConnection::send(Transferable& message) throw (ConnectionException){
-	char buffer[8];
-	size_t length = message.size();
-	
-	// Send the size of Transferable
-	ssize_t r = -1;
-	r = BIO_write(sbio, &length, sizeof(size_t)); 
-	if (r <=0){
-		if (!BIO_should_retry(sbio)) {
-			char message[] = "BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
-		}
-	}else if (r== sizeof(size_t)){
-//		break;
-	}else{
-		char message[] = "TCPConnection Wrong: Guru meditation 1\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}
-
-	// Send the protocol
-	r = -1;	
+	size_t lengthMessage = message.size();
+	size_t lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
+	char buffer[lengthPacket];
 	std::string protocol = TransferableFactory::instance().protocol();
-//TODO: Comprobar tamaño
-	strcpy(buffer, protocol.c_str());
-	
-	r = BIO_write(sbio, buffer, 8);
-	if (r<=0) {
-		if (!BIO_should_retry(sbio)) {
-			char message[] ="BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
-		}
-	}else if (r==8){
-//		break;
-	}else{
-		char message[] = "TCPConnection Wrong: Guru meditation 2\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
+	if (protocol.size() > 8){	
+		std::cout << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
 		return;
 	}
-
-
 	int type; 
 	try{
 		type = message.type();
 	}catch(TransferableVersionException& e){
-	        char message[] = "PETE AQUI\n";
-                print_ssl_error(message, stdout);
-		throw ConnectionException(e.what());
+		std::cout << "Error using Transferable, message.type incorrect " << std::endl;
+		std::cout << e.what() << std::endl;
+		return;
 	}
-
-	// Send the instruction
-	r = -1;	
-	r = BIO_write(sbio, (char*) &type, sizeof(int));
-	if (r<=0) {
-		if (!BIO_should_retry(sbio)) {
-               		char message[] ="BIO_read should retry test failed.\n";
+	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
+	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
+	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
+	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
+	ssize_t r = BIO_write(sbio,buffer, lengthPacket);
+	while (r != lengthPacket){
+		if (r <= 0) {
+			if (!BIO_should_retry(sbio)) {
+				char message[] ="TCPConnection::send() BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;
+			}
+		}else{
+			char message[] = "TCPConnection::send() Wrong: Guru meditation 1\n";
 			print_ssl_error(message, stdout);
 			setLinkOnline(false);
 			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
 		}
-	}else if (r==sizeof(int)){
-//		break;
-	}else{
-		char message[] = "TCPConnection Wrong: Guru meditation 3\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
+		r = BIO_write(sbio,buffer, lengthPacket);
 	}
 
-	
-	// Send the Transferable
-	r = -1;
-	r = BIO_write(sbio,(char *)message.transferableObject(), length);
-	if (r <= 0) {
-		if (!BIO_should_retry(sbio)) {
-			char message[] ="BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
-		}
-	}else if(r == length){
-//		break;
-	}else{
-		char message[] = "TCPConnection Wrong: Guru meditation 4\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}
 }
 
 void TCPConnection::receive() throw(ConnectionException){
@@ -264,158 +188,71 @@ void TCPConnection::receiveThread(){
 }
 
 void TCPConnection::receiveTransfThread() throw(ConnectionException){
-	size_t length;
-	char bufsize[sizeof(size_t)];
+	size_t sizeMessage;
+	size_t lengthCommunication = sizeof(size_t)+8+sizeof(int);
+	char bufsizeCommunication[lengthCommunication];
 	char protocol[8];
 	int instruction;
-
-	//receive the size of transferable
-	ssize_t r = -1;
-	r = BIO_read(sbio, &length, sizeof(size_t));
- 	if (r == 0){
-		char message[] = "Closing connection.\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}else if (r<0){
-		if (!BIO_should_retry(sbio)){
-			char message[] = "BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
-		}
-	}else if (r == sizeof(size_t)){
-//		break;
-	}else{ 
-		char message[] = "TCPConnection Wrong: Guru meditation 5.\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}
-
-
-	//receive protocol
-	r = -1;
-	r = BIO_read(sbio, protocol, 8);
-        if (r == 0){
-		char message[] = "Closing Connection\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}else if (r<0){
-		if (!BIO_should_retry(sbio)){
-			char message[] = "BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
-		}
-	}else if (r == 8){
-		std::cout << "ENVIO " << protocol << std::endl;
-		fflush(stdout);
-//		break;
-	}else{ 
-		char message[] = "TCPConnection Wrong: Guru meditation 6\n";
-		print_ssl_error(message,stdout);
-		setLinkOnline(false);
-		return;
-	}
-
 	
-	//receive the instruction
-	r = -1;
-        r = BIO_read(sbio, &instruction, sizeof(int));
-        if (r == 0){
-	        char message[] = "The size of the packet is incorrect.Close\n";
-	        print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}else if (r<0){
-		if (!BIO_should_retry(sbio)){
-			char message[] = "BIO_read should retry test failed.\n";
-			print_ssl_error(message, stdout);
+	size_t r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
+	while (r != lengthCommunication){
+		if (r == 0) {
+			std::cout << "Reached the end of the data stream." << std::endl;
 			setLinkOnline(false);
 			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
+		} else if (r < 0) {
+			if (!BIO_should_retry(sbio)) {
+				char message[] ="BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;
+			}
 		}
-	}else if (r == sizeof(int)){
-                        //break;
-        }else{
- 		char message[] = "TCPConnection Wrong: Guru meditation 7\n";
- 		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}
+		r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
+       	}	
+	memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
+	memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
+	memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
 
 	TransferableCreator* c;
 	try {
-		fflush(stdout);
 		TransferableFactory::instance().setProtocol(protocol);
-		std::cout << " PROTOCOLO: " << protocol << std::endl;
-		fflush(stdout);
 		c = TransferableFactory::instance().creator(instruction);
-		std::cout << " Instruccion: " << instruction << std::endl;
-		fflush(stdout);
 	}catch(TransferableVersionException& e){
-	        char message[] = "PETE AQUIx2\n";
-                print_ssl_error(message, stdout);
-		print_ssl_error(protocol,stdout);
-		std::cout << instruction << std::endl;
-		fflush(stdout);
+		std::cout << "Protocol or instruction received incorrect" << std::endl;
 		throw ConnectionException(e.what());
 	}
 
 	//receive the Transferable
-	char buffer[length];
-	r = -1;
-	r = BIO_read(sbio, buffer, length);
-	if (r == 0) {
-		char message[] ="Reached the end of the data stream.\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	} else if (r < 0) {
-		if (!BIO_should_retry(sbio)) {
-			char message[] ="BIO_read should retry test failed.\n";
+	char bufferMessage[sizeMessage];
+	r = BIO_read(sbio, bufferMessage, sizeMessage);
+	while (r != sizeMessage){
+		if (r == 0) {
+			char message[] ="Reached the end of the data stream.\n";
 			print_ssl_error(message, stdout);
 			setLinkOnline(false);
 			return;
-		}else{
-			char message[] = "WHAT\n";
-			print_ssl_error(message, stdout);
-			setLinkOnline(false);
-			return;				
-		}
-       	}else if (r == length){
-		Transferable *t;
-		try{
-			t = c->create((void*)buffer);
-			if (!mCallback) {
-				t->exec(this);
-				delete t;
-			}else{
-				mCallback->callbackFunction(t, this);
+		} else if (r < 0) {
+			if (!BIO_should_retry(sbio)) {
+				char message[] ="BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				setLinkOnline(false);
+				return;
 			}
-		}catch(TransferableVersionException& e){
-			throw ConnectionException(e.what());
 		}
-	}else{
-		char message[] = "TCPConnection Wrong: Guru meditation 8\n";
-		print_ssl_error(message, stdout);
-		setLinkOnline(false);
-		return;
-	}	
+		r = BIO_read(sbio, bufferMessage, sizeMessage);		
+	}
+       	
+	Transferable *t;
+	try{
+		t = c->create((void*)bufferMessage);
+		if (!mCallback) {
+			t->exec(this);
+			delete t;
+		}else{
+			mCallback->callbackFunction(t, this);
+		}
+	}catch(TransferableVersionException& e){
+		throw ConnectionException(e.what());
+	}
 }
