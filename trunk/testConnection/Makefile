@@ -1,5 +1,4 @@
 Done: testClient.exe testServer.exe
-	rm *.o
 	echo "DONE"
 
 testClient.exe: testClient.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TestClasses.o TransferableProfile.o
@@ -31,4 +30,5 @@ TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
 
 clean:
+	rm *.o
 	rm *.exe
