@@ -362,13 +362,12 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 
 	TransferableCreator* c;
 	try {
-		std::cout << " AAAAAA" << std::endl;
 		fflush(stdout);
 		TransferableFactory::instance().setProtocol(protocol);
-		std::cout << " BBBBBB" << std::endl;
+		std::cout << " PROTOCOLO: " << protocol << std::endl;
 		fflush(stdout);
 		c = TransferableFactory::instance().creator(instruction);
-		std::cout << " CCCCC " << std::endl;
+		std::cout << " Instruccion: " << instruction << std::endl;
 		fflush(stdout);
 	}catch(TransferableVersionException& e){
 	        char message[] = "PETE AQUIx2\n";
