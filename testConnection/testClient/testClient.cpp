@@ -13,16 +13,21 @@ int main(int argc, char** argv){
 	printf("MainClient(): 1\n");
         fflush(stdout);
 	Connection* n = new TCPConnection();
-	if(n->connect(std::string(argv[1]),std::string(argv[2]))) { 
-		printf("MainClient(): objeto Conexion creado\n");
-        	fflush(stdout);
-		printf("MainClient(): Connected\n");
-        	fflush(stdout);
+	while(!n->connect(std::string(argv[1]),std::string(argv[2]))) { 
+		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
+		sleep(3);
+	}
+	printf("MainClient(): objeto Conexion creado\n");
+        fflush(stdout);
+	printf("MainClient(): Connected\n");
+        fflush(stdout);
 
 
-		while (1){
+	while (1){
+		if (n->isLinkOnline()){			
 			TestTransferableSent2* sent2 = NULL;
 			sent2 = new TestTransferableSent2();
+		
 			printf("MainClient(): Sending2...\n");
 			fflush(stdout);
 			n->send(*sent2);
@@ -38,9 +43,16 @@ int main(int argc, char** argv){
 			printf("MainClient(): sent7\n");
 	       		fflush(stdout);
 			delete sent7;
+			sleep(1);
+		}else{
+			std::cout << "Conexion perdida, Reconectando... "<< std::endl;
+			if(n->connect(std::string(argv[1]),std::string(argv[2]))) {
+				std::cout << "Conexion Restablecida "<< std::endl; 
+			}else{
+				std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
+				sleep(3);
+			}
 		}
-	}else{
-		std::cout << "NoooooooooooooooooooooooOO!" << std::endl;
 	}
 }
 
