@@ -19,14 +19,22 @@ int main(int argc, char** argv){
 		printf("MainClient(): Connected\n");
         	fflush(stdout);
 
-		TestTransferableSent* sent = NULL;
-		sent = new TestTransferableSent();
-		int i = 0;
-		sent->m1(i);
-		printf("MainClient(): Sending...\n");
+
+		TestTransferableSent2* sent2 = NULL;
+		sent2 = new TestTransferableSent2();
+		printf("MainClient(): Sending2...\n");
 		fflush(stdout);
-		n->send(*sent);
-		printf("MainClient(): sent\n");
+		n->send(*sent2);
+		printf("MainClient(): sent2\n");
+       		fflush(stdout);
+
+
+		TestTransferableSent7* sent7 = NULL;
+		sent7 = new TestTransferableSent7();
+		printf("MainClient(): Sending7...\n");
+		fflush(stdout);
+		n->send(*sent7);
+		printf("MainClient(): sent7\n");
        		fflush(stdout);
 		while (1){
 		}
