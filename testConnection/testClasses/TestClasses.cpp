@@ -2,23 +2,23 @@
 #include <iostream>
 #include <Connection.h>
 
-TestTransferableSent::TestTransferableSent() 	: Datagram<TestTransferableSent>("TestTransferableSent")
-						, m_1(0)
-						, m_2(0)
-						, m_3(0)
-						, m_4(0) {
+TestTransferableSent7::TestTransferableSent7() 	: Datagram<TestTransferableSent7>("TestTransferableSent7")
+						, m_zona(0)
+						, m_server(0) {
 
 }
 
-TestTransferableSent::~TestTransferableSent() {
+TestTransferableSent7::~TestTransferableSent7() {
 
 }
 
-TestTransferableSent& TestTransferableSent::m1(int m) {
-	m_1 = m;
-	return *this;
+TestTransferableSent2::TestTransferableSent2() 	: Datagram<TestTransferableSent2>("TestTransferableSent2") {
+
 }
 
+TestTransferableSent2::~TestTransferableSent2() {
+
+}
 
 TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("TestTransferableRcvd")
 						, m_1(0)
@@ -33,24 +33,21 @@ TestTransferableRcvd::~TestTransferableRcvd() {
 }
 
 void TestTransferableRcvd::exec(Connection* c) const throw() {
-	std::cout <<"Ha llegado un: " << m_1 << std::endl;
-	std::string n = c->getPort();
-	std::cout << "El puerto: ";
-	std::cout << n << std::endl;
-	c->send(((new TestTransferableSent())->m1(m_1+1)));
+	std::cout <<"Ha llegado un: " << m_1 <<" " << m_2 <<" " << m_3 << " "<< m_4 << std::endl;
 }
 
-TestProfile::TestProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
-	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
+TestProfile::TestProfile() : TransferableProfile(){
+	mCreators.push_back(std::pair<int, TransferableCreator*>(2, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
 
-	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
+	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent2", 2));
+	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent7", 7));
 }
 
 TestProfile::~TestProfile() {
 	for(int i = 0; i < mCreators.size(); ++i) delete mCreators[i].second;
 	mCreators.clear();
 }
-
+/*
 const TransferableProfile::Creators& TestProfile::getCreators(const std::string& protocol) const throw(TransferableVersionException&) {
 	if(protocol == "0.1a") return mCreators;
 	else throw TransferableVersionException("Unknown protocol");
@@ -59,4 +56,4 @@ const TransferableProfile::Creators& TestProfile::getCreators(const std::string&
 const TransferableProfile::CreatorIds& TestProfile::getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) {
 	if(protocol == "0.1a") return mCreatorIds;
 	else throw TransferableVersionException("Unknown protocol");
-}
+}*/
