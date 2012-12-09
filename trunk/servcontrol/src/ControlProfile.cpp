@@ -12,7 +12,7 @@ ControlProfile::ControlProfile() : TransferableProfile() {
 
 	mCreatorIds.push_back(std::pair<std::string, int>("ServerLoadSend", 2)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("RemoveZoneSend", 3)); // Envio x con id y
-	mCreatorIds.push_back(std::pair<std::string, int>("GetZoneSendSend", 4)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("GetZoneSend", 4)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("RouterChangeZoneSend", 5)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("IPServerSend", 6)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("SetZoneToServerSend", 7)); // Envio x con id y
