@@ -64,8 +64,8 @@ void Control::balance() {
 		// Escogemos la zona menos cargada de maxLoadServer
 		for(int i = 0; i < maxLoadServer->load.distribution.size();++i)
 		{
-			if(maxLoadServer->load.distribution.at(i).load < minLoadZone){
-				minLoadZone = maxLoadServer->load.distribution.at(i).load;
+			if(maxLoadServer->load.distribution.at(i)->load < minLoadZone){
+				minLoadZone = maxLoadServer->load.distribution.at(i)->load;
 				minLoadZone = i; // Guardamos la zona donde esta la carga minima
 			}
 		}
@@ -196,7 +196,7 @@ void Control::zoneAssignment(){
 	Server* server = servers.front();
 	for(i = 0; i < modZonesPerServer; ++i){
 
-		fflush(stdout);
+		//fflush(stdout);
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
 		
 		server->c->send(*setZoneToServerSend);
@@ -210,6 +210,12 @@ void Control::zoneAssignment(){
 		(*it)->c->send(*setZoneToServerSend);
 //cout << zoneIndex << " " << (*it)->id << endl;
 		zoneServer[zoneIndex] = (*it);
+
+		// inicializar atributos de carga i zona del servidor
+		ZoneLoad* zl = new ZoneLoad(zoneIndex, 0);
+		(*it)->load.distribution.push_back(zl);
+		(*it)->load.totalLoad = 0;
+		
 		zoneIndex++;
 		if ( zoneIndex == NZONES ){
 			return;

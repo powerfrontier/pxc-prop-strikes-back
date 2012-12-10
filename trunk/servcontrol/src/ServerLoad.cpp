@@ -10,12 +10,12 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 
 	std::list<Server*>::iterator it;
 	int i;
-	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
-		if ((*it)->id == idServer) {
-			for(i = 0; i < (*it)->load.distribution.size(); ++i){
-				if((*it)->load.distribution.at(i).zone == idZone){
+	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { (*it)->printServer();
+		if ((*it)->id == idServer) { std::cout << "!!!!!!!!!!!" << std::endl;
+			for(i = 0; i < (*it)->load.distribution.size(); ++i){ std::cout << "!!!!!!!!!!!2" << std::endl;
+				if((*it)->load.distribution.at(i)->zone == idZone){
 					Control::instance().recievedMutex.lock();
-					(*it)->load.distribution.at(i).load = zoneLoad;
+					(*it)->load.distribution.at(i)->load = zoneLoad;
 					(*it)->load.totalLoad += zoneLoad;
 					Control::instance().recievedMutex.unlock();	
 				}
