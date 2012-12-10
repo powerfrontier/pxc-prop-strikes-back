@@ -9,7 +9,7 @@
 
 #define IPLENGTH 16
 #define MAXDESV 2
-#define NSERVERS 2
+#define NSERVERS 1
 #define REBALANCING_TIME 4
 #define WAITING_RESPONSE_TIME 2
 #define NZONES 4

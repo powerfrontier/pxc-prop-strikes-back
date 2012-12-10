@@ -37,11 +37,17 @@ double Control::getStDev() {
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 	    	incr += pow((*it)->load.totalLoad - avg, 2);
 	}
-	return sqrt(incr / (NSERVERS - 1));
+	if(NSERVERS < 2) {
+		return sqrt(incr / NSERVERS);
+	}
+	else {
+		return sqrt(incr / (NSERVERS - 1));
+	}
 }
 
 void Control::zoneChange(Server* sourceServer, int changedZonePosition, Server* destinationServer) {
 	// Ordenamos quitar la zona de un servidor
+	cout << "zone change: " << "origen: " << sourceServer->id << " zona: " << changedZonePosition << " desti: " << destinationServer->id << endl;
 	RemoveZoneSend* removeZoneSend = new RemoveZoneSend(changedZonePosition);
 	sourceServer->c->send(*removeZoneSend);  	
 	GetZoneSend* getZoneSend = new GetZoneSend(changedZonePosition, sourceServer->id);
@@ -56,21 +62,27 @@ void Control::balance() {
 	double standardDev = getStDev();
 	int numIterations = 0;
 	double minLoadZone = 1.0;//minLoadZone = 1.0;
+	int posMinLoadZone = 0;
 	int changedZonePosition; //posicionZonaACambiar;
 	double minDev = 1.0; //TODO S'ha d'ajustar bé el valor
-
-	while ( standardDev > minDev && numIterations < servers.size() && maxLoadServer->load.distribution.size() != 1)
-	{
+	
+	standardDev = 2;//solamente de debug
+	cout << "Algoritmo balanceo:" << endl;
+	cout << "stdDev: " << standardDev << endl;
+	cout << "iteracion:" << numIterations << endl;
+	cout << "size:" << maxLoadServer->load.distribution.size() << endl;
+	while (standardDev > minDev && numIterations < servers.size() && maxLoadServer->load.distribution.size() != 1)
+	{	cout << "entro en while" << endl;
 		// Escogemos la zona menos cargada de maxLoadServer
 		for(int i = 0; i < maxLoadServer->load.distribution.size();++i)
 		{
 			if(maxLoadServer->load.distribution.at(i)->load < minLoadZone){
 				minLoadZone = maxLoadServer->load.distribution.at(i)->load;
-				minLoadZone = i; // Guardamos la zona donde esta la carga minima
+				posMinLoadZone = i; // Guardamos la zona donde esta la carga minima
 			}
 		}
 		// Faltaria mirar quin es el servidor amb les zones mes properes
-		changedZonePosition = minLoadZone; // de moment faig aixo perque funcioni
+		changedZonePosition = posMinLoadZone; // de moment faig aixo perque funcioni
 		zoneChange(maxLoadServer, changedZonePosition, minLoadServer);
 		// Actualizamos tabla zona/server
 		zoneServer[changedZonePosition] = minLoadServer;
@@ -79,9 +91,11 @@ void Control::balance() {
 		numIterations++;
 		// Preparación variables para la siguiente iteracion
 		minLoadZone = 1;
+		posMinLoadZone = 0;
 		maxLoadServer = servers.back();
 		minLoadServer = servers.front();
 	}
+	cout << "Salidendo Algoritmo balanceo:" << endl;
 }
 
 void Control::fillIpServerTable(){
@@ -97,13 +111,16 @@ char* Control::getIpServerById(int id){
 }
 
 void Control::initializeServerList() {
-	
+	list<Server*>::iterator it;
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
+	//	cout << "!!!!3" << endl;
 		servers.push_back(new Server(i,ipServers[i]));
-	}	
+	}
+	//for(it=servers.begin();it!=servers.end();it++)
+	//	cout << (*it)->id << endl;	
 }
 
 void Control::initializeConnections() {
@@ -126,7 +143,9 @@ void Control::initializeConnections() {
 	//fflush(stdout);
 	
 	for(it=servers.begin();it!=servers.end();it++) {
+//cout << "!!!!" << (*it)->id << endl;
 		(*it)->c = new TCPConnection();
+//cout << "!!!!2" << endl;
 		//cout << (*it)->c << endl;
 		//cout << to_string(gamePort + i);
 		/*if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
@@ -189,6 +208,7 @@ void Control::writeDownServer(){
 
 void Control::zoneAssignment(){
 	cout << "asignando zonas" << endl;
+	int zonesRestants = NZONES;
 	int modZonesPerServer = NZONES % NSERVERS;
 	int zoneIndex = modZonesPerServer;
 	int i;
@@ -200,26 +220,30 @@ void Control::zoneAssignment(){
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
 		
 		server->c->send(*setZoneToServerSend);
-		zoneServer[i] = server;		
+		zoneServer[i] = server;
+		zonesRestants--;	
 	}
 	
 	list<Server*>::iterator it;
-	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
-		setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
-//cout << zoneIndex << " " << (*it)->id << endl;
-		(*it)->c->send(*setZoneToServerSend);
-//cout << zoneIndex << " " << (*it)->id << endl;
-		zoneServer[zoneIndex] = (*it);
+	while(zonesRestants > 0) {
+		for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
+			//cout << zoneIndex << " " << (*it)->id << endl;
+			(*it)->c->send(*setZoneToServerSend);
+			//cout << zoneIndex << " " << (*it)->id << endl;
+			zoneServer[zoneIndex] = (*it);
 
-		// inicializar atributos de carga i zona del servidor
-		ZoneLoad* zl = new ZoneLoad(zoneIndex, 0);
-		(*it)->load.distribution.push_back(zl);
-		(*it)->load.totalLoad = 0;
+			// inicializar atributos de carga i zona del servidor
+			ZoneLoad* zl = new ZoneLoad(zoneIndex, 0);
+			(*it)->load.distribution.push_back(zl);
+			(*it)->load.totalLoad = 0;
 		
-		zoneIndex++;
-		if ( zoneIndex == NZONES ){
-			return;
-		}		
+			zoneIndex++;
+			if ( zoneIndex == NZONES ){
+				return;
+			}
+			zonesRestants--;		
+		}
 	}
 		
 }
