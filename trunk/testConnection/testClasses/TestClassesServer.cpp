@@ -25,7 +25,7 @@ void test::exec(Connection *c) const throw() {
 	std::cout << " ME HA LLEGADO LA INSTR 2, envio" << std::endl;
 	TestTransferableSent* sent = NULL;
 	sent = new TestTransferableSent();
-	c->send(*sent);
+	c->sendAnswer(*sent);
 }
 
 TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("TestTransferableRcvd")

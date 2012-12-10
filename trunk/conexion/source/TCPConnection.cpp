@@ -173,14 +173,12 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
 	ssize_t r;
 	if (isLinkOnline()){
-		std::cout << "LINK ONLINE " << std::endl;
 		r = BIO_write(sbio,buffer, lengthPacket);
 	}else{
 		r = 0;
 	}
 	while (r != lengthPacket){
 		if (r == 0) {	
-			std::cout << "NOBODY LISTENING" << std::endl;
 			close(false);
 			return;
 		}else if (r < 0){
@@ -197,14 +195,68 @@ void TCPConnection::send(Transferable& message) throw (ConnectionException){
 			return;
 		}
 		if (isLinkOnline()){
-			std::cout << "LINK ONLINE " << std::endl;
 			r = BIO_write(sbio,buffer, lengthPacket);
 		}else{
 			r = 0;
 		}
 	}
+	sleep(1); // Para que no pete cuando envias muchos sends seguidos (le da tiempo a receive a actuar)
 
 }
+
+void TCPConnection::sendAnswer(Transferable& message) throw (ConnectionException){
+	size_t lengthMessage = message.size();
+	size_t lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
+	char buffer[lengthPacket];
+	std::string protocol = TransferableFactory::instance().protocol();
+	if (protocol.size() > 8){	
+		std::cout << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
+		return;
+	}
+	int type; 
+	try{
+		type = message.type();
+	}catch(TransferableVersionException& e){
+		std::cout << "Error using Transferable, message.type incorrect " << std::endl;
+		std::cout << e.what() << std::endl;
+		return;
+	}
+	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
+	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
+	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
+	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
+	ssize_t r;
+	if (isLinkOnline()){
+		r = BIO_write(sbio,buffer, lengthPacket);
+	}else{
+		r = 0;
+	}
+	while (r != lengthPacket){
+		if (r == 0) {	
+			close(true);
+			return;
+		}else if (r < 0){
+			if (!BIO_should_retry(sbio)) {
+				char message[] ="TCPConnection::send() BIO_read should retry test failed.\n";
+				print_ssl_error(message, stdout);
+				close(true);
+				return;
+			}
+		}else{
+			char message[] = "TCPConnection::send() Wrong: Guru meditation 1\n";
+			print_ssl_error(message, stdout);
+			close(true);
+			return;
+		}
+		if (isLinkOnline()){
+			r = BIO_write(sbio,buffer, lengthPacket);
+		}else{
+			r = 0;
+		}
+	}
+	sleep(1); // Para que no pete cuando envias muchos sends seguidos (le da tiempo a receive a actuar)
+}
+
 
 void TCPConnection::receive() throw(ConnectionException){
 	if (tListen == NULL) tListen = new std::thread(&TCPConnection::receiveThread, this);
@@ -229,7 +281,6 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	int instruction;
 	size_t r;
 	if (isLinkOnline()){
-		std::cout << "RLINK ONLINE " << std::endl;
 		r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
 	}else{
 		r = 0;
@@ -248,7 +299,6 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 			}
 		}
 		if (isLinkOnline()){
-			std::cout << "RLINK ONLINE " << std::endl;
 			r = BIO_read(sbio, bufsizeCommunication, lengthCommunication);
 		}else{
 			r = 0;
@@ -270,7 +320,6 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 	//receive the Transferable
 	char bufferMessage[sizeMessage];
 	if (isLinkOnline()){
-		std::cout << "R2LINK ONLINE " << std::endl;
 		r = BIO_read(sbio, bufferMessage, sizeMessage);
 	}else{
 		r = 0;
@@ -289,7 +338,6 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 			}
 		}
 		if (isLinkOnline()){
-			std::cout << "R2LINK ONLINE " << std::endl;
 			r = BIO_read(sbio, bufferMessage, sizeMessage);
 		}else{
 			r = 0;
