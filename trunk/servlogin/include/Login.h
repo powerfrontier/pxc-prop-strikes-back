@@ -1,5 +1,5 @@
-#ifndef _Login_h
-#define _Login_h
+#ifndef _LOGIN_H_
+#define _LOGIN_H_
  
 #include <Singleton.h>
 #include <Connection.h>
