@@ -35,7 +35,7 @@ public:
 	Server* zoneServer[NZONES];
 	std::list<Server*> servers;
 	std::mutex recievedMutex;
-	int recievedConnectionMask;
+	unsigned int recievedConnectionMask;
 	Connection* loginConnection;  //= new TCPConnection();
 	Connection* routerConnection; // = new TCPConnection();
 	virtual ~Control();
