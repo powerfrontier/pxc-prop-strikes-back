@@ -11,8 +11,8 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 	std::list<Server*>::iterator it;
 	int i;
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { (*it)->printServer();
-		if ((*it)->id == idServer) { std::cout << "!!!!!!!!!!!" << std::endl;
-			for(i = 0; i < (*it)->load.distribution.size(); ++i){ std::cout << "!!!!!!!!!!!2" << std::endl;
+		if ((*it)->id == idServer) {
+			for(i = 0; i < (*it)->load.distribution.size(); ++i){
 				if((*it)->load.distribution.at(i)->zone == idZone){
 					Control::instance().recievedMutex.lock();
 					(*it)->load.distribution.at(i)->load = zoneLoad;
@@ -22,11 +22,11 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 			}
 			if(remainingZones == 0){
 				Control::instance().recievedMutex.lock();
-				std::cout <<  "Resultat de la mascara: " << Control::instance().recievedConnectionMask << "\n";
-				std::cout << idServer << std::endl;
+				//std::cout <<  "Resultat de la mascara: " << Control::instance().recievedConnectionMask << "\n";
+				//std::cout << idServer << std::endl;
 				Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask & ~(1 << idServer);
-				std::cout << "Resultat del desplaçament: " << ~(1 << idServer) << std::endl;
-				std::cout << "Resultat de la mascara canviada: " << Control::instance().recievedConnectionMask << "\n";
+				//std::cout << "Resultat del desplaçament: " << ~(1 << idServer) << std::endl;
+				//std::cout << "Resultat de la mascara canviada: " << Control::instance().recievedConnectionMask << "\n";
 				Control::instance().recievedMutex.unlock();
 				return;	
 			} 			

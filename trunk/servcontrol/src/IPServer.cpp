@@ -21,7 +21,7 @@ void IPServerRcvd::exec(Connection* c) const throw(){
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {		
 		if ((*it)->id == idServer) {
 			IPServerSend* ipServerSend = new IPServerSend(ipSend);
-			(*it)->c->send(*ipServerSend);		
+			(*it)->c->sendAnswer(*ipServerSend);		
 		}		
 	}	
 	

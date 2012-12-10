@@ -16,8 +16,7 @@ void Server::printServer() {
 	cout << "Id: " << id << endl;
 	cout << "IP: " << ip << endl;
 	cout << "Connection: " << c << endl;
-	cout << "Load " << endl;
-	cout << "total: " << load.totalLoad << " " << load.distribution.size() << endl;
+	cout << "Carga total: " << load.totalLoad << endl;
 	for(int i=0; i<load.distribution.size(); ++i){
 		cout << "zona " << load.distribution.at(i)->zone << " carga: " << load.distribution.at(i)->load << endl; 
 	}
