@@ -11,7 +11,7 @@ class TestTransferableSent : public Datagram<TestTransferableSent> {
 	int m_4;
 
 public:
-	TestTransferableSent();
+	TestTransferableSent(int cont);
 	virtual ~TestTransferableSent();
 	
 	TestTransferableSent& m1(int);
@@ -19,6 +19,7 @@ public:
 
 class test : public Datagram<test> {
 	public:
+		int aux;
 		test();
 		virtual ~test();
 		
