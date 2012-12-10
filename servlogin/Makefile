@@ -1,9 +1,14 @@
 Done: Login
 	echo "DONE"
 
-Login: Connection.o ConnectionManager.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o LoginProfile.o Login.o
-	g++ ConnectionException.o ConnectionManager.o Connection.o TCPConnection.o Transferable.o TransferableFactory.o  TransferableProfile.o LoginProfile.o Login.o -o Login -lssl -lcrypto -pthread -std=c++0x
+Login: Connection.o ConnectionManager.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o LoginRequest.o LogoutRequest.o LoginProfile.o Login.o
+	g++ ConnectionException.o ConnectionManager.o Connection.o TCPConnection.o Transferable.o TransferableFactory.o  TransferableProfile.o LoginRequest.o LogoutRequest.o LoginProfile.o Login.o -o Login -lssl -lcrypto -pthread -std=c++0x
 
+
+LoginRequest.o: ./src/LoginRequest.cpp
+	g++ -c ./src/LoginRequest.cpp -I../conexion/include -I./include -std=c++0x
+LogoutRequest.o: ./src/LogoutRequest.cpp
+	g++ -c ./src/LogoutRequest.cpp -I../conexion/include -I./include -std=c++0x
 LoginProfile.o: ./src/LoginProfile.cpp
 	g++ -c ./src/LoginProfile.cpp -I../conexion/include -I./include -std=c++0x
 ConnectionManager.o: ../conexion/source/ConnectionManager.cpp

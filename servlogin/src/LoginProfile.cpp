@@ -1,3 +1,5 @@
+#include <LoginRequest.h>
+#include <LogoutRequest.h>
 #include <LoginProfile.h>
 #include <iostream>
 
@@ -5,8 +7,12 @@
 using namespace std;
 
 LoginProfile::LoginProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
-//	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new ServerLoadRcvd::Creator("ServerLoadRcvd"))); // Recibo x con id y	
-//	mCreatorIds.push_back(std::pair<std::string, int>("ServerLoadSend", 1)); // Envio x con id y
+	mCreators.push_back(std::pair<int, TransferableCreator*>(100, new LoginRequestRcvd::Creator("LoginRequestRcvd"))); 
+	mCreators.push_back(std::pair<int, TransferableCreator*>(102, new LogoutRequestRcvd::Creator("LogoutRequestRcvd")));
+	
+	
+	mCreatorIds.push_back(std::pair<std::string, int>("LoginRequestSend", 101)); 
+	mCreatorIds.push_back(std::pair<std::string, int>("LogoutRequestSend", 103));
 
 }
 
