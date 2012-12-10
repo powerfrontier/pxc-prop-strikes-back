@@ -97,5 +97,28 @@ virtual void sendAnswer(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
 
+class TCPConnectionSecurity : public TCPConnection {
+private:
+SSL *ssl;
+std::thread *tListen;
+std::mutex mOnlineMutex;
+bool online;
+void receiveThread();
+void receiveTransfThread() throw(ConnectionException);
+void setLinkOnline(bool);
+virtual void close(bool) throw();
+public:
+TCPConnectionSecurity() throw();
+TCPConnectionSecurity(SSL*, std::string port) throw();
+virtual ~TCPConnectionSecurity() throw();
+virtual std::string getPort();
+virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
+virtual void close() throw();
+virtual bool isLinkOnline() throw();
+virtual void send(Transferable& message) throw (ConnectionException);
+virtual void sendAnswer(Transferable& message) throw (ConnectionException);
+virtual void receive() throw(ConnectionException);
+};
+
 #endif
 
