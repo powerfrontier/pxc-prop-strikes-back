@@ -3,15 +3,13 @@
 
 #include <vector>
 #include <Connection.h>
+#include <ZoneLoad.h>
 
 class Server {
 	public:
-	struct zoneLoad {
-		      int zone;
-		      double load;
-	};
+	
 	struct serverLoad {
-		std::vector<zoneLoad> distribution;
+		std::vector<ZoneLoad*> distribution;
 		double totalLoad;
 	};  
 	int id;
@@ -24,9 +22,10 @@ class Server {
 	}
 
 
-	Server(int idServer, char* ipServer): id(idServer), ip(ipServer){} 	
+	Server(int idServer, char* ipServer): id(idServer), ip(ipServer) {} 	
 	Server(){}
 	virtual ~Server();
+	void printServer();
 };
 
 
