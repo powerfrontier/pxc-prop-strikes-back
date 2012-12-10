@@ -1,0 +1,24 @@
+Log-in
+
+Desde cliente:
+LoginRequestSend
+char[32] mUsername; //Nombre de usuario
+char[32] mPassword; //Contraseña en texto plano, vamos por SSL (en teoría)
+
+Respuesta de Login:
+LoginAnswerRcvd
+int mAnswerCode; //Código de respuesta al intento de login. 0 = login correcto, 1=Wrong username or password, los demás que os hagan falta.
+char[16] mRouterIp; //Ip del router al que se conectará seguida de uno o más caracteres NULL \0 para indicar el final de string. Si no es un login correcto se ignora.
+int mClientId; //Id del cliente en nuestro sistema (mapeo directo id-username)
+int mToken; //Token de sesión si es un login correcto. Si no, se ignora. Login necesita mandar el mismo token con el id del cliente al router, junto a la zona en la que se encuentra inicialmente
+
+
+Log-Out
+Desde el cliente:
+LogoutRequestSend
+int mClientId; //Id del cliente en nuestro sistema
+int mToken; //Token de la sesión actual del cliente
+
+Respuesta de Login:
+LogoutAnswerRcvd
+int mAnswerCode; //Código de respuesta de logout. 0=OK, 1=Invalid username. 2=Invalid token. El resto si os motiva hacer alguno.
