@@ -22,7 +22,11 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 			}
 			if(remainingZones == 0){
 				Control::instance().recievedMutex.lock();
-				Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask || (1 << idServer);
+				std::cout <<  "Resultat de la mascara: " << Control::instance().recievedConnectionMask << "\n";
+				std::cout << idServer << std::endl;
+				Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask & ~(1 << idServer);
+				std::cout << "Resultat del desplaçament: " << ~(1 << idServer) << std::endl;
+				std::cout << "Resultat de la mascara canviada: " << Control::instance().recievedConnectionMask << "\n";
 				Control::instance().recievedMutex.unlock();
 				return;	
 			} 			

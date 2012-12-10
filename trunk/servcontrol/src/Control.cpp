@@ -221,6 +221,7 @@ void Control::zoneAssignment(){
 			return;
 		}		
 	}
+		
 }
 
 Control::~Control(){
@@ -255,9 +256,12 @@ cout << "final inicializar conexiones" << endl;
 	list<Server*>::iterator it;
 	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
-	int shift = (sizeof(int) * 8) - NSERVERS;	
+	unsigned int shift = (sizeof(int) * 8) - NSERVERS;	
 	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
+	
 	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
+	
+	
 	breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
 cout << "final inicializacion" << endl;	
 	while(1) { 
