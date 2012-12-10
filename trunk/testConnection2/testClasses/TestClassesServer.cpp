@@ -2,21 +2,26 @@
 #include <iostream>
 #include <Connection.h>
 
-TestTransferableSent::TestTransferableSent(int cont) 	: Datagram<TestTransferableSent>("TestTransferableSent")
-						{
-	if(cont%2==1) {
+TestTransferableSent::TestTransferableSent(int aux)    : Datagram<TestTransferableSent>("TestTransferableSent")
+                                                //, m_1(0)
+                                                //, m_2(0)
+                                                //, m_3(0)
+                                                //, m_4(0) 
+{
+	if(aux%2==0)
+	{
 		m_1 = 0;
 		m_2 = 0;
+		m_3 = 0.3;
+		m_4 = 0;
+	}
+	else
+	{
+		m_1 = 1;
+		m_2 = 1;
 		m_3 = 0.2;
 		m_4 = 0;
 	}
-	else {
-		m_1 = 1;
-		m_2 = 1;
-		m_3 = 0.4;
-		m_4 = 0;
-	}
-
 }
 
 TestTransferableSent::~TestTransferableSent() {
@@ -24,28 +29,29 @@ TestTransferableSent::~TestTransferableSent() {
 }
 
 test::test() : Datagram<test>("test"){
-	aux = 0;
 
 }
+
+int test::aux = 0;
 
 test::~test(){
 }
 
 void test::exec(Connection *c) const throw() {
-	std::cout << " ME HA LLEGADO LA INSTR 2, envio" << std::endl;
-	TestTransferableSent* sent = NULL;
-	sent = new TestTransferableSent(aux++);
-	c->sendAnswer(*sent);
+        std::cout << " ME HA LLEGADO LA INSTR 2, envio, aux: " << aux << std::endl;
+        TestTransferableSent* sent = NULL;
+        sent = new TestTransferableSent(test::aux++);
+        c->sendAnswer(*sent);
 }
 
-TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("TestTransferableRcvd")
-						, m_zona(0)
-						, m_server(0){
+TestTransferableRcvd::TestTransferableRcvd()    : Datagram<TestTransferableRcvd>("TestTransferableRcvd")
+                                                , m_zona(0)
+                                                , m_server(0){
 
 }
 TestTransferableRcvd::TestTransferableRcvd(int zone, int server): Datagram<TestTransferableRcvd>("TestTransferableRcvd")
-						, m_zona(zone)
-						, m_server(server){
+                                                , m_zona(zone)
+                                                , m_server(server){
 
 }
 TestTransferableRcvd::~TestTransferableRcvd() {
@@ -53,29 +59,29 @@ TestTransferableRcvd::~TestTransferableRcvd() {
 }
 
 void TestTransferableRcvd::exec(Connection* c) const throw() {
-	std::cout <<"Ha llegado una zona: " << m_zona << " del servidor: " << m_server << std::endl;
-	std::string n = c->getPort();
-	std::cout << "Por el puerto: " << n << std::endl;
+        std::cout <<"Ha llegado una zona: " << m_zona << " del servidor: " << m_server << std::endl;
+        std::string n = c->getPort();
+        std::cout << "Por el puerto: " << n << std::endl;
 }
 
 TestProfile::TestProfile() : TransferableProfile() {
-	mCreators.push_back(std::pair<int, TransferableCreator*>(2, new test::Creator("test")));
-	mCreators.push_back(std::pair<int, TransferableCreator*>(7, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
-	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
+        mCreators.push_back(std::pair<int, TransferableCreator*>(2, new test::Creator("test")));
+        mCreators.push_back(std::pair<int, TransferableCreator*>(7, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
+        mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent", 0));
 }
 
 TestProfile::~TestProfile() {
-	for(int i = 0; i < mCreators.size(); ++i) delete mCreators[i].second;
-	mCreators.clear();
+        for(int i = 0; i < mCreators.size(); ++i) delete mCreators[i].second;
+        mCreators.clear();
 }
 /*
 const TransferableProfile::Creators& TestProfile::getCreators(const std::string& protocol) const throw(TransferableVersionException&) {
-	if(protocol == "0.1a") return mCreators;
-	else throw TransferableVersionException("Unknown protocol");
+        if(protocol == "0.1a") return mCreators;
+        else throw TransferableVersionException("Unknown protocol");
 }
 
 const TransferableProfile::CreatorIds& TestProfile::getCreatorIds(const std::string& protocol) const throw(TransferableVersionException&) {
-	if(protocol == "0.1a") return mCreatorIds;
-	else throw TransferableVersionException("Unknown protocol");
+        if(protocol == "0.1a") return mCreatorIds;
+        else throw TransferableVersionException("Unknown protocol");
 }
 */
