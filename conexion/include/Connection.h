@@ -52,7 +52,7 @@ virtual void close() throw() = 0;
 virtual bool isLinkOnline() throw() = 0;
 
 virtual void send(Transferable& message) throw (ConnectionException) = 0;
-
+virtual void sendAnswer(Transferable& message) throw (ConnectionException) = 0;
 virtual void receive() throw(ConnectionException) = 0;
 
 void setCallbackFunction(ConnectionCallback*) throw();
@@ -77,6 +77,7 @@ virtual bool connect(const std::string& ipAddr, const std::string& port) throw(C
 virtual void close() throw();
 virtual bool isLinkOnline() throw();
 virtual void send(Transferable& message) throw (ConnectionException);
+virtual void sendAnswer(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
 
@@ -92,6 +93,7 @@ virtual void close() throw();
 virtual bool isLinkOnline() throw();
 virtual std::string getPort();
 virtual void send(Transferable& message) throw (ConnectionException);
+virtual void sendAnswer(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
 

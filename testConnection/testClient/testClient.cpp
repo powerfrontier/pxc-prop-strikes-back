@@ -44,7 +44,6 @@ int main(int argc, char** argv){
 			printf("MainClient(): sent7\n");
 	       		fflush(stdout);
 			delete sent7;
-			sleep(1);
 		}else{
 			std::cout << "Conexion perdida, Reconectando... "<< std::endl;
 			if(n->connect(ip, port)) {
