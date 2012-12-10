@@ -3,19 +3,19 @@ Envíos: Control envía a Juego
 SetZoneToServerSend - Se envían las zonas iniciales que cargarán los servidores en su encendido.
   ID instrucción: 7
 	Params:
-	- idZone: id de la zona a cargar
-	- idServer: id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
+	- int idZone: id de la zona a cargar
+	- int idServer: id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
 
 GetZoneSend - Se envía a un servidor de destino la zona que tiene que recoger
   ID instrucción: 4
 	Params:
-	- idZone: id de la zona a cargar
-	- idServerSource: id del servidor origen que tiene la zona
+	- int idZone: id de la zona a cargar
+	- int idServerSource: id del servidor origen que tiene la zona
 
 RemoveZoneSend - Se envía a un servidor la orden de dejar de gestionar la zona
   ID instrucción: 3
 	Params:
-	- idZone: id de la zona a eliminar
+	- int idZone: id de la zona a eliminar
 
 ServerLoadSend - Se envía a un servidor una petición para que envíe la carga de todas sus zonas
   ID instrucción: 2
@@ -32,15 +32,15 @@ Recepción: Control recibe de Juego
 ServerLoadRcvd - Control recibe la carga de una zona
   ID instrucción: 0
 	Params:
-	- idServer: id del server que pasa la zona(id enviada en SetZoneToServerSend  )
-	- idZone: id de la zona cuya carga se está pasando
-	- zoneLoad: carga de la zona que se está pasando
-	- remainingZones: zonas restantes que quedan para pasar (recuerdo que se tiene que control tiene que recibir un datagrama por cada zona que tiene el servidor de juego,
+	- int idServer: id del server que pasa la zona(id enviada en SetZoneToServerSend  )
+	- int idZone: id de la zona cuya carga se está pasando
+	- double zoneLoad: carga de la zona que se está pasando
+	- int remainingZones: zonas restantes que quedan para pasar (recuerdo que se tiene que control tiene que recibir un datagrama por cada zona que tiene el servidor de juego,
 en el datagrama en que el remainingZones devuelto sea 0, Control dejará de esperar nuevas zonas)
 
 IPServerRcvd - Control recibe la petición para enviar la ip de un server
   ID instrucción: 1
   Params:
-  - idServer: id del server del cual se quiere la IP
+  - int idServer: id del server del cual se quiere la IP
 
 
