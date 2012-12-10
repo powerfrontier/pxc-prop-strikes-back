@@ -9,11 +9,12 @@ int main(int argc, char** argv){
 	//TestProfile es herenccia de TransferableProfile para decirle 
 	TransferableFactory::instance().setProfile(new TestProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
-
+	std::string ip(argv[1]);
+	std::string port(argv[2]);
 	printf("MainClient(): 1\n");
         fflush(stdout);
 	Connection* n = new TCPConnection();
-	while(!n->connect(std::string(argv[1]),std::string(argv[2]))) { 
+	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
 	}
@@ -46,7 +47,7 @@ int main(int argc, char** argv){
 			sleep(1);
 		}else{
 			std::cout << "Conexion perdida, Reconectando... "<< std::endl;
-			if(n->connect(std::string(argv[1]),std::string(argv[2]))) {
+			if(n->connect(ip, port)) {
 				std::cout << "Conexion Restablecida "<< std::endl; 
 			}else{
 				std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 

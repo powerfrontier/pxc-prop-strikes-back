@@ -66,14 +66,18 @@ TCPConnection::~TCPConnection() throw(){
 }
 
 bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException){
- 
+	if (sbio != NULL) close();
 	/* Create a new connection */
-	char *ipAddrToChar = new char[ipAddr.size()+1+port.size()] ;
-	strcpy(ipAddrToChar, ipAddr.c_str());
-	strcat(ipAddrToChar, ":");
-	strcat(ipAddrToChar, port.c_str());
+	std::string ipandport(ipAddr + ":" + port);
 	mPort = port;
-	sbio = BIO_new_connect(ipAddrToChar);
+	std::cout << "IP: ";
+	std::cout << ipandport << std::endl;
+	
+	char * writable = new char[ipandport.size() + 1];
+	std::copy(ipandport.begin(), ipandport.end(), writable);
+	writable[ipandport.size()] = '\0'; 
+	sbio = BIO_new_connect(writable);
+	delete[] writable;
     	if (sbio == NULL) {
 		char message[] = "Unable to create a new unencrypted BIO object.\n";
  		print_ssl_error(message, stdout);
@@ -91,9 +95,9 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 				repeat = true;
 			}else{
 				repeat = false;
+	       		 	close(false);
 				char message[] = "Unable to connect unencrypted.\n";
 				print_ssl_error(message, stdout);
-	       		 	close(false);
 	      	 	 	return false;
 			}
 
@@ -104,6 +108,10 @@ bool TCPConnection::connect(const std::string& ipAddr, const std::string& port) 
 	setLinkOnline(true);
 	receive();
 	return true;
+}
+
+void TCPConnection::close() throw(){
+	close(false);
 }
 
 void TCPConnection::close(bool threadListen) throw(){
