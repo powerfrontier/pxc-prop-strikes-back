@@ -35,5 +35,5 @@ ControlProfile.o: ./src/ControlProfile.cpp
 	g++ -c ./src/ControlProfile.cpp -I../conexion/include -I./include -std=c++0x
 
 clean:
-	rm Control
 	rm *.o
+	rm Control	
