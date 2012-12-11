@@ -62,7 +62,7 @@ void Control::balance() {
 	double standardDev = getStDev();
 	int numIterations = 0;
 	double minLoadZone = 1.0;//minLoadZone = 1.0;
-	int posMinLoadZone = 0;
+	int posMinLoadZone = -1;
 	int changedZonePosition; //posicionZonaACambiar;
 	double minDev = 1.0; //TODO S'ha d'ajustar bé el valor
 	
@@ -70,8 +70,10 @@ void Control::balance() {
 	cout << "Algoritmo balanceo:" << endl;
 	cout << "stdDev: " << standardDev << endl;
 	cout << "iteracion:" << numIterations << endl;
+	cout << "server size: " << servers.size() << endl;
+	cout << "maxloadserver id: " << maxLoadServer->id << endl;
 	cout << "size:" << maxLoadServer->load.distribution.size() << endl;
-	while (standardDev > minDev && numIterations < servers.size() && maxLoadServer->load.distribution.size() != 1)
+	while (standardDev > minDev && numIterations < servers.size() && maxLoadServer->load.distribution.size() != 1 && maxLoadServer != minLoadServer)
 	{	cout << "entro en while" << endl;
 		// Escogemos la zona menos cargada de maxLoadServer
 		for(int i = 0; i < maxLoadServer->load.distribution.size();++i)
@@ -83,7 +85,10 @@ void Control::balance() {
 		}
 		// Faltaria mirar quin es el servidor amb les zones mes properes
 		changedZonePosition = posMinLoadZone; // de moment faig aixo perque funcioni
-		zoneChange(maxLoadServer, changedZonePosition, minLoadServer);
+		//if(posMinLoadZone != -1) // s'ha selecciona almenys alguna zona i la carrega es > 0
+		//{
+			zoneChange(maxLoadServer, changedZonePosition, minLoadServer);
+		//}
 		// Actualizamos tabla zona/server
 		zoneServer[changedZonePosition] = minLoadServer;
 		servers.sort();
@@ -91,7 +96,7 @@ void Control::balance() {
 		numIterations++;
 		// Preparación variables para la siguiente iteracion
 		minLoadZone = 1;
-		posMinLoadZone = 0;
+		posMinLoadZone = -1;
 		maxLoadServer = servers.back();
 		minLoadServer = servers.front();
 	}
@@ -104,6 +109,7 @@ void Control::fillIpServerTable(){
 	}
 	strcpy(ipServers[0],IP_GAME_1);
 	strcpy(ipServers[1],IP_GAME_2);
+	strcpy(ipServers[2],IP_GAME_3);
 }
 
 char* Control::getIpServerById(int id){
@@ -167,6 +173,12 @@ void Control::initializeConnections() {
 			//while ((*it)->c->connect((*it)->ip, PORT_GAME_2) == false){
 			//	cout << "5 ingenieros, nuff said";
 			//}
+		}else if( i == 2){
+			if((*it)->c->connect((*it)->ip, PORT_GAME_3)){
+				cout << "Servidor " << i << " conectado\n";
+			}else{
+				cout << "Servidor " << i << " NO conectado\n";
+			}
 		}
 		++i;
 	}
@@ -212,6 +224,7 @@ void Control::zoneAssignment(){
 	int modZonesPerServer = NZONES % NSERVERS;
 	int zoneIndex = modZonesPerServer;
 	int i;
+	ZoneLoad* zl;
 	SetZoneToServerSend* setZoneToServerSend;
 	Server* server = servers.front();
 	for(i = 0; i < modZonesPerServer; ++i){
@@ -221,6 +234,9 @@ void Control::zoneAssignment(){
 		
 		server->c->send(*setZoneToServerSend);
 		zoneServer[i] = server;
+		zl = new ZoneLoad(i, 0);
+		server->load.distribution.push_back(zl);
+		server->load.totalLoad = 0;
 		zonesRestants--;	
 	}
 	
@@ -234,7 +250,7 @@ void Control::zoneAssignment(){
 			zoneServer[zoneIndex] = (*it);
 
 			// inicializar atributos de carga i zona del servidor
-			ZoneLoad* zl = new ZoneLoad(zoneIndex, 0);
+			zl = new ZoneLoad(zoneIndex, 0);
 			(*it)->load.distribution.push_back(zl);
 			(*it)->load.totalLoad = 0;
 		
@@ -264,6 +280,11 @@ void balanceHandle(int signum) {
 
 void loadRequestHandle(int signum){
   timeout = 0;
+}
+
+bool compareServersLoad(Server* first, Server* second) {
+	//std::cout << first->load.totalLoad << " " << second->load.totalLoad << std::endl;
+	return (first->load.totalLoad < second->load.totalLoad);
 }
 
 int main() {
@@ -310,7 +331,16 @@ cout << "final inicializacion" << endl;
 			if(Control::instance().recievedConnectionMask) { //s'ha sortit del bucle pel timeout
 				Control::instance().writeDownServer();
 			}
-			Control::instance().servers.sort(); //ordenamos la lista
+			
+			for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+				cout << "id!!! " << (*it)->id << endl;
+				cout << "load!" << (*it)->load.totalLoad << endl;
+			}
+			Control::instance().servers.sort(compareServersLoad); //ordenamos la lista
+			for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+				cout << "id!!! " << (*it)->id << endl;
+				cout << "load!" << (*it)->load.totalLoad << endl;
+			}
 			Control::instance().balance(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
 			//poner la alarma para el proximo rebalanceo
 			breakflag = 0; 
