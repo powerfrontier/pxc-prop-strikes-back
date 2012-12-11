@@ -1,37 +1,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Connection.h"
-#include <winsock2.h> // Winsock header
+#include <unistd.h>
+#include <netinet/in.h>
+#include<iostream>	//cout
+#include<string.h>	//strlen
+#include<string>	//string
+#include<sys/socket.h>	//socket
+#include<arpa/inet.h>	//inet_addr
+#include<netdb.h>	//hostent
+#include<sysConnect.h>
+#include <netinet/in.h>
 
-/**
- * Simple log function
- */
-void slog(char* message) {
-    fprintf(stdout, "%s", message);
-}
+/* OpenSSL headers */
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
-/**
- * Print SSL error details
- */
-void print_ssl_error(char* message, FILE* out) {
- 
-    fprintf(out, "%s", message);
-    fprintf(out, "Error: %s\n", ERR_reason_error_string(ERR_get_error()));
-    fprintf(out, "%s\n", ERR_error_string(ERR_get_error(), NULL));
-    ERR_print_errors_fp(out);
-}
- 
-/**
- * Print SSL error details with inserted content
- */
-void print_ssl_error_2(char* message, char* content, FILE* out) {
- 
-    fprintf(out, message, content);
-    fprintf(out, "Error: %s\n", ERR_reason_error_string(ERR_get_error()));
-    fprintf(out, "%s\n", ERR_error_string(ERR_get_error(), NULL));
-    ERR_print_errors_fp(out);
-}
-
+#include <thread>
 TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
     /* call the standard SSL init functions */
     CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
@@ -42,15 +28,23 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
     OpenSSL_add_all_algorithms();
 
     tListen = NULL;
-    sbio =  NULL;
-    setLinkOnline(false);
+
+
+/*************************/
+	/* Create the TCP socket */
+	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+		std::cout << "DIE CREATING A SOCKET" << std::endl;
+	}
+/*************************/
+
+//    setLinkOnline(false);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
 
 TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() : Connection() {
     /* call the standard SSL init functions */
-    CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
+   /* CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
     SSL_load_error_strings();
     SSL_library_init();
     ERR_load_BIO_strings();
@@ -59,7 +53,7 @@ TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() :
     ssl= c;
     tListen = NULL;
     mPort = port;
-    setLinkOnline(true);
+    setLinkOnline(true);*/
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
 }
@@ -70,9 +64,18 @@ TCPConnectionSecurity::~TCPConnectionSecurity() throw(){
 }
 
 bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException){
-	if (sbio != NULL) close();
+	/* Construct the server sockaddr_in structure */
+	memset(&echoserver, 0, sizeof(echoserver));       /* Clear struct */
+	echoserver.sin_family = AF_INET;                  /* Internet/IP */
+	echoserver.sin_addr.s_addr = inet_addr(ipAddr.c_str());  /* IP address */
+	echoserver.sin_port = htons(atoi(port.c_str()));       /* server port */
+	/* Establish connection */
+	if (sysConnect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
+              std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
+	}
+/*	if (sbio != NULL) close();*/
 	/* Create a new connection */
-	std::string ipandport(ipAddr + ":" + port);
+/*	std::string ipandport(ipAddr + ":" + port);
 	mPort = port;
 	std::cout << "IP: ";
 	std::cout << ipandport << std::endl;
@@ -88,9 +91,9 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 		close(false);
         	return false;
     	}
-
+*/
 	/* Verify successful connection */
-	
+/*	
 	bool repeat;
 	repeat = true;
 	while (repeat){
@@ -111,7 +114,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	}
 	setLinkOnline(true);
 	receive();
-	return true;
+	return true;*/
 }
 
 void TCPConnectionSecurity::close() throw(){
@@ -119,7 +122,7 @@ void TCPConnectionSecurity::close() throw(){
 }
 
 void TCPConnectionSecurity::close(bool threadListen) throw(){
-	setLinkOnline(false);
+/*	setLinkOnline(false);
 	int r = 0;
 	if (sbio != NULL){
 		if (!threadListen && tListen != NULL){
@@ -138,6 +141,7 @@ void TCPConnectionSecurity::close(bool threadListen) throw(){
 	}else{
 		std::cout << "LA CONEXION ESTABA CERRADA" << std::endl;
 	}
+*/
 }
 
 bool TCPConnectionSecurity::isLinkOnline() throw(){
@@ -175,7 +179,14 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
 	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
 	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
-	ssize_t r;
+
+
+	/* Send the word to the server */
+	int echolen = strlen(buffer);
+	if (sysSend(sock, buffer, echolen, 0) != echolen) {
+		std::cout << "Missmatch in number of sent bytes" << std::endl;
+	}
+/*	ssize_t r;
 	if (isLinkOnline()){
 		r = BIO_write(sbio,buffer, lengthPacket);
 	}else{
@@ -205,11 +216,11 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 		}
 	}
 	sleep(1); // Para que no pete cuando envias muchos sends seguidos (le da tiempo a receive a actuar)
-
+*/
 }
 
 void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionException){
-	size_t lengthMessage = message.size();
+/*	size_t lengthMessage = message.size();
 	size_t lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
 	char buffer[lengthPacket];
 	std::string protocol = TransferableFactory::instance().protocol();
@@ -259,11 +270,12 @@ void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionE
 		}
 	}
 	sleep(1); // Para que no pete cuando envias muchos sends seguidos (le da tiempo a receive a actuar)
+*/
 }
 
 
 void TCPConnectionSecurity::receive() throw(ConnectionException){
-	if (tListen == NULL) tListen = new std::thread(&TCPConnection::receiveThread, this);
+	if (tListen == NULL) tListen = new std::thread(&TCPConnectionSecurity::receiveThread, this);
 }
 
 void TCPConnectionSecurity::receiveThread(){
@@ -283,7 +295,52 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 	char bufsizeCommunication[lengthCommunication];
 	char protocol[8];
 	int instruction;
-	size_t r;
+
+        /* Receive the word back from the server */
+	int received =0;
+	while (received < lengthCommunication) {
+		int bytes = 0;
+		if ((bytes = recv(sock, bufsizeCommunication, lengthCommunication, 0)) < 1) {
+			std::cout << "Failed to receive bytes from server" << std::endl;
+		}
+		received += bytes;
+	}
+	memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
+	memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
+	memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
+
+	TransferableCreator* c;
+	try {
+		TransferableFactory::instance().setProtocol(protocol);
+		c = TransferableFactory::instance().creator(instruction);
+	}catch(TransferableVersionException& e){
+		std::cout << "Protocol or instruction received incorrect" << std::endl;
+		throw ConnectionException(e.what());
+	}
+
+	//receive the Transferable
+	char bufferMessage[sizeMessage];
+	received = 0;
+	while (received < sizeMessage) {
+		int bytes = 0;
+		if ((bytes = recv(sock, bufferMessage, sizeMessage, 0)) < 1) {
+			std::cout << "Failed to receive bytes from server" << std::endl;
+		}
+		received += bytes;
+        }
+	Transferable *t;
+	try{
+		t = c->create((void*)bufferMessage);
+		if (!mCallback) {
+			t->exec(this);
+			delete t;
+		}else{
+			mCallback->callbackFunction(t, this);
+		}
+	}catch(TransferableVersionException& e){
+		throw ConnectionException(e.what());
+	}       
+/*	size_t r;
 	if (isLinkOnline()){
 		r = SSL_read(ssl, bufsizeCommunication, lengthCommunication);
 	}else{
@@ -368,4 +425,5 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 	}catch(TransferableVersionException& e){
 		throw ConnectionException(e.what());
 	}
+*/
 }
