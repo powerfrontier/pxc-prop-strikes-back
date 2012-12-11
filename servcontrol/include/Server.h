@@ -4,6 +4,7 @@
 #include <vector>
 #include <Connection.h>
 #include <ZoneLoad.h>
+#include <iostream>
 
 class Server {
 	public:
@@ -18,6 +19,7 @@ class Server {
 	serverLoad load;
 	bool operator < (const Server & s) const
 	{
+		//std::cout << load.totalLoad << " " << s.load.totalLoad << std::endl;
 		return (load.totalLoad < s.load.totalLoad);
 	}
 

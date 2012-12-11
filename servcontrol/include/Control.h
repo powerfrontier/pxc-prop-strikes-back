@@ -9,7 +9,7 @@
 
 #define IPLENGTH 16
 #define MAXDESV 2
-#define NSERVERS 1
+#define NSERVERS 3
 #define REBALANCING_TIME 4
 #define WAITING_RESPONSE_TIME 2
 #define NZONES 4
@@ -19,14 +19,17 @@
 #define PORT_ROUTER "3457"
 #define IP_GAME_1 "0.0.0.0"
 #define IP_GAME_2 "0.0.0.0"
+#define IP_GAME_3 "0.0.0.0"
 #define PORT_GAME_1 "3458"
 #define PORT_GAME_2 "3459"
+#define PORT_GAME_3 "3460"
 
 class Control : public Singleton<Control> {
 	double getAverage();
 	double getStDev();
 	char* ipServers[NSERVERS];
-	void fillIpServerTable();	
+	void fillIpServerTable();
+	bool compareServersLoad(Server* first, Server* second);	
 	//friend class Singleton<Control>;	
 
 
