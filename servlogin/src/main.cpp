@@ -27,13 +27,14 @@ int main() {
 	printf("Login: Estoy en listen\n");
  	fflush(stdout);
 	try {
-	sql::Driver *driver;
+	sql::mysql::MySQL_Driver *driver;
+	//sql::Driver *driver;
 	sql::Connection *con;
 	sql::Statement *stmt;
 	sql::ResultSet *res;
 	
 	/* Create a connection */
-	driver = get_driver_instance();
+	driver = sql::mysql::get_driver_instance();
 	//con = driver->connect("tcp://mysqlfib.fib.upc.es:3306", "BDpxc03", "BDpxc03");
 	/* Connect to the MySQL test database */
 	//con->setSchema("test");

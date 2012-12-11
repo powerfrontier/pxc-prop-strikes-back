@@ -1,13 +1,14 @@
 INCLUDEPATH = include/
+INCLUDECPPCON = include/cppcon/
 SRCPATH = src/
 BINPATH = bin/
 CC      = g++
-CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -I../sqlConnector/$(INCLUDEPATH) -std=c++0x
-LDFLAGS = -lssl -lcrypto -lConnection -L$(BINPATH) -pthread
+CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -I../sqlConnector/$(INCLUDEPATH) -I../sqlConnector/$(INCLUDECPPCON) -I../mysqlDriver/$(INCLUDEPATH) -std=c++0x
+LDFLAGS = -lssl -lcrypto -lConnection -lmysqlcppconn-static -lmysqlclient -L$(BINPATH) -pthread
 
 all: $(BINPATH)Login
 
-$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlcppconn-static.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
+$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlcppconn-static.a $(BINPATH)libmysqlclient.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(BINPATH)libConnection.a:
@@ -16,6 +17,9 @@ $(BINPATH)libConnection.a:
 
 $(BINPATH)libmysqlcppconn-static.a:
 	cp ../sqlConnector/lib/libmysqlcppconn-static.a $(BINPATH)
+
+$(BINPATH)libmysqlclient.a:
+	cp ../sqlConnector/lib/libmysqlclient.a $(BINPATH)
 
 $(BINPATH)Login.o: $(SRCPATH)Login.cpp $(INCLUDEPATH)Login.h
 	$(CC) -c $(CFLAGS) $< -o $@
