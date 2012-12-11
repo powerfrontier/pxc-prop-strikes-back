@@ -2,26 +2,12 @@
 #include <iostream>
 #include <Connection.h>
 
-TestTransferableSent::TestTransferableSent(int aux)    : Datagram<TestTransferableSent>("TestTransferableSent")
-                                                //, m_1(0)
-                                                //, m_2(0)
-                                                //, m_3(0)
-                                                //, m_4(0) 
+TestTransferableSent::TestTransferableSent()    : Datagram<TestTransferableSent>("TestTransferableSent")
+                                                , m_1(1)
+                                                , m_2(2)
+                                                , m_3(0.4)
+                                                , m_4(0) 
 {
-	if(aux%2==0)
-	{
-		m_1 = 0;
-		m_2 = 0;
-		m_3 = 0.3;
-		m_4 = 0;
-	}
-	else
-	{
-		m_1 = 1;
-		m_2 = 1;
-		m_3 = 0.2;
-		m_4 = 0;
-	}
 }
 
 TestTransferableSent::~TestTransferableSent() {
@@ -32,15 +18,16 @@ test::test() : Datagram<test>("test"){
 
 }
 
-int test::aux = 0;
+//int test::aux = 0;
 
 test::~test(){
 }
 
 void test::exec(Connection *c) const throw() {
-        std::cout << " ME HA LLEGADO LA INSTR 2, envio, aux: " << aux << std::endl;
+        std::cout << " ME HA LLEGADO LA INSTR 2, envio," << std::endl;
         TestTransferableSent* sent = NULL;
-        sent = new TestTransferableSent(test::aux++);
+        sent = new TestTransferableSent();
+        std::cout << sent->m_1 << " " << sent->m_2 << " " << sent->m_3 << " " << sent->m_4 << std::endl;
         c->sendAnswer(*sent);
 }
 

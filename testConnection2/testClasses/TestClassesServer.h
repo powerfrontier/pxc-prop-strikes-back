@@ -5,13 +5,15 @@
 
 //Orden que se envía
 class TestTransferableSent : public Datagram<TestTransferableSent> {
-        int m_1;
+       
+
+public:
+	int m_1;
         int m_2;
         double m_3;
         int m_4;
 
-public:
-        TestTransferableSent(int aux);
+        TestTransferableSent();
         virtual ~TestTransferableSent();
        
         TestTransferableSent& m1(int);
@@ -19,7 +21,6 @@ public:
 
 class test : public Datagram<test> {
         public:
-		static int aux;
                 test();
                 virtual ~test();
                
