@@ -103,17 +103,20 @@ virtual void receive() throw(ConnectionException);
 class TCPConnectionSecurity : public Connection {
 private:
 int sock;
-struct sockaddr_in echoserver;
-
+SSL_CTX *ctx;
+BIO *sbio;
 SSL *ssl;
 std::thread *tListen;
 std::mutex mOnlineMutex;
+char *pass;
+
 bool online;
 void receiveThread();
 void receiveTransfThread() throw(ConnectionException);
 void setLinkOnline(bool);
 virtual void close(bool) throw();
 public:
+int password_cb(char *buf,int num, int rwflag,void *userdata);
 TCPConnectionSecurity() throw();
 TCPConnectionSecurity(SSL*, std::string port) throw();
 virtual ~TCPConnectionSecurity() throw();

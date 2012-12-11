@@ -314,6 +314,7 @@ void TCPConnection::receiveTransfThread() throw(ConnectionException){
 		c = TransferableFactory::instance().creator(instruction);
 	}catch(TransferableVersionException& e){
 		std::cout << "Protocol or instruction received incorrect" << std::endl;
+		std::cout << "Protocol received: " << protocol << " Instruction received: " << instruction << std::endl;
 		throw ConnectionException(e.what());
 	}
 
