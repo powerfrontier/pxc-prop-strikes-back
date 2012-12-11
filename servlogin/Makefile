@@ -1,37 +1,45 @@
-Done: Login
-	echo "DONE"
+INCLUDEPATH = include/
+SRCPATH = src/
+BINPATH = bin/
+CC      = g++
+CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -I../sqlConnector/$(INCLUDEPATH) -std=c++0x
+LDFLAGS = -lssl -lcrypto -lConnection -L$(BINPATH) -pthread
 
-Login: Connection.o ConnectionManager.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o LoginRequest.o LogoutRequest.o LoginProfile.o Login.o
-	g++ ConnectionException.o ConnectionManager.o Connection.o TCPConnection.o Transferable.o TransferableFactory.o  TransferableProfile.o LoginRequest.o LogoutRequest.o LoginProfile.o Login.o -o Login -lssl -lcrypto -pthread -std=c++0x
+all: $(BINPATH)Login
 
+$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlcppconn-static.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-LoginRequest.o: ./src/LoginRequest.cpp
-	g++ -c ./src/LoginRequest.cpp -I../conexion/include -I./include -std=c++0x
-LogoutRequest.o: ./src/LogoutRequest.cpp
-	g++ -c ./src/LogoutRequest.cpp -I../conexion/include -I./include -std=c++0x
-LoginProfile.o: ./src/LoginProfile.cpp
-	g++ -c ./src/LoginProfile.cpp -I../conexion/include -I./include -std=c++0x
-ConnectionManager.o: ../conexion/source/ConnectionManager.cpp
-	g++ -c ../conexion/source/ConnectionManager.cpp -I../conexion/include -std=c++0x
-Connection.o: ../conexion/source/Connection.cpp
-	g++ -c ../conexion/source/Connection.cpp -I../conexion/include/ -std=c++0x
-ConnectionException.o: ../conexion/source/ConnectionException.cpp
-	g++ -c ../conexion/source/ConnectionException.cpp -I../conexion/include/ -std=c++0x
-TCPConnection.o: ../conexion/source/TCPConnection.cpp
-	g++ -c ../conexion/source/TCPConnection.cpp -I../conexion/include/ -std=c++0x
-Transferable.o: ../conexion/source/Transferable.cpp
-	g++ -c ../conexion/source/Transferable.cpp -I../conexion/include/ -std=c++0x
-TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
-	g++ -c ../conexion/source/TransferableFactory.cpp -I../conexion/include/ -std=c++0x
-TransferableProfile.o: ../conexion/source/TransferableProfile.cpp
-	g++ -c ../conexion/source/TransferableProfile.cpp -I../conexion/include/ -std=c++0x
-IPServer.o: ./src/IPServer.cpp
-	g++ -c ./src/IPServer.cpp -I../conexion/include -I./include -std=c++0x
+$(BINPATH)libConnection.a:
+	$(MAKE) -C ../conexion/
+	cp ../conexion/bin/libConnection.a $(BINPATH)
 
-Login.o: ./src/Login.cpp
-	g++ -c ./src/Login.cpp -I../conexion/include -I./include -std=c++0x
+$(BINPATH)libmysqlcppconn-static.a:
+	cp ../sqlConnector/lib/libmysqlcppconn-static.a $(BINPATH)
+
+$(BINPATH)Login.o: $(SRCPATH)Login.cpp $(INCLUDEPATH)Login.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)LoginRequest.o: $(SRCPATH)LoginRequest.cpp $(INCLUDEPATH)LoginRequest.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)LogoutRequest.o: $(SRCPATH)LogoutRequest.cpp $(INCLUDEPATH)LogoutRequest.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)LoginProfile.o: $(SRCPATH)LoginProfile.cpp $(INCLUDEPATH)LoginProfile.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)main.o: $(SRCPATH)main.cpp 
+	$(CC) -c $(CFLAGS) $< -o $@
 
 
 clean:
-	rm Login
-	rm *.o
+	rm -f $(BINPATH)*.o
+	rm -f $(BINPATH)libConnection.a
+	rm -f $(BINPATH)libmysqlcppconn-static.a
+
+cleanest: clean
+	rm -f $(BINPATH)Login
+
+.PHONY: all clean cleanest $(BINPATH)libConnection.a
+
