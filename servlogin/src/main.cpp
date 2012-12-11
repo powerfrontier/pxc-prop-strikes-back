@@ -18,6 +18,7 @@ using namespace std;
 
 
 
+
 int main() {
 	//Esto se hace al principio del main (inicialiación de la conexión)
 	//TestProfile es herenccia de TransferableProfile para decirle 
