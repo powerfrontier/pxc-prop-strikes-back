@@ -7,8 +7,8 @@ LDFLAGS = -lssl -lcrypto
 
 all: $(BINPATH)libConnection.a
 
-$(BINPATH)libConnection.a: $(BINPATH)ConnectionException.o $(BINPATH)Connection.o $(BINPATH)ConnectionManager.o $(BINPATH)TCPConnection.o $(BINPATH)Transferable.o $(BINPATH)TransferableFactory.o $(BINPATH)TransferableProfile.o
-	ar rcs $@ $^
+$(BINPATH)libConnection.a: $(BINPATH)ConnectionException.o $(BINPATH)Connection.o $(BINPATH)ConnectionManager.o $(BINPATH)TCPConnection.o $(BINPATH)Transferable.o $(BINPATH)TransferableFactory.o $(BINPATH)TransferableProfile.o $(BINPATH)TCPConnectionSecurity.o
+	ar rbs $@ $^
 
 $(BINPATH)ConnectionException.o: $(SRCPATH)ConnectionException.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -31,6 +31,8 @@ $(BINPATH)TransferableFactory.o: $(SRCPATH)TransferableFactory.cpp
 $(BINPATH)TransferableProfile.o: $(SRCPATH)TransferableProfile.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
+$(BINPATH)TCPConnectionSecurity.o: $(SRCPATH)TCPConnectionSecurity.cpp
+	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
 	rm -f $(BINPATH)*.o

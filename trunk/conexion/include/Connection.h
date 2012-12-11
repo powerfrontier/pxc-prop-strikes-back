@@ -11,7 +11,10 @@
 #include <openssl/err.h>
 
 #include <thread>
-
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netinet/in.h>
 
 class Connection;
 
@@ -97,8 +100,11 @@ virtual void sendAnswer(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
 
-class TCPConnectionSecurity : public TCPConnection {
+class TCPConnectionSecurity : public Connection {
 private:
+int sock;
+struct sockaddr_in echoserver;
+
 SSL *ssl;
 std::thread *tListen;
 std::mutex mOnlineMutex;
