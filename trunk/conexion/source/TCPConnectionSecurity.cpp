@@ -70,9 +70,14 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	echoserver.sin_addr.s_addr = inet_addr(ipAddr.c_str());  /* IP address */
 	echoserver.sin_port = htons(atoi(port.c_str()));       /* server port */
 	/* Establish connection */
+	std::cout << "1º sock: " << sock << " sockaddr: "<< &echoserver << " size: " << sizeof(echoserver) << std::endl;
 	if (sysConnect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
-              std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
+		std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
+		return false;
 	}
+	setLinkOnline(true);
+	receive();
+	return true;
 /*	if (sbio != NULL) close();*/
 	/* Create a new connection */
 /*	std::string ipandport(ipAddr + ":" + port);
@@ -175,6 +180,9 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 		std::cout << e.what() << std::endl;
 		return;
 	}
+	std::cout << "LMESSAGE: " << lengthMessage << std::endl;
+	std::cout << "Protocol: " << protocol << std::endl;	
+	std::cout << "type: " << type << std::endl;	
 	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
 	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
 	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
