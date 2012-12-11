@@ -11,6 +11,7 @@
 #include<netdb.h>	//hostent
 #include<sysConnect.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 /* OpenSSL headers */
 #include <openssl/bio.h>
@@ -18,28 +19,58 @@
 #include <openssl/err.h>
 
 #include <thread>
+
+#define CA_LIST "root.pem"
+//#define RANDOM  "random.pem"
+#define KEYFILE "client.pem"
+#define PASSWORD "password"
+
+
+
 TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
-    /* call the standard SSL init functions */
-    CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
-    SSL_load_error_strings();
-    SSL_library_init();
-    ERR_load_BIO_strings();
-    ERR_load_crypto_strings();
-    OpenSSL_add_all_algorithms();
+	/* call the standard SSL init functions */
+	CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
+	SSL_load_error_strings();
+	SSL_library_init();
+	ERR_load_BIO_strings();
+	ERR_load_crypto_strings();
+	OpenSSL_add_all_algorithms();
 
-    tListen = NULL;
-
-
-/*************************/
+	tListen = NULL;
 	/* Create the TCP socket */
 	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
 		std::cout << "DIE CREATING A SOCKET" << std::endl;
 	}
-/*************************/
 
-//    setLinkOnline(false);
-    /* seed the random number system - only really nessecary for systems without '/dev/random' */
-    /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
+//***
+	/* Build our SSL context*/
+
+    	const SSL_METHOD *meth = SSLv23_method();
+
+	/* Set up a SIGPIPE handler */
+	signal(SIGPIPE, SIG_IGN);
+    
+	/* Create our context*/
+	ctx=SSL_CTX_new(meth);
+
+	/* Load our keys and certificates*/
+	if(!(SSL_CTX_use_certificate_chain_file(ctx, KEYFILE))){
+		std::cout << "Can't read certificate file" << std::endl;
+	}
+
+	strcpy(pass,PASSWORD);
+//	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
+	if(!(SSL_CTX_use_PrivateKey_file(ctx, KEYFILE,SSL_FILETYPE_PEM))){
+		std::cout << "Can't read key file" << std::endl;
+	}
+
+	/* Load the CAs we trust*/
+	if(!(SSL_CTX_load_verify_locations(ctx, CA_LIST,0))){
+		std::cout << "Can't read CA list" << std::endl;
+	}
+//***
+
+	setLinkOnline(false);
 }
 
 TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() : Connection() {
@@ -51,11 +82,9 @@ TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() :
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
     ssl= c;
-    tListen = NULL;
+    tListen = NULL;*/
     mPort = port;
-    setLinkOnline(true);*/
-    /* seed the random number system - only really nessecary for systems without '/dev/random' */
-    /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
+    setLinkOnline(true);
 }
 
 TCPConnectionSecurity::~TCPConnectionSecurity() throw(){
@@ -65,61 +94,43 @@ TCPConnectionSecurity::~TCPConnectionSecurity() throw(){
 
 bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException){
 	/* Construct the server sockaddr_in structure */
+	struct sockaddr_in echoserver;
 	memset(&echoserver, 0, sizeof(echoserver));       /* Clear struct */
 	echoserver.sin_family = AF_INET;                  /* Internet/IP */
 	echoserver.sin_addr.s_addr = inet_addr(ipAddr.c_str());  /* IP address */
 	echoserver.sin_port = htons(atoi(port.c_str()));       /* server port */
 	/* Establish connection */
-	std::cout << "1º sock: " << sock << " sockaddr: "<< &echoserver << " size: " << sizeof(echoserver) << std::endl;
 	if (sysConnect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
 		std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
 		return false;
 	}
+	/* Connect the SSL socket */
+	ssl=SSL_new(ctx);
+	sbio=BIO_new_socket(sock,BIO_NOCLOSE);
+	SSL_set_bio(ssl,sbio,sbio);
+
+	if(SSL_connect(ssl)<=0){
+		std::cout << "SSL connect error" << std::endl;
+		return false;
+	}
+
+	X509 *peer;
+	char peer_CN[256];
+	if(SSL_get_verify_result(ssl)!=X509_V_OK){
+		std::cout << "Certificate doesn't verify"<< std::endl ;
+		return false;
+	}
+	/*Check the common name*/
+	peer=SSL_get_peer_certificate(ssl);
+	X509_NAME_get_text_by_NID(X509_get_subject_name(peer),NID_commonName, peer_CN, 256);
+	if(strcasecmp(peer_CN,ipAddr.c_str())){
+		std::cout << "Common name doesn't match host name"<<std::endl;
+		return false;
+	}
+	mPort = port;
 	setLinkOnline(true);
 	receive();
 	return true;
-/*	if (sbio != NULL) close();*/
-	/* Create a new connection */
-/*	std::string ipandport(ipAddr + ":" + port);
-	mPort = port;
-	std::cout << "IP: ";
-	std::cout << ipandport << std::endl;
-	
-	char * writable = new char[ipandport.size() + 1];
-	std::copy(ipandport.begin(), ipandport.end(), writable);
-	writable[ipandport.size()] = '\0'; 
-	sbio = BIO_new_connect(writable);
-	delete[] writable;
-    	if (sbio == NULL) {
-		char message[] = "Unable to create a new unencrypted BIO object.\n";
- 		print_ssl_error(message, stdout);
-		close(false);
-        	return false;
-    	}
-*/
-	/* Verify successful connection */
-/*	
-	bool repeat;
-	repeat = true;
-	while (repeat){
-		if (BIO_do_connect(sbio) != 1) {
-			if (BIO_should_retry(sbio)){
-				repeat = true;
-			}else{
-				repeat = false;
-	       		 	close(false);
-				char message[] = "Unable to connect unencrypted.\n";
-				print_ssl_error(message, stdout);
-	      	 	 	return false;
-			}
-
-    		}else{
-			repeat = false;
-		}
-	}
-	setLinkOnline(true);
-	receive();
-	return true;*/
 }
 
 void TCPConnectionSecurity::close() throw(){
@@ -127,26 +138,7 @@ void TCPConnectionSecurity::close() throw(){
 }
 
 void TCPConnectionSecurity::close(bool threadListen) throw(){
-/*	setLinkOnline(false);
-	int r = 0;
-	if (sbio != NULL){
-		if (!threadListen && tListen != NULL){
-			std::cout << "CERRANDO LISTEN" << std::endl;
-			tListen->join();
-			delete tListen;
-		}
-		tListen = NULL;
-		std::cout << "CERRANDO SOCKET" << std::endl;
-		r = BIO_free(sbio);
-		if (r == 0) {
-			std::cout << "ERROR AL CERRAR SOCKET" << std::endl;
-		} 
-		sbio = NULL;
-		std::cout << "CONEXION CERRADA" << std::endl;
-	}else{
-		std::cout << "LA CONEXION ESTABA CERRADA" << std::endl;
-	}
-*/
+	
 }
 
 bool TCPConnectionSecurity::isLinkOnline() throw(){
@@ -165,7 +157,7 @@ void TCPConnectionSecurity::setLinkOnline(bool b){
 
 void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionException){
 	size_t lengthMessage = message.size();
-	size_t lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
+	int lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
 	char buffer[lengthPacket];
 	std::string protocol = TransferableFactory::instance().protocol();
 	if (protocol.size() > 8){	
@@ -180,9 +172,6 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 		std::cout << e.what() << std::endl;
 		return;
 	}
-	std::cout << "LMESSAGE: " << lengthMessage << std::endl;
-	std::cout << "Protocol: " << protocol << std::endl;	
-	std::cout << "type: " << type << std::endl;	
 	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
 	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
 	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
@@ -190,41 +179,10 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 
 
 	/* Send the word to the server */
-	int echolen = strlen(buffer);
-	if (sysSend(sock, buffer, echolen, 0) != echolen) {
+	if (sysSend(sock, buffer, lengthPacket, 0) != lengthPacket) {
 		std::cout << "Missmatch in number of sent bytes" << std::endl;
 	}
-/*	ssize_t r;
-	if (isLinkOnline()){
-		r = BIO_write(sbio,buffer, lengthPacket);
-	}else{
-		r = 0;
-	}
-	while (r != lengthPacket){
-		if (r == 0) {	
-			close(false);
-			return;
-		}else if (r < 0){
-			if (!BIO_should_retry(sbio)) {
-				char message[] ="TCPConnection::send() BIO_read should retry test failed.\n";
-				print_ssl_error(message, stdout);
-				close(false);
-				return;
-			}
-		}else{
-			char message[] = "TCPConnection::send() Wrong: Guru meditation 1\n";
-			print_ssl_error(message, stdout);
-			close(false);
-			return;
-		}
-		if (isLinkOnline()){
-			r = BIO_write(sbio,buffer, lengthPacket);
-		}else{
-			r = 0;
-		}
-	}
-	sleep(1); // Para que no pete cuando envias muchos sends seguidos (le da tiempo a receive a actuar)
-*/
+	sleep(1);
 }
 
 void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionException){
