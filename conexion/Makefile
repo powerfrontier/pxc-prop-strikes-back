@@ -8,7 +8,7 @@ LDFLAGS = -lssl -lcrypto
 all: $(BINPATH)libConnection.a
 
 $(BINPATH)libConnection.a: $(BINPATH)ConnectionException.o $(BINPATH)Connection.o $(BINPATH)ConnectionManager.o $(BINPATH)TCPConnection.o $(BINPATH)Transferable.o $(BINPATH)TransferableFactory.o $(BINPATH)TransferableProfile.o $(BINPATH)TCPConnectionSecurity.o
-	ar rbs $@ $^
+	ar rcs $@ $^
 
 $(BINPATH)ConnectionException.o: $(SRCPATH)ConnectionException.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
