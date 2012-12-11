@@ -10,8 +10,8 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 
 	std::list<Server*>::iterator it;
 	int i;
-	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { (*it)->printServer();
-		if ((*it)->id == idServer) {
+	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
+		if ((*it)->id == idServer) { 
 			for(i = 0; i < (*it)->load.distribution.size(); ++i){
 				if((*it)->load.distribution.at(i)->zone == idZone){
 					Control::instance().recievedMutex.lock();
@@ -20,6 +20,7 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 					Control::instance().recievedMutex.unlock();	
 				}
 			}
+			(*it)->printServer();
 			if(remainingZones == 0){
 				Control::instance().recievedMutex.lock();
 				//std::cout <<  "Resultat de la mascara: " << Control::instance().recievedConnectionMask << "\n";
