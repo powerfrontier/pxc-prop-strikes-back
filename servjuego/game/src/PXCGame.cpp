@@ -12,6 +12,7 @@ PXCGame::~PXCGame() {
 }	
 
 bool PXCGame::init() {
+	std::cout << "Zona " << mZone->id() << " iniciada." << std::endl;
 	return true;
 }
 
