@@ -47,7 +47,7 @@ class ZoneCallback {
 	virtual bool init() = 0;
 	bool step (double stepTime) throw();
 
-	const Zone* zone() const;
+	Zone* zone() const;
 	virtual void addInstruction (Instruction* ins, Connection* c) throw();
 };
 
@@ -102,7 +102,7 @@ public:
 	ZoneHandler (int zoneId) throw();
 	virtual ~ZoneHandler() throw();
 	
-	const Zone* zone() throw();
+	Zone* zone() throw();
 	
 	ZoneHandler& minSteps (double steps) throw();
 	ZoneHandler& maxSteps (double steps) throw();

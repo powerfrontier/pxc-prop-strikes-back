@@ -32,25 +32,25 @@ int GameServer::serverId() const {
 	return mServerId;
 }
 
-void GameServer::addClient(int clientId, int clientZone, int token) {
+void GameServer::addClient(int clientId, int clientZone) {
 	std::lock_guard<std::mutex> lk(mClientsMutex);
-	mClients[clientId] = std::pair< int, int >(clientZone, token);
+	mClients[clientId] = clientZone;
 }
 
 void GameServer::delClient(int clientId) {
-	std::map<int, std::pair<int, int> >::iterator it;
-
-	std::lock_guard<std::mutex> lk(mClientsMutex);
-	it = mClients.find(clientId);
-	if (it != mClients.end()) mClients.erase(it);
-}
-
-bool GameServer::validateClient(int clientId, int clientZone, int token) {
-	std::map<int, std::pair<int, int> >::iterator it;
+	std::map<int, int>::iterator clIt;
+	std::map<int, ZoneHandler*>::iterator zIt;
 	
 	std::lock_guard<std::mutex> lk(mClientsMutex);
-	it= mClients.find(clientId);
-	return (it != mClients.end() && (it->second).second == token);
+	clIt = mClients.find(clientId);
+	if (clIt != mClients.end()) {
+		//Erase client info from its zone
+		zIt = mZones.find(clIt->second);
+		if (zIt != mZones.end()) {
+			zIt->second->zone()->delUser(clientId);
+		}
+		mClients.erase(clIt);
+	}
 }
 
 void GameServer::startZone(int zoneId) {
