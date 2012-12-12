@@ -47,6 +47,7 @@ public:
 	virtual ~Control();
 
 	//Control();
+	void eliminarServidor(const int idServer);
 	char* getIpServerById(int id);
 	char* getPortServerById(int id);
 	void initializeServerList();
