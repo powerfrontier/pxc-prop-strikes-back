@@ -1,4 +1,7 @@
 #include <PXCGame.h>
+#include <iostream>
+
+ZoneCallbackCreator* ZoneHandler::sGameCreator = new PXCGameCreator();
 
 PXCGame::PXCGame(PXCZone* zone) : ZoneCallback(zone) {
 
@@ -9,14 +12,16 @@ PXCGame::~PXCGame() {
 }	
 
 bool PXCGame::init() {
+	std::cout << "The game has init correctly" << std::endl;
 	return true;
 }
 
 //Dummy game logic: move things to their directions
 bool PXCGame::gameStep (double stepTime) throw() {
-	auto it = mZone->mUserData.begin();
+	PXCZone* z = static_cast<PXCZone*>(mZone);
+	auto it = z->mUserData.begin();
 
-	while (it != mUserData.end()) {
+	while (it != z->mUserData.end()) {
 		it->second->update(stepTime);
 		++it;
 	}

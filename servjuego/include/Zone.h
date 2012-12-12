@@ -32,10 +32,10 @@ public:
 };
 
 class ZoneCallback {
-	Zone* mZone;
 	std::queue<std::pair<Instruction*, Connection*> > mInstructions;
 
 	protected:
+	Zone* mZone;
 	virtual bool gameStep(double stepTime) throw() = 0;
 	virtual void execInstructions() throw();
 	virtual void sendState() throw() = 0;
@@ -96,7 +96,7 @@ protected:
 	void		startThread() throw();
 	void		saveStats(double avgStepTime) throw();
 public:
-	static void setGameCreator(ZoneCallbackCreator*);
+// 	static void setGameCreator(ZoneCallbackCreator*);
 	
 	
 	ZoneHandler (int zoneId) throw();

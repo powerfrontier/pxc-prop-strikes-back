@@ -6,7 +6,7 @@ bool GameServer::hasZone(int zoneId) const {
 	return it != mZones.end();
 }
 
-GameServer::GameServer() : Singleton<GameServer>(), mZones(), mClients() {
+GameServer::GameServer() : Singleton<GameServer>(), mServerId(-1), mZones(), mClients() {
 
 }
 
@@ -21,6 +21,14 @@ void GameServer::callbackFunction(Transferable* received, Connection* c) throw()
 
 	//if (balanceo) received->exec()
 	//else send to game zone
+}
+
+void GameServer::serverId(int id) {
+	mServerId = mServerId == -1 ? id : mServerId;
+}
+
+int GameServer::serverId() const {
+	return mServerId;
 }
 
 void GameServer::addClient(int clientId, int clientZone, int token) {
@@ -53,6 +61,7 @@ void GameServer::startZone(int zoneId) {
 	if (it != mZones.end()) {	
 		zh = new ZoneHandler(zoneId);
 		mZones.insert(std::pair<int, ZoneHandler*>(zoneId, zh));
+		zh->start();
 	}
 }
 
