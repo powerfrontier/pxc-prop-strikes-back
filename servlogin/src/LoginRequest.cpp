@@ -2,6 +2,7 @@
 #include <Login.h>
 #include <iostream>
 #include <string.h>
+#include <mutex>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   int token; //Token de sesión si es un login correcto. Si no, se ignora. Login necesita mandar el mismo token con el id del cliente al router, junto a la zona en la que se encuentra inicialmente
   ///////////////////////
   
-  
+  Login::instance().loginMutex.lock();
   userPointer = username;
   pwdPointer = password;
   if(Login::instance().validate(userPointer,pwdPointer) ){
@@ -29,20 +30,21 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  token = Login::instance().nextFreeToken;
 	  Login::instance().userTokenMap.insert(pair<int,int>(clientId,token));
 	  Login::instance().nextFreeToken++;
+	  Login::instance().usersConnected++;
   }else{
 	  answerCode = 1;
   }
   
-  //Enviar info a balanceo
-  
+  //Enviar info a balanceo  
   
   
   //Enviar info a cliente
   controlConnection = Login::instance().controlConnection;
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
-  controlConnection->send(*loginRequestSend);
+  controlConnection->sendAnswer(*loginRequestSend);
   
   delete controlConnection;
+  Login::instance().loginMutex.unlock();
 }
 
 LoginRequestRcvd::~LoginRequestRcvd(){
