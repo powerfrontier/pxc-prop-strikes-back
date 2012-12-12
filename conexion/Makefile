@@ -3,11 +3,10 @@ SRCPATH = source/
 BINPATH = bin/
 CC      = g++
 CFLAGS  = -I$(INCLUDEPATH) -std=c++0x
-LDFLAGS = -lssl -lcrypto
 
 all: $(BINPATH)libConnection.a
 
-$(BINPATH)libConnection.a: $(BINPATH)ConnectionException.o $(BINPATH)Connection.o $(BINPATH)ConnectionManager.o $(BINPATH)TCPConnection.o $(BINPATH)Transferable.o $(BINPATH)TransferableFactory.o $(BINPATH)TransferableProfile.o $(BINPATH)TCPConnectionSecurity.o
+$(BINPATH)libConnection.a: $(BINPATH)ConnectionException.o $(BINPATH)Connection.o $(BINPATH)ConnectionManager.o $(BINPATH)TCPConnection.o $(BINPATH)Transferable.o $(BINPATH)TransferableFactory.o $(BINPATH)TransferableProfile.o $(BINPATH)TCPConnectionSecurity.o $(BINPATH)sysConnect.o
 	ar rcs $@ $^
 
 $(BINPATH)ConnectionException.o: $(SRCPATH)ConnectionException.cpp
@@ -32,6 +31,9 @@ $(BINPATH)TransferableProfile.o: $(SRCPATH)TransferableProfile.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)TCPConnectionSecurity.o: $(SRCPATH)TCPConnectionSecurity.cpp
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)sysConnect.o: $(SRCPATH)sysConnect.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
