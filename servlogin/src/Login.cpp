@@ -9,6 +9,16 @@ void Login::initializeManager(){
     manager->listen(CLIENT_PORT);
 }
 
+void Login::initializeLogin(){
+    nextFreeToken = 0;
+}
+
+bool Login::validate(const char* user, const char* pwd){
+    return true;
+}
+
+
+
 Login::~Login(){
   delete manager;
 }
