@@ -17,6 +17,7 @@ $(BINPATH)gameServer: 	$(BINPATH)libConnection.a \
 			$(BINPATH)Zone.o \
 			$(BINPATH)ZoneHandler.o \
 			$(BINPATH)InstZones.o
+
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(BINPATH)libConnection.a:
