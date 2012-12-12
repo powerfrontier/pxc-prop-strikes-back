@@ -40,33 +40,35 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
 		std::cout << "DIE CREATING A SOCKET" << std::endl;
 	}
-
+	
 //***
 	/* Build our SSL context*/
 
     	auto *meth = SSLv23_method();
-
+	std::cout << "HOLA" << std::endl;
 	/* Set up a SIGPIPE handler */
 	signal(SIGPIPE, SIG_IGN);
-    
+    	std::cout << "HOLA2" << std::endl;
 	/* Create our context*/
 	ctx=SSL_CTX_new(meth);
-
+	std::cout << "HOLA3" << std::endl;
 	/* Load our keys and certificates*/
 	if(!(SSL_CTX_use_certificate_chain_file(ctx, KEYFILE))){
 		std::cout << "Can't read certificate file" << std::endl;
 	}
-
+	std::cout << "HOLA4" << std::endl;
 	strcpy(pass,PASSWORD);
+	std::cout << "HOLA5" << std::endl;
 //	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
 	if(!(SSL_CTX_use_PrivateKey_file(ctx, KEYFILE,SSL_FILETYPE_PEM))){
 		std::cout << "Can't read key file" << std::endl;
 	}
-
+	std::cout << "HOLA6" << std::endl;
 	/* Load the CAs we trust*/
 	if(!(SSL_CTX_load_verify_locations(ctx, CA_LIST,0))){
 		std::cout << "Can't read CA list" << std::endl;
 	}
+	std::cout << "HOLA7" << std::endl;
 //***
 
 	setLinkOnline(false);
@@ -99,7 +101,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	echoserver.sin_addr.s_addr = inet_addr(ipAddr.c_str());  /* IP address */
 	echoserver.sin_port = htons(atoi(port.c_str()));       /* server port */
 	/* Establish connection */
-	if (::Connect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
+	if (::connect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
 		std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
 		return false;
 	}
@@ -145,7 +147,7 @@ bool TCPConnectionSecurity::isLinkOnline() throw(){
 	return online;
 }
 
-std::string TCPConnectionSecurity::getPort(){
+const std::string& TCPConnectionSecurity::getPort(){
 	return mPort;
 }
 
@@ -178,7 +180,7 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 
 
 	/* Send the word to the server */
-	if (::Send(sock, buffer, lengthPacket, 0) != lengthPacket) {
+	if (::send(sock, buffer, lengthPacket, 0) != lengthPacket) {
 		std::cout << "Missmatch in number of sent bytes" << std::endl;
 	}
 	sleep(1);
