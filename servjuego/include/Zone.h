@@ -126,7 +126,7 @@ public:
 	
 	// Returns a number from 0 to 1 with the current load
 	// With 0 equals no load and 1 equals max load
-	double getLoad () throw();
+	double getLoad() throw();
 	
 	
 };

@@ -25,8 +25,6 @@ int main(int argc, char** argv) {
 	//Create GameServer object
 	gs = GameServer::instancePtr();
 	
-	
-	
 	//Start listening
 	cm = new ConnectionManager();
 	cm->setCallbackFunction(gs);

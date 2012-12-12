@@ -1,4 +1,5 @@
 #include <GameServer.h>
+#include <InstServerLoad.h>
 
 bool GameServer::hasZone(int zoneId) const {
 	std::map<int, ZoneHandler*>::const_iterator it = mZones.find(zoneId);
@@ -58,7 +59,7 @@ void GameServer::startZone(int zoneId) {
 	
 	std::lock_guard<std::mutex> lk(mZonesMutex);
 	it = mZones.find(zoneId);
-	if (it != mZones.end()) {	
+	if (it == mZones.end()) {	
 		zh = new ZoneHandler(zoneId);
 		mZones.insert(std::pair<int, ZoneHandler*>(zoneId, zh));
 		zh->start();
@@ -122,3 +123,26 @@ void GameServer::detachZone(int zoneId, Connection* newServer) {
 	//TODO: Implement
 }
 
+void GameServer::SendZoneLoads(Connection* c) {
+	auto it = mZones.begin();
+	ServerLoadAnswerSend* answer = NULL;
+	int idZone = -1;
+	double load = 0.0;
+	int remaining = 0;
+	
+	remaining = mZones.size();
+	while (it != mZones.end()) {
+		idZone = it->first;
+		load = it->second->getLoad();
+		
+		answer = new ServerLoadAnswerSend(serverId(), idZone, load, --remaining);
+		c->sendAnswer(*answer);
+		delete answer;
+		
+		++it;
+	}
+}
+
+void GameServer::sendToClients(Transferable* t) {
+	//TODO: Implement
+}

@@ -55,7 +55,9 @@ public:
 	void detachZone(int zoneId, Connection* newServer);
 
 	//Start collecting zone loads and sending then back to balance 
-	void getLoads();
+	void SendZoneLoads(Connection*);
+	
+	void sendToClients(Transferable*);
 };
 
 
