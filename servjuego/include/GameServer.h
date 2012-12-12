@@ -11,7 +11,7 @@
 class GameServer : public Singleton<GameServer>, public ConnectionCallback {
 	int mServerId;
 	std::map<int, ZoneHandler*> mZones;
-	std::map<int, std::pair<int, int> > mClients;
+	std::map<int, int > mClients; //Map client-zone
 	
 	std::mutex mZonesMutex;
 	std::mutex mClientsMutex;
@@ -30,10 +30,8 @@ public:
 	void serverId(int id);
 	int serverId() const;
 	
-	void addClient(int clientId, int clientZone, int token);
+	void addClient(int clientId, int clientZone);
 	void delClient(int clientId);
-
-	bool validateClient(int clientId, int clientZone, int token);
 
 	//Start managing a zone from DB
 	void startZone(int zoneId);

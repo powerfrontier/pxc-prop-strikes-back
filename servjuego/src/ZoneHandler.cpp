@@ -14,7 +14,7 @@ ZoneCallback::~ZoneCallback() {
 	}
 }
 
-const Zone* ZoneCallback::zone() const { return mZone; }
+Zone* ZoneCallback::zone() const { return mZone; }
 
 bool ZoneCallback::step (double stepTime) throw() {
 	bool valid = true;
@@ -93,7 +93,7 @@ void		ZoneHandler::saveStats(double avgStepTime) throw() {
 	//TODO: IMPLEMENT
 }
 
-const Zone* ZoneHandler::zone() throw() {
+Zone* ZoneHandler::zone() throw() {
 	std::lock_guard<std::mutex> lk(mParamMutex);
 	if (mGame) return mGame->zone();
 	return NULL;

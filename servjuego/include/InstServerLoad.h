@@ -6,6 +6,9 @@
 //ID 2
 class ServerLoadOrderRcvd : public Datagram<ServerLoadOrderRcvd> {
 public:
+	ServerLoadOrderRcvd();
+	~ServerLoadOrderRcvd();
+	
 	void exec(Connection* c) const throw();
 };
 
@@ -35,6 +38,9 @@ class SetServerIpRvcd : public Datagram<SetServerIpRvcd> {
 	char mPortServer[5]; //Char[5] con el puerto del server
 	
 public:
+	SetServerIpRvcd();
+	~SetServerIpRvcd();
+	
 	void exec(Connection* c) const throw();
 };
 
