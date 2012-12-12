@@ -20,7 +20,7 @@
 
 #include <openssl/ssl.h>
 
-#define KEYFILE "servlogin.pem"
+#define KEYFILE "server.pem"
 #define PASSWORD "password"
 #define CA_LIST "root.pem"
 #define PASSWORD "password"
@@ -81,7 +81,7 @@ void ConnectionManager::listen(const std::string& port) throw(ConnectionExceptio
 }
 
 void ConnectionManager::listenSecure(const std::string& port) throw(ConnectionException){
-	std::thread *t = new std::thread(&ConnectionManager::listenThread, this, port);
+	std::thread *t = new std::thread(&ConnectionManager::listenThreadSecure, this, port);
 	tListenN.push_back(t);
 }
 
@@ -141,11 +141,12 @@ void ConnectionManager::listenThreadSecure(const std::string& port) throw(Connec
 
 	/* Load our keys and certificates*/
 	if(!(SSL_CTX_use_certificate_chain_file(ctx,KEYFILE))){
-		std::cerr << "Can't read certificate file" << std::endl;
+		std::cerr << "Can't read certificate file" << KEYFILE << std::endl;
 		return;
 	}
 
-	strcpy(pass, PASSWORD);
+	pass = (char *)malloc(8);
+	strcpy(pass,PASSWORD);
 //	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
 	if(!(SSL_CTX_use_PrivateKey_file(ctx,KEYFILE,SSL_FILETYPE_PEM))){
 		std::cerr << "Can't read key file" << std::endl;
@@ -194,10 +195,12 @@ void ConnectionManager::listenThreadSecure(const std::string& port) throw(Connec
 		std::cerr << "Couldn't bind" << std::endl;
 		return;
 	}
+	
     	::listen(sock,5);  
 
 
 	while(1){
+		std::cout << "LISTENING " << std::endl;
 		if((s=accept(sock,0,0))<0){
 			std::cerr << "Problem accepting" << std::endl;
 			continue;
@@ -209,6 +212,12 @@ void ConnectionManager::listenThreadSecure(const std::string& port) throw(Connec
 		if((r=SSL_accept(ssl)<=0)){
 			std::cerr << "SSL accept error" << std::endl;	
 			continue;
+		}else{
+			Connection *c = new TCPConnectionSecurity(ssl, port);
+			if (cCallB != NULL){
+				c->setCallbackFunction(cCallB);
+			}
+			c->receive();
 		}
 		
   	}

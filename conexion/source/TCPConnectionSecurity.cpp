@@ -45,30 +45,29 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	/* Build our SSL context*/
 
     	auto *meth = SSLv23_method();
-	std::cout << "HOLA" << std::endl;
+
 	/* Set up a SIGPIPE handler */
 	signal(SIGPIPE, SIG_IGN);
-    	std::cout << "HOLA2" << std::endl;
+
 	/* Create our context*/
 	ctx=SSL_CTX_new(meth);
-	std::cout << "HOLA3" << std::endl;
+
 	/* Load our keys and certificates*/
 	if(!(SSL_CTX_use_certificate_chain_file(ctx, KEYFILE))){
 		std::cout << "Can't read certificate file" << std::endl;
 	}
-	std::cout << "HOLA4" << std::endl;
+	pass = (char *)malloc(8);
 	strcpy(pass,PASSWORD);
-	std::cout << "HOLA5" << std::endl;
 //	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
 	if(!(SSL_CTX_use_PrivateKey_file(ctx, KEYFILE,SSL_FILETYPE_PEM))){
 		std::cout << "Can't read key file" << std::endl;
 	}
-	std::cout << "HOLA6" << std::endl;
+
 	/* Load the CAs we trust*/
 	if(!(SSL_CTX_load_verify_locations(ctx, CA_LIST,0))){
 		std::cout << "Can't read CA list" << std::endl;
 	}
-	std::cout << "HOLA7" << std::endl;
+
 //***
 
 	setLinkOnline(false);
@@ -84,8 +83,9 @@ TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() :
     OpenSSL_add_all_algorithms();
     ssl= c;
     tListen = NULL;*/
-    mPort = port;
-    setLinkOnline(true);
+	ssl = c;
+	mPort = port;
+	setLinkOnline(true);
 }
 
 TCPConnectionSecurity::~TCPConnectionSecurity() throw(){
@@ -118,7 +118,8 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	X509 *peer;
 	char peer_CN[256];
 	if(SSL_get_verify_result(ssl)!=X509_V_OK){
-		std::cout << "Certificate doesn't verify"<< std::endl ;
+		std::cerr << "Certificate doesn't verify " << std::endl ;
+		std::cerr << "The expected certificate is "<< X509_V_OK << " The received certificate is " << SSL_get_verify_result(ssl)  << std::endl ;
 		return false;
 	}
 	/*Check the common name*/
@@ -179,65 +180,26 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
 
 
+
 	/* Send the word to the server */
-	if (::send(sock, buffer, lengthPacket, 0) != lengthPacket) {
-		std::cout << "Missmatch in number of sent bytes" << std::endl;
+	int r;
+	r=SSL_write(ssl,buffer,lengthPacket);
+	switch(SSL_get_error(ssl,r)){      
+		case SSL_ERROR_NONE:
+			if(lengthPacket!=r)
+				std::cerr << "Incomplete write!" << std::endl;
+			break;
+		default:
+			std::cerr << "SSL write problem" << std::endl;
 	}
+/*	if (::send(sock, buffer, lengthPacket, 0) != lengthPacket) {
+		std::cout << "Missmatch in number of sent bytes" << std::endl;
+	}*/
 	sleep(1);
 }
 
 void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionException){
-/*	size_t lengthMessage = message.size();
-	size_t lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
-	char buffer[lengthPacket];
-	std::string protocol = TransferableFactory::instance().protocol();
-	if (protocol.size() > 8){	
-		std::cout << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
-		return;
-	}
-	int type; 
-	try{
-		type = message.type();
-	}catch(TransferableVersionException& e){
-		std::cout << "Error using Transferable, message.type incorrect " << std::endl;
-		std::cout << e.what() << std::endl;
-		return;
-	}
-	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
-	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
-	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
-	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
-	ssize_t r;
-	if (isLinkOnline()){
-		r = BIO_write(sbio,buffer, lengthPacket);
-	}else{
-		r = 0;
-	}
-	while (r != lengthPacket){
-		if (r == 0) {	
-			close(true);
-			return;
-		}else if (r < 0){
-			if (!BIO_should_retry(sbio)) {
-				char message[] ="TCPConnection::send() BIO_read should retry test failed.\n";
-				print_ssl_error(message, stdout);
-				close(true);
-				return;
-			}
-		}else{
-			char message[] = "TCPConnection::send() Wrong: Guru meditation 1\n";
-			print_ssl_error(message, stdout);
-			close(true);
-			return;
-		}
-		if (isLinkOnline()){
-			r = BIO_write(sbio,buffer, lengthPacket);
-		}else{
-			r = 0;
-		}
-	}
-	sleep(1); // Para que no pete cuando envias muchos sends seguidos (le da tiempo a receive a actuar)
-*/
+	send(message);
 }
 
 
@@ -262,19 +224,56 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 	char bufsizeCommunication[lengthCommunication];
 	char protocol[8];
 	int instruction;
-
-        /* Receive the word back from the server */
-	int received =0;
+	
+	//BIO *io,*ssl_bio;
+    
+    	
+	/* Receive the word back from the server */
+	int r;
+	r=SSL_read(ssl,bufsizeCommunication,lengthCommunication);
+	switch(SSL_get_error(ssl,r)){
+		case SSL_ERROR_NONE:
+			memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
+			memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
+			memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
+			break;
+		case SSL_ERROR_ZERO_RETURN:
+			close(true);
+			return;
+		case SSL_ERROR_SYSCALL:
+			close(true);
+			std::cerr << "SSL Error: Premature close" << std::endl;
+			return;
+		default:
+			std::cerr << "SSL read problem" << std::endl;
+	}
+	
+	/*io=BIO_new(BIO_f_buffer());
+    	ssl_bio=BIO_new(BIO_f_ssl());
+    	BIO_set_ssl(ssl_bio,ssl,BIO_CLOSE);
+    	BIO_push(io,ssl_bio);
+	int received;
+	received =BIO_gets(io,bufsizeCommunication,lengthCommunication);
+	switch(SSL_get_error(ssl,received)){
+		case SSL_ERROR_NONE:
+			memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
+			memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
+			memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
+			break;
+		default:
+			std::cerr << "SSL read problem" << std::endl;
+	}
+	*/
+        
+	/*int received =0;
 	while (received < lengthCommunication) {
 		int bytes = 0;
 		if ((bytes = recv(sock, bufsizeCommunication, lengthCommunication, 0)) < 1) {
 			std::cout << "Failed to receive bytes from server" << std::endl;
 		}
 		received += bytes;
-	}
-	memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
-	memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
-	memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
+	}*/
+
 
 	TransferableCreator* c;
 	try {
@@ -287,110 +286,60 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 
 	//receive the Transferable
 	char bufferMessage[sizeMessage];
-	received = 0;
+	
+	r=SSL_read(ssl,bufferMessage,sizeMessage);
+	switch(SSL_get_error(ssl,r)){
+		case SSL_ERROR_NONE:
+			Transferable *t;
+			try{
+				t = c->create((void*)bufferMessage);
+				if (!mCallback) {
+					t->exec(this);
+					delete t;
+				}else{
+					mCallback->callbackFunction(t, this);
+				}
+			}catch(TransferableVersionException& e){
+				throw ConnectionException(e.what());
+			}   
+			break;
+		case SSL_ERROR_ZERO_RETURN:
+			close(true);
+			return;
+		case SSL_ERROR_SYSCALL:
+			close(true);
+			std::cerr << "SSL Error: Premature close" << std::endl;
+			return;
+		default:
+			std::cerr << "SSL read problem" << std::endl;
+	}
+	/*received =BIO_gets(io,bufferMessage,sizeMessage);
+	switch(SSL_get_error(ssl,received)){
+		case SSL_ERROR_NONE:
+			Transferable *t;
+			try{
+				t = c->create((void*)bufferMessage);
+				if (!mCallback) {
+					t->exec(this);
+					delete t;
+				}else{
+					mCallback->callbackFunction(t, this);
+				}
+			}catch(TransferableVersionException& e){
+				throw ConnectionException(e.what());
+			}   
+			break;
+		default:
+			std::cerr << "SSL read problem" << std::endl;
+	}
+	*/
+	/*received = 0;
 	while (received < sizeMessage) {
 		int bytes = 0;
 		if ((bytes = recv(sock, bufferMessage, sizeMessage, 0)) < 1) {
 			std::cout << "Failed to receive bytes from server" << std::endl;
 		}
 		received += bytes;
-        }
-	Transferable *t;
-	try{
-		t = c->create((void*)bufferMessage);
-		if (!mCallback) {
-			t->exec(this);
-			delete t;
-		}else{
-			mCallback->callbackFunction(t, this);
-		}
-	}catch(TransferableVersionException& e){
-		throw ConnectionException(e.what());
-	}       
-/*	size_t r;
-	if (isLinkOnline()){
-		r = SSL_read(ssl, bufsizeCommunication, lengthCommunication);
-	}else{
-		r = 0;
-	}
-	while (r != lengthCommunication){
-		if (r == 0) {
-			std::cout << "Reached the end of the data stream" << std::endl;
-			close(true);
-			return;
-		} else if (r < 0) {
-			//if (!BIO_should_retry(sbio)) {
-			//	char message[] ="BIO_read should retry test failed.\n";
-			//	print_ssl_error(message, stdout);
-			//	close(true);
-			//	return;
-			//}
-			//TODO: ERROR
-			std::cout << "Receive error GU1" << std::endl;
-			close(true);
-			return;			
-		}
-		if (isLinkOnline()){
-			r = SSL_read(ssl, bufsizeCommunication, lengthCommunication);
-		}else{
-			r = 0;
-		}
-       	}	
-	memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
-	memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
-	memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
-
-	TransferableCreator* c;
-	try {
-		TransferableFactory::instance().setProtocol(protocol);
-		c = TransferableFactory::instance().creator(instruction);
-	}catch(TransferableVersionException& e){
-		std::cout << "Protocol or instruction received incorrect" << std::endl;
-		throw ConnectionException(e.what());
-	}
-
-	//receive the Transferable
-	char bufferMessage[sizeMessage];
-	if (isLinkOnline()){
-		r = SSL_read(ssl, bufferMessage, sizeMessage);
-	}else{
-		r = 0;
-	}
-	while (r != sizeMessage){
-		if (r == 0) {
-			std::cout << "Reached the end of the data stream" << std::endl;
-			close(true);
-			return;
-		} else if (r < 0) {
-			//if (!BIO_should_retry(sbio)) {
-			//	char message[] ="BIO_read should retry test failed.\n";
-			//	print_ssl_error(message, stdout);
-			//	close(true);
-			//	return;
-			//}
-			//TODO: CONTROLAR ERROR
-			std::cout << "Receive error GU2" << std::endl;
-			close(true);
-			return;			
-		}
-		if (isLinkOnline()){
-			r = SSL_read(ssl, bufferMessage, sizeMessage);
-		}else{
-			r = 0;
-		}
-	}
-       	
-	Transferable *t;
-	try{
-		t = c->create((void*)bufferMessage);
-		if (!mCallback) {
-			t->exec(this);
-			delete t;
-		}else{
-			mCallback->callbackFunction(t, this);
-		}
-	}catch(TransferableVersionException& e){
-		throw ConnectionException(e.what());
-	}
-*/
+        }*/
+    
 }
