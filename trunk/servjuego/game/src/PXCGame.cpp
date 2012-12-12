@@ -8,11 +8,10 @@ PXCGame::PXCGame(PXCZone* zone) : ZoneCallback(zone) {
 }
 
 PXCGame::~PXCGame() {
-
+	
 }	
 
 bool PXCGame::init() {
-	std::cout << "The game has init correctly" << std::endl;
 	return true;
 }
 
