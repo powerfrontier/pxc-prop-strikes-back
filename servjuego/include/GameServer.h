@@ -25,7 +25,7 @@ protected:
 public:
 	virtual ~GameServer();
 	
-	virtual void callbackFunction(Transferable* received, Connection*) throw();
+	virtual void callbackFunction(Transferable* received, Connection* c) throw();
 	
 	void serverId(int id);
 	int serverId() const;

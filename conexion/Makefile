@@ -6,7 +6,15 @@ CFLAGS  = -I$(INCLUDEPATH) -std=c++0x
 
 all: $(BINPATH)libConnection.a
 
-$(BINPATH)libConnection.a: $(BINPATH)ConnectionException.o $(BINPATH)Connection.o $(BINPATH)ConnectionManager.o $(BINPATH)TCPConnection.o $(BINPATH)Transferable.o $(BINPATH)TransferableFactory.o $(BINPATH)TransferableProfile.o $(BINPATH)TCPConnectionSecurity.o $(BINPATH)sysConnect.o
+$(BINPATH)libConnection.a: 	$(BINPATH)ConnectionException.o \
+			 	$(BINPATH)Connection.o \
+				$(BINPATH)ConnectionManager.o \
+				$(BINPATH)TCPConnection.o \
+				$(BINPATH)Transferable.o \
+				$(BINPATH)TransferableFactory.o \
+				$(BINPATH)TransferableProfile.o \
+				$(BINPATH)TCPConnectionSecurity.o \
+				$(BINPATH)sysConnect.o
 	ar rcs $@ $^
 
 $(BINPATH)ConnectionException.o: $(SRCPATH)ConnectionException.cpp
