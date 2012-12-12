@@ -9,14 +9,20 @@ LDFLAGS = -L$(BINPATH) -lConnection -lGame -lssl -lcrypto -pthread
 
 all: $(BINPATH)gameServer
 
-$(BINPATH)gameServer: $(BINPATH)libConnection.a game/$(BINPATH)libGame.a $(BINPATH)GameServer.o $(BINPATH)GameServerProfile.o $(BINPATH)main.o $(BINPATH)Zone.o $(BINPATH)ZoneHandler.o
+$(BINPATH)gameServer: 	$(BINPATH)libConnection.a \
+			$(BINPATH)libGame.a \
+			$(BINPATH)GameServer.o \
+			$(BINPATH)GameServerProfile.o \
+			$(BINPATH)main.o \
+			$(BINPATH)Zone.o \
+			$(BINPATH)ZoneHandler.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(BINPATH)libConnection.a:
 	$(MAKE) -C ../conexion/
 	cp ../conexion/bin/libConnection.a $(BINPATH)
 
-game/$(BINPATH)libGame.a:
+$(BINPATH)libGame.a:
 	$(MAKE) -C game/
 	cp game/bin/libGame.a $(BINPATH)
 

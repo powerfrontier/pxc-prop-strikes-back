@@ -2,6 +2,7 @@
 #define _ZONE_H_
 
 #include <set>
+#include <queue>
 #include <thread>
 
 #include <Instruction.h>
@@ -14,6 +15,7 @@
 
 
 class Zone {
+protected:
 	int mZoneId;
 	std::set<int> mUsers;
 	
@@ -23,24 +25,30 @@ public:
 	
 	int id() const;
 	const std::set<int>& users() const;
+
 	bool hasUser(int idUser) const;
-	
-	virtual void* dbData() const = 0;
+	virtual void addUser(int idUser) = 0;
+	virtual void delUser(int idUser) = 0;
 };
 
 class ZoneCallback {
 	Zone* mZone;
+	std::queue<std::pair<Instruction*, Connection*> > mInstructions;
+
+	protected:
+	virtual bool gameStep(double stepTime) throw() = 0;
+	virtual void execInstructions() throw();
+	virtual void sendState() throw() = 0;
+
 	public:
-	ZoneCallback(int idZone);
+	ZoneCallback(Zone* zone);
 	virtual ~ZoneCallback();	
 
 	virtual bool init() = 0;
-	virtual bool step (double stepTime) throw() = 0;
-	virtual void dispose () = 0;
+	bool step (double stepTime) throw();
 
 	const Zone* zone() const;
-	virtual void zone(Zone*) = 0;
-	virtual void addInstruction (Instruction* ins) = 0;
+	virtual void addInstruction (Instruction* ins, Connection* c) throw();
 };
 
 class ZoneCallbackCreator {
@@ -114,7 +122,7 @@ public:
 	void start () throw();
 	void stop () throw();
 	void doBackup () throw();
-	void addInstruction(Instruction*, bool gameInstruction) throw();
+	void addInstruction(Instruction*, Connection*, bool gameInstruction) throw();
 	
 	// Returns a number from 0 to 1 with the current load
 	// With 0 equals no load and 1 equals max load

@@ -3,11 +3,42 @@
 #include <unistd.h>
 #include <assert.h>
 
-// ZoneCallback::ZoneCallback() : mZone(NULL) {}
+ZoneCallback::ZoneCallback(Zone* zone) : mZone(zone), mInstructions() {}
 
-ZoneCallback::~ZoneCallback() { delete mZone; }
+ZoneCallback::~ZoneCallback() {
+	delete mZone;
+
+	while (!mInstructions.empty()) {
+		delete mInstructions.front().first;
+		mInstructions.pop();
+	}
+}
 
 const Zone* ZoneCallback::zone() const { return mZone; }
+
+bool ZoneCallback::step (double stepTime) throw() {
+	bool valid = true;
+	valid = gameStep(stepTime);
+	if (valid) execInstructions();
+
+	return valid;
+}
+
+void ZoneCallback::execInstructions() throw() {
+	std::pair<Instruction*, Connection*> ins;
+	while(!mInstructions.empty()) {
+		//Exec every pending instruction and delete ir afterwards
+		ins = mInstructions.front();
+		ins.first->exec(ins.second);
+		delete ins.first;
+
+		mInstructions.pop();
+	}
+}
+
+void ZoneCallback::addInstruction (Instruction* ins, Connection* c) throw() {
+	if (ins) mInstructions.push(std::pair<Instruction*, Connection*>(ins, c));
+}
 
 ZoneCallbackCreator* ZoneHandler::sGameCreator = NULL;
 
@@ -40,7 +71,6 @@ ZoneHandler::~ZoneHandler() throw() {
 	delete mRunThread;
 	
 	if (mGame) {
-		mGame->dispose();
 		delete mGame;
 	}
 }
@@ -197,8 +227,6 @@ void ZoneHandler::startThread() throw() {
 		
 		mGameMutex.unlock();
 	}
-
-	mGame->dispose();
 }
 
 void ZoneHandler::maskAsDetachable(int newServer) {
@@ -226,18 +254,18 @@ void ZoneHandler::doBackup() throw() {
 	std::lock_guard<std::mutex> lk(mGameMutex);
 	
 	if (mGame) {
-		dbInfo = mGame->zone()->dbData();
+		//dbInfo = mGame->zone()->dbData();
 		//TODO: SAVE IN DB
 		//delete dbInfo;
 	}
 }
 
-void ZoneHandler::addInstruction(Instruction* ins, bool gameInstruction) throw() {
+void ZoneHandler::addInstruction(Instruction* ins, Connection* c, bool gameInstruction) throw() {
 	assert(ins);
 	
-	if (!gameInstruction) ins->exec(NULL); 
+	if (!gameInstruction) ins->exec(c); 
 	std::lock_guard<std::mutex> lk(mGameMutex);
-	if (mGame) mGame->addInstruction(ins);
+	if (mGame) mGame->addInstruction(ins, c);
 }
 
 double ZoneHandler::getLoad() throw() {
