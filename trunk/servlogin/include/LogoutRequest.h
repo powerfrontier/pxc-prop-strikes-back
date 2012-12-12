@@ -8,7 +8,7 @@
 class LogoutRequestSend : public Datagram<LogoutRequestSend> {
   int answerCode; //Código de respuesta de logout. 0=OK, 1=Invalid username. 2=Invalid token. El resto si os motiva hacer alguno.
 public:
-  LogoutRequestSend(): Datagram<LogoutRequestSend>("LogoutRequestSend")  {};
+  LogoutRequestSend(int answer): Datagram<LogoutRequestSend>("LogoutRequestSend"), answerCode(answer)  {};
 };
 
 class LogoutRequestRcvd : public Datagram<LogoutRequestRcvd> {

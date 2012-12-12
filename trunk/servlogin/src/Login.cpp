@@ -11,6 +11,7 @@ void Login::initializeManager(){
 
 void Login::initializeLogin(){
     nextFreeToken = 0;
+    usersConnected = 0;
 }
 
 bool Login::validate(const char* user, const char* pwd){

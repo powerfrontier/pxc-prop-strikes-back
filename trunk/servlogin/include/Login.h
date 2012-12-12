@@ -18,9 +18,12 @@ class Login : public Singleton<Login> {
 
 	Connection* controlConnection;
 	ConnectionManager* manager;
-	int nextFreeToken;
+	unsigned int nextFreeToken;
 	std::map<int,int> userTokenMap;
+	std::mutex loginMutex;
+	unsigned int usersConnected;
 	friend class LoginRequestRcvd;
+	friend class LogoutRequestRcvd;
 public:
 
 	virtual ~Login();
