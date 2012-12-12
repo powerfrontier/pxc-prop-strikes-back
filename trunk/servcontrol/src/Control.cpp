@@ -112,14 +112,28 @@ void Control::fillIpServerTable(){
 	strcpy(ipServers[2],IP_GAME_3);
 }
 
+void Control::fillPortServerTable(){
+	for(int i=0; i<NZONES; i++) { // Se necesita memoria dinamica
+		portServers[i] = (char*) malloc (PORTLENGTH);
+	}
+	strcpy(portServers[0],PORT_GAME_1);
+	strcpy(portServers[1],PORT_GAME_2);
+	strcpy(portServers[2],PORT_GAME_3);
+}
+
 char* Control::getIpServerById(int id){
 	return ipServers[id];
+}
+
+char* Control::getPortServerById(int id){
+	return portServers[id];
 }
 
 void Control::initializeServerList() {
 	list<Server*>::iterator it;
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
-	Control::fillIpServerTable();	
+	Control::fillIpServerTable();
+	Control::fillPortServerTable();	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
 	//	cout << "!!!!3" << endl;
