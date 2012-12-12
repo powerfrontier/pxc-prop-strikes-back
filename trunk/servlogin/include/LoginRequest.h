@@ -17,7 +17,6 @@ public:
     		int i = 0;
 		for( i = 0; i < IP_LENGTH; ++i){
 			routerIp[i] = ipRouter[i];
-			if(ipRouter[i] == '\0' );
 		}
 		i = 0;
 		for( i = 0; i < PORT_LENGTH; ++i){

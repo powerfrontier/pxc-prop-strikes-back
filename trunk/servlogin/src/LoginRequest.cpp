@@ -18,7 +18,7 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   int clientId; //Id del cliente en nuestro sistema (mapeo directo id-username)
   int token; //Token de sesión si es un login correcto. Si no, se ignora. Login necesita mandar el mismo token con el id del cliente al router, junto a la zona en la que se encuentra inicialmente
   ///////////////////////
-  
+  cout << "Recibimos conexión" << std::endl;
   Login::instance().loginMutex.lock();
   userPointer = username;
   pwdPointer = password;
