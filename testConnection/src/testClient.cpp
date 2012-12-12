@@ -1,6 +1,6 @@
 #include <string>
-#include "Datagram.h"
-#include "Connection.h"
+#include <Datagram.h>
+#include <Connection.h>
 #include <TestClasses.h>
 #include <iostream>
 
@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	std::string port(argv[2]);
 	printf("MainClient(): 1\n");
         fflush(stdout);
-	Connection* n = new TCPConnectionSecurity();
+	Connection* n = new TCPConnection();
 	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
@@ -23,27 +23,27 @@ int main(int argc, char** argv){
 	printf("MainClient(): Connected\n");
         fflush(stdout);
 
-
-	while (1){
-		if (n->isLinkOnline()){			
-			TestTransferableSent2* sent2 = NULL;
-			sent2 = new TestTransferableSent2();
+	if (n->isLinkOnline()){			
+			TestTransferableSent100* sent100 = NULL;
+			sent100 = new TestTransferableSent100("usuario","pass");
 		
-			printf("MainClient(): Sending2...\n");
+			printf("MainClient(): Sending100...\n");
 			fflush(stdout);
-			n->send(*sent2);
-			printf("MainClient(): sent2\n");
+			n->send(*sent100);
+			printf("MainClient(): sent100\n");
 	       		fflush(stdout);
-			delete sent2;
+			delete sent100;
 
-			TestTransferableSent7* sent7 = NULL;
-			sent7 = new TestTransferableSent7();
-			printf("MainClient(): Sending7...\n");
+			
+			printf("Ahora hacemos logout\n");
+			TestTransferableSent102* sent102 = NULL;
+			sent102 = new TestTransferableSent102(0,0);
+			printf("MainClient(): Sending102...\n");
 			fflush(stdout);
-			n->send(*sent7);
-			printf("MainClient(): sent7\n");
+			n->send(*sent102);
+			printf("MainClient(): sent102\n");
 	       		fflush(stdout);
-			delete sent7;
+			delete sent102;
 		}else{
 			std::cout << "Conexion perdida, Reconectando... "<< std::endl;
 			if(n->connect(ip, port)) {
@@ -53,7 +53,7 @@ int main(int argc, char** argv){
 				sleep(3);
 			}
 		}
-	}
+
 }
 
 
