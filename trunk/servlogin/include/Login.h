@@ -5,16 +5,30 @@
 #include <Connection.h>
 #include <ConnectionManager.h>
 
+#include <map>
+
 #define CLIENT_PORT "3456"
 #define CONTROL_PORT "3457"
+#define ROUTER_IP "127.0.0.1"
+#define ROUTER_PORT "3500"
+#define IP_LENGTH 16
+#define PORT_LENGTH 5
 
 class Login : public Singleton<Login> {
-  ConnectionManager* manager;
 
+	Connection* controlConnection;
+	ConnectionManager* manager;
+	int nextFreeToken;
+	std::map<int,int> userTokenMap;
+	friend class LoginRequestRcvd;
 public:
+
 	virtual ~Login();
 	void initializeManager();
-
+	void initializeLogin();
+	bool validate(const char* user,const char* pwd);
+	Connection* getControlConnection();
+	
 };
 
 #endif

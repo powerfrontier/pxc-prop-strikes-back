@@ -27,7 +27,7 @@ int main() {
 	Login::instance().initializeManager();
 	printf("Login: Estoy en listen\n");
  	fflush(stdout);
-	try {
+	/*try {
 	sql::mysql::MySQL_Driver *driver;
 	//sql::Driver *driver;
 	sql::Connection *con;
@@ -35,7 +35,7 @@ int main() {
 	sql::ResultSet *res;
 	
 	/* Create a connection */
-	driver = sql::mysql::get_driver_instance();
+	/*driver = sql::mysql::get_driver_instance();*/
 	//con = driver->connect("tcp://mysqlfib.fib.upc.es:3306", "BDpxc03", "BDpxc03");
 	/* Connect to the MySQL test database */
 	//con->setSchema("test");
@@ -50,7 +50,7 @@ int main() {
 	  /* Access column fata by numeric offset, 1 is the first column */
 	  //cout << res->getString(1) << endl;
 	//}
-	delete res;
+	/*delete res;
 	delete stmt;
 	delete con;
 	
@@ -61,6 +61,6 @@ int main() {
 	    cout << "# ERR: " << e.what();
 	    cout << " (MySQL error code: " << e.getErrorCode();
 	    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-	}
+	}*/
 	while (1){}
 }
