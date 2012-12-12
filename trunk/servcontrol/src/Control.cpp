@@ -278,6 +278,17 @@ void Control::zoneAssignment(){
 		
 }
 
+void Control::eliminarServidor(const int idServer) { //Elimina el servidor de la lista de servidores
+	list<Server*>::iterator it;
+	for(it=servers.begin();it!=servers.end();it++) {
+		if((*it)->id == idServer) {
+			servers.erase(it);
+			return;
+		}
+	}
+	return;
+}
+
 Control::~Control(){
 	list<Server*>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
@@ -300,6 +311,8 @@ bool compareServersLoad(Server* first, Server* second) {
 	//std::cout << first->load.totalLoad << " " << second->load.totalLoad << std::endl;
 	return (first->load.totalLoad < second->load.totalLoad);
 }
+
+
 
 int main() {
 	//ControlProfile
@@ -332,7 +345,13 @@ cout << "final inicializacion" << endl;
 				(*it)->load.totalLoad = 0;
 				ServerLoadSend* serverLoadSend = new ServerLoadSend();
 			cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;
-				(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
+				//if((*it)->c->isLinkOnline()) {				
+					(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
+				//}
+				//else {
+					//cout << "ERROR: servidor: " << (*it)->id << "CAIDO" << endl;
+					//Control::instance().eliminarServidor((*it)->id);
+				//}
 			cout << "despues de enviar instruccion carga al server" << (*it)->id << endl;
 			}
 			signal(SIGALRM, loadRequestHandle);
