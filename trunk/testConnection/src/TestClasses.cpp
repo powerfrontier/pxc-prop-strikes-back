@@ -2,45 +2,61 @@
 #include <iostream>
 #include <Connection.h>
 
-TestTransferableSent7::TestTransferableSent7() 	: Datagram<TestTransferableSent7>("TestTransferableSent7")
-						, m_zona(0)
-						, m_server(0) {
+
+TestTransferableSent100::TestTransferableSent100(char* user, char* pwd) 	: Datagram<TestTransferableSent100>("TestTransferableSent100")
+{
+	      int i;
+  		for( i = 0; i < 32; ++i){
+			username[i] = user[i];			
+		}
+		i = 0;
+		for( i = 0; i < 32; ++i){
+			password[i] = pwd[i];
+			if(pwd[i] == '\0' ) {
+			// printf("ladsa\n");
+		std::cout << "lala " << password << std::endl;
+		fflush(stdout); 
+			  return;
+			}
+		}  
+		
+}
+
+TestTransferableSent100::~TestTransferableSent100() {
 
 }
 
-TestTransferableSent7::~TestTransferableSent7() {
+TestTransferableSent102::TestTransferableSent102(int idClient,int idToken) 	: Datagram<TestTransferableSent102>("TestTransferableSent102"), clientId(idClient),token(idToken) {
 
 }
 
-TestTransferableSent2::TestTransferableSent2() 	: Datagram<TestTransferableSent2>("TestTransferableSent2") {
+TestTransferableSent102::~TestTransferableSent102() {
 
 }
 
-TestTransferableSent2::~TestTransferableSent2() {
+TestTransferableRcvd101::~TestTransferableRcvd101() {
 
 }
 
-TestTransferableRcvd::TestTransferableRcvd() 	: Datagram<TestTransferableRcvd>("TestTransferableRcvd")
-						, m_1(0)
-						, m_2(0)
-						, m_3(0)
-						, m_4(0) {
+void TestTransferableRcvd101::exec(Connection* c) const throw() {
+	std::cout <<"Ha llegado una instruccion 101: " << std::endl;
+}
+
+
+TestTransferableRcvd103::~TestTransferableRcvd103() {
 
 }
 
-TestTransferableRcvd::~TestTransferableRcvd() {
-
-}
-
-void TestTransferableRcvd::exec(Connection* c) const throw() {
-	std::cout <<"Ha llegado un: " << m_1 <<" " << m_2 <<" " << m_3 << " "<< m_4 << std::endl;
+void TestTransferableRcvd103::exec(Connection* c) const throw() {
+	std::cout <<"Ha llegado una instruccion 103 "  << std::endl;
 }
 
 TestProfile::TestProfile() : TransferableProfile(){
-	mCreators.push_back(std::pair<int, TransferableCreator*>(0, new TestTransferableRcvd::Creator("TestTransferableRcvd")));
+	mCreators.push_back(std::pair<int, TransferableCreator*>(101, new TestTransferableRcvd101::Creator("TestTransferableRcvd101")));
+	mCreators.push_back(std::pair<int, TransferableCreator*>(103, new TestTransferableRcvd103::Creator("TestTransferableRcvd103")));
 
-	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent2", 2));
-	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent7", 7));
+	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent100", 100));
+	mCreatorIds.push_back(std::pair<std::string, int>("TestTransferableSent102", 102));
 }
 
 TestProfile::~TestProfile() {
