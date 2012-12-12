@@ -48,7 +48,7 @@ Connection() throw();
 virtual ~Connection() throw(ConnectionException);
 
 //Set the objective ip and try to connect to 
-virtual std::string getPort() = 0;
+virtual const std::string& getPort() = 0;
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException) = 0;
 virtual void close() throw() = 0;
 
@@ -75,7 +75,7 @@ public:
 TCPConnection() throw();
 TCPConnection(BIO*, std::string port) throw();
 virtual ~TCPConnection() throw();
-virtual std::string getPort();
+virtual const std::string& getPort();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
 virtual void close() throw();
 virtual bool isLinkOnline() throw();
@@ -94,7 +94,7 @@ virtual bool connect(std::string& ipAddr, const std::string& port) throw(Connect
 virtual void close() throw();
 
 virtual bool isLinkOnline() throw();
-virtual std::string getPort();
+virtual const std::string& getPort();
 virtual void send(Transferable& message) throw (ConnectionException);
 virtual void sendAnswer(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
@@ -120,7 +120,7 @@ int password_cb(char *buf,int num, int rwflag,void *userdata);
 TCPConnectionSecurity() throw();
 TCPConnectionSecurity(SSL*, std::string port) throw();
 virtual ~TCPConnectionSecurity() throw();
-virtual std::string getPort();
+virtual const std::string& getPort();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
 virtual void close() throw();
 virtual bool isLinkOnline() throw();

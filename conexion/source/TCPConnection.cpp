@@ -141,7 +141,7 @@ bool TCPConnection::isLinkOnline() throw(){
 	return online;
 }
 
-std::string TCPConnection::getPort(){
+const std::string& TCPConnection::getPort(){
 	return mPort;
 }
 
