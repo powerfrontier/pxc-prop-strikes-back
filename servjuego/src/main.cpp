@@ -56,8 +56,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	
-	gs->startZone(1);
-	
 	while (command != "exit") {
 		std::cin >> command;
 	}
