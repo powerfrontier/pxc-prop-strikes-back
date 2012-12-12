@@ -7,7 +7,7 @@ bool GameServer::hasZone(int zoneId) const {
 	return it != mZones.end();
 }
 
-GameServer::GameServer() : Singleton<GameServer>(), mServerId(-1), mZones(), mClients() {
+GameServer::GameServer() : Singleton<GameServer>(), mServerId(-1), mZones(), mClients(), mControlPort() {
 
 }
 
@@ -18,10 +18,13 @@ GameServer::~GameServer() {
 
 
 void GameServer::callbackFunction(Transferable* received, Connection* c) throw() {
-	//TODO: CHECK CONNECTION SOURCE
-
-	//if (balanceo) received->exec()
-	//else send to game zone
+	if (c->getPort() == controlPort()) {
+		received->exec(c);
+		delete received;
+	}
+	else {
+		//TODO
+	}
 }
 
 void GameServer::serverId(int id) {
@@ -30,6 +33,14 @@ void GameServer::serverId(int id) {
 
 int GameServer::serverId() const {
 	return mServerId;
+}
+
+void GameServer::controlPort(const std::string& port) {
+	mControlPort = port;
+}
+
+const std::string& GameServer::controlPort() const {
+	return mControlPort;
 }
 
 void GameServer::addClient(int clientId, int clientZone) {
@@ -131,10 +142,10 @@ void GameServer::SendZoneLoads(Connection* c) {
 	int remaining = 0;
 	
 	remaining = mZones.size();
+	
 	while (it != mZones.end()) {
 		idZone = it->first;
 		load = it->second->getLoad();
-		
 		answer = new ServerLoadAnswerSend(serverId(), idZone, load, --remaining);
 		c->sendAnswer(*answer);
 		delete answer;

@@ -13,7 +13,7 @@ $(BINPATH)libConnection.a: 	$(BINPATH)ConnectionException.o \
 				$(BINPATH)Transferable.o \
 				$(BINPATH)TransferableFactory.o \
 				$(BINPATH)TransferableProfile.o \
-				$(BINPATH)TCPConnectionSecurity.o \
+				#$(BINPATH)TCPConnectionSecurity.o \
 				$(BINPATH)sysConnect.o
 	ar rcs $@ $^
 

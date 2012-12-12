@@ -9,10 +9,6 @@
 
 #include <Transferable.h>
 
-
-#include <iostream>
-
-
 class Connection;
 
 //Datagram DOES NOT ALLOW classes with non-static members

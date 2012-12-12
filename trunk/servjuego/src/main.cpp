@@ -18,18 +18,20 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	listeningPort = std::string(argv[1]);
+	
 	//Configure connection
 	TransferableFactory::instance().setProfile(new GameServerProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
 	
 	//Create GameServer object
 	gs = GameServer::instancePtr();
-	
+	gs->controlPort(listeningPort);
 	//Start listening
 	cm = new ConnectionManager();
 	cm->setCallbackFunction(gs);
 	try {
-	cm->listen(std::string(argv[1]));
+	cm->listen(listeningPort);
 	}
 	catch (ConnectionException& cs) {
 		std::cerr << "Error trying to listen connections: " << cs.what() << std::endl;
