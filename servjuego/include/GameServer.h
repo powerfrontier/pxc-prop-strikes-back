@@ -3,6 +3,7 @@
 
 #include <map>
 #include <thread>
+#include <string>
 
 #include <Zone.h>
 #include <Singleton.h>
@@ -12,6 +13,7 @@ class GameServer : public Singleton<GameServer>, public ConnectionCallback {
 	int mServerId;
 	std::map<int, ZoneHandler*> mZones;
 	std::map<int, int > mClients; //Map client-zone
+	std::string mControlPort;
 	
 	std::mutex mZonesMutex;
 	std::mutex mClientsMutex;
@@ -29,6 +31,9 @@ public:
 	
 	void serverId(int id);
 	int serverId() const;
+	
+	void controlPort(const std::string&);
+	const std::string& controlPort() const;
 	
 	void addClient(int clientId, int clientZone);
 	void delClient(int clientId);

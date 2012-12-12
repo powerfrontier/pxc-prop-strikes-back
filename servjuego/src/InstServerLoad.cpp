@@ -1,10 +1,11 @@
 #include <InstServerLoad.h>
+#include <GameServer.h>
 
 ServerLoadOrderRcvd::ServerLoadOrderRcvd() : Datagram<ServerLoadOrderRcvd>("ServerLoadOrderRcvd") { }
 ServerLoadOrderRcvd::~ServerLoadOrderRcvd() { }
 
 void ServerLoadOrderRcvd::exec(Connection* c) const throw() {
-	//TODO
+	GameServer::instance().SendZoneLoads(c);
 }
 
 ServerLoadAnswerSend::ServerLoadAnswerSend	( int idServer, int idZone, double zoneLoad
@@ -30,5 +31,4 @@ SetServerIpRvcd::SetServerIpRvcd() : Datagram<SetServerIpRvcd>("SetServerIpRvcd"
 SetServerIpRvcd::~SetServerIpRvcd() { }
 
 void SetServerIpRvcd::exec(Connection* c) const throw() {
-	//TODO
 }

@@ -5,20 +5,18 @@ SetZoneOrderRcvd::SetZoneOrderRcvd() : Datagram<SetZoneOrderRcvd>("SetZoneOrderR
 SetZoneOrderRcvd::~SetZoneOrderRcvd() { }
 
 void SetZoneOrderRcvd::exec(Connection* c) throw() {
-	//TODO
 }
 
 GetZoneOrderRcvd::GetZoneOrderRcvd() : Datagram<GetZoneOrderRcvd>("GetZoneOrderRcvd") { }
 GetZoneOrderRcvd::~GetZoneOrderRcvd() { }
 
 void GetZoneOrderRcvd::exec(Connection* c) throw() {
-	//TODO
 }
 
 SetZoneToServerRcvd::SetZoneToServerRcvd() : Datagram<SetZoneToServerRcvd>("SetZoneToServerRcvd") { }
 SetZoneToServerRcvd::~SetZoneToServerRcvd() { }
 
-void SetZoneToServerRcvd::exec(Connection* c) throw() {
+void SetZoneToServerRcvd::exec(Connection* c) const throw() {
 	GameServer* gs = GameServer::instancePtr();
 	
 	if (gs->serverId() == -1) gs->serverId(mIdServer);

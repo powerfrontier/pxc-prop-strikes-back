@@ -3,10 +3,10 @@
 
 #include <Datagram.h>
 
-//ID 7
+//ID 3
 class SetZoneOrderRcvd : public Datagram<SetZoneOrderRcvd> {
 	int idZone; //id de la zona a cargar
-	int idServer; //id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
+	int idServerDest; //id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
 
 public:
 	SetZoneOrderRcvd();
@@ -27,7 +27,7 @@ public:
 	void exec(Connection* c) throw();
 };
 
-//ID 3
+//ID 7
 class SetZoneToServerRcvd : public Datagram<SetZoneToServerRcvd> {
 	int mIdZone; //id de la zona a cargar
 	int mIdServer; //id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este	
@@ -36,7 +36,7 @@ public:
 	SetZoneToServerRcvd();
 	~SetZoneToServerRcvd();
 	
-	void exec(Connection* c) throw();
+	void exec(Connection* c) const throw();
 };
 
 #endif
