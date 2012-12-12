@@ -8,6 +8,7 @@
 #include <Singleton.h>
 
 #define IPLENGTH 16
+#define PORTLENGTH 5
 #define MAXDESV 2
 #define NSERVERS 3
 #define REBALANCING_TIME 4
@@ -28,7 +29,9 @@ class Control : public Singleton<Control> {
 	double getAverage();
 	double getStDev();
 	char* ipServers[NSERVERS];
+	char* portServers[NSERVERS];
 	void fillIpServerTable();
+	void fillPortServerTable();
 	bool compareServersLoad(Server* first, Server* second);	
 	//friend class Singleton<Control>;	
 
@@ -45,6 +48,7 @@ public:
 
 	//Control();
 	char* getIpServerById(int id);
+	char* getPortServerById(int id);
 	void initializeServerList();
 	void initializeConnections();
 	void balance();
