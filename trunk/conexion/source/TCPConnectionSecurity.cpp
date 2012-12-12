@@ -3,13 +3,12 @@
 #include "Connection.h"
 #include <unistd.h>
 #include <netinet/in.h>
-#include<iostream>	//cout
-#include<string.h>	//strlen
-#include<string>	//string
-#include<sys/socket.h>	//socket
-#include<arpa/inet.h>	//inet_addr
-#include<netdb.h>	//hostent
-#include<sysConnect.h>
+#include <iostream>	//cout
+#include <string.h>	//strlen
+#include <string>	//string
+#include <sys/socket.h>	//socket
+#include <arpa/inet.h>	//inet_addr
+#include <netdb.h>	//hostent
 #include <netinet/in.h>
 #include <signal.h>
 
@@ -100,7 +99,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	echoserver.sin_addr.s_addr = inet_addr(ipAddr.c_str());  /* IP address */
 	echoserver.sin_port = htons(atoi(port.c_str()));       /* server port */
 	/* Establish connection */
-	if (sysConnect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
+	if (::Connect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
 		std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
 		return false;
 	}
@@ -179,7 +178,7 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 
 
 	/* Send the word to the server */
-	if (sysSend(sock, buffer, lengthPacket, 0) != lengthPacket) {
+	if (::Send(sock, buffer, lengthPacket, 0) != lengthPacket) {
 		std::cout << "Missmatch in number of sent bytes" << std::endl;
 	}
 	sleep(1);

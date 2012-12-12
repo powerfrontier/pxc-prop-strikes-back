@@ -5,6 +5,27 @@
 #include <openssl/ssl.h> // SSL and SSL_CTX for SSL connections
 #include <openssl/err.h> // Error reporting
 #include <sys/socket.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
+
+
+#include <openssl/ssl.h>
+
+#define KEYFILE "servlogin.pem"
+#define PASSWORD "password"
+#define CA_LIST "root.pem"
+#define PASSWORD "password"
+#define DHFILE "dh1024.pem"
+
 /**
  * Simple log function
  */
@@ -103,158 +124,92 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 }
 
 void ConnectionManager::listenThreadSecure(const std::string& port) throw(ConnectionException){
-/*
-//********************************************************************************************************************************
-	// Initialize Winsock.
-	//WSADATA wsadata;
-	//int ret = WSAStartup(0x101, &wsadata);
-	//if (ret != 0) {
-	//	printf("WSAStartup() failed with: %d!\n", GetLastError());
-	//	return;
-	//}
+	int sock,s;
+	BIO *sbio;
+	SSL_CTX *ctx;
+	SSL *ssl;
+	int r;
+	pid_t pid;
+   	char *pass;
+	/* Build our SSL context*/
+	auto meth =SSLv23_method();
 
-	// Next we need to create a server socket.
-	SOCKET server = socket(AF_INET, SOCK_STREAM, 0);
-	sockaddr_in sockaddrin;
-	// Internet socket
-	sockaddrin.sin_family = AF_INET;
-	// Accept any IP
-	sockaddrin.sin_addr.s_addr = INADDR_ANY;
-	// Use port 
-	std::string str = port;
-	char buff[str.length()];
-	str.copy(buff, str.size(), 0);
-	sockaddrin.sin_port = htons(buff.atoi());
+	/* Set up a SIGPIPE handler */
+	//signal(SIGPIPE,sigpipe_handle);
+    
+	ctx=SSL_CTX_new(meth);
 
-	// Valid socket?
-	if (server == INVALID_SOCKET) {
-		printf("Error creating server socket!");
+	/* Load our keys and certificates*/
+	if(!(SSL_CTX_use_certificate_chain_file(ctx,KEYFILE))){
+		std::cerr << "Can't read certificate file" << std::endl;
 		return;
 	}
 
-	// Now bind to the port
-	ret = bind(server, (sockaddr*) &(sockaddrin), sizeof(sockaddrin));
-	if (ret != 0) {
-		printf("Error binding to port!\n");
+	strcpy(pass, PASSWORD);
+//	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
+	if(!(SSL_CTX_use_PrivateKey_file(ctx,KEYFILE,SSL_FILETYPE_PEM))){
+		std::cerr << "Can't read key file" << std::endl;
 		return;
 	}
 
-	// Start listening for connections
-	// Second param is max number of connections
-	ret = listen(server, 50);
-	if (ret != 0) {
-		printf("Error listening for connections!\n");
+	/* Load the CAs we trust*/
+	if(!(SSL_CTX_load_verify_locations(ctx,CA_LIST,0))){
+		std::cerr << "Can't read CA list" << std::endl;
 		return;
 	}
 
-	// Set up to accept connections
-	SOCKET client;
-	sockaddr_in clientsockaddrin;
-	int len = sizeof(clientsockaddrin);
-	printf("Server ready to accept connections!\n");
-	while (1) {
-		// Block until a connection is ready
-		client = accept(server, (sockaddr*) &clientsockaddrin, &len);
-		printf("Connection recieved from %s!\n", inet_ntoa(clientsockaddrin.sin_addr));
 
-		// Notice that we use server_method instead of client_method
-		SSL_CTX* ctx = SSL_CTX_new(SSLv23_server_method());
+	DH *ret=0;
+	BIO *bio;
 
-		/* The following is commented out. This sets up certificate verification.
+	if ((bio=BIO_new_file(DHFILE,"r")) == NULL){
+		std::cerr << "Couldn't open DH file" << std::endl;
+		return;
+	}
 
-		You will need to generate certificates, the root certificate authority file, the private key file, and the random file yourself.
-      Google will help. The openssl executable created when you compiled OpenSSL can do all this.
+	ret=PEM_read_bio_DHparams(bio,NULL,NULL,NULL);
+	BIO_free(bio);
+	if(SSL_CTX_set_tmp_dh(ctx,ret)<0){
+		std::cerr << "Couldn't set DH parameters" << std::endl;
+		return;
+	}
 
-      // Sets the default certificate password callback function. Read more under the Certificate Verification section.
-      SSL_CTX_set_default_passwd_cb(ctx, password_callback);
-      // Sets the certificate file to be used.
-      SSL_CTX_use_certificate_file(ctx, "casigned.pem", SSL_FILETYPE_PEM);
-      // Sets the private key file to be used.
-      SSL_CTX_use_PrivateKey_file(ctx, "cakey.pem", SSL_FILETYPE_PEM);
+  
+	//LISTEN
+	struct sockaddr_in sin;
+	int val=1;
+    
+	if((sock=socket(AF_INET,SOCK_STREAM,0))<0){
+		std::cerr << "Couldn't make socket" << std::endl;
+		return;
+	}
+    
+	memset(&sin,0,sizeof(sin));
+	sin.sin_addr.s_addr=INADDR_ANY;
+	sin.sin_family=AF_INET;
+	sin.sin_port=htons(atoi(port.c_str()));
+	setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&val,sizeof(val));
+    
+	if(bind(sock,(struct sockaddr *)&sin,sizeof(sin))<0){
+		std::cerr << "Couldn't bind" << std::endl;
+		return;
+	}
+    	::listen(sock,5);  
 
-      // Load trusted root authorities
-      SSL_CTX_load_verify_locations(ctx, "rootcas.pem", 0);
-      // Set the maximum depth to be used verifying certificates
-      // Due to a bug, this is not enforced. The verify callback must enforce it.
-      SSL_CTX_set_verify_depth(ctx, 1);
-      // Set the certificate verification callback.
-      SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verify_callback);
 
-      // Load the random file, read 1024 << 10 bytes, add to PRNG for entropy
-      RAND_load_file("random.pem", 1024 << 10);
-
-      End certificate verification setup.
-      */
-/*
-		// We need to load the Diffie-Hellman key exchange parameters.
-		BIO* bio = BIO_new_file("dh1024.pem", "r");
-		// Did we get a handle to the file?
-		if (bio == NULL) {
-			printf("Couldn't open DH param file!\n");
-			break;
+	while(1){
+		if((s=accept(sock,0,0))<0){
+			std::cerr << "Problem accepting" << std::endl;
+			continue;
 		}
 
-		// Read in the DH params.
-		DH* ret = PEM_read_bio_DHparams(bio, NULL, NULL, NULL);
-		// Free up the BIO object.
-		BIO_free(bio);
-		// Set up our SSL_CTX to use the DH parameters.
-		if (SSL_CTX_set_tmp_dh(ctx, ret) < 0) {
-			printf("Couldn't set DH parameters!\n");
-			break;
+		sbio=BIO_new_socket(s,BIO_NOCLOSE);
+		ssl=SSL_new(ctx);
+		SSL_set_bio(ssl,sbio,sbio);
+		if((r=SSL_accept(ssl)<=0)){
+			std::cerr << "SSL accept error" << std::endl;	
+			continue;
 		}
-
-		// Now we need to generate a RSA key for use.
-		// 1024-bit key. If you want to use something stronger, go ahead but it must be a power of 2. Upper limit should be 4096.
-		RSA* rsa = RSA_generate_key(1024, RSA_F4, NULL, NULL);
-
-		// Set up our SSL_CTX to use the generated RSA key.
-		if (!SSL_CTX_set_tmp_rsa(ctx, rsa)) {
-			printf("Couldn't set RSA key!\n");
-			// We don't break out here because it's not a requirement for the RSA key to be set. It does help to have it.
-		}
-		// Free up the RSA structure.
-		RSA_free(rsa);
-
-		SSL_CTX_set_cipher_list(ctx, "ALL");
-		// Set up our SSL object as before
-		SSL* ssl = SSL_new(ctx);
-		// Set up our BIO object to use the client socket
-		BIO* sslclient = BIO_new_socket(client, BIO_NOCLOSE);
-		// Set up our SSL object to use the BIO.
-		SSL_set_bio(ssl, sslclient, sslclient);
-
-		// Do SSL handshaking.
-		int r = SSL_accept(ssl);
-		// Something failed. Print out all the error information, since all of it may be relevant to the problem.
-		if (r != 1) {
-			printf("SSL_accept() returned %d\n", r);
-			printf("Error in SSL_accept(): %d\n", SSL_get_error(ssl, r));
-			char error[65535];
-			ERR_error_string_n(ERR_get_error(), error, 65535);
-			printf("Error: %s\n\n", error);
-			ERR_print_errors(sslclient);
-			int err = WSAGetLastError();
-			printf("WSA: %d\n", err);
-			// We failed to accept this client connection.
-			// Ideally here you'll drop the connection and continue on.
-			break;
-		}*/
-
-		/* Verify certificate
-		if (SSL_get_verify_result(client) != X509_V_OK) {
-			printf("Certificate failed verification!\n");
-			// Ideally here you'll close this connection and continue on.
-			break;
-		}
-		*/
-
-	/*	// Further work using the SSL object here (IO operations, new threads, etc)
-		Connection *c = new TCPConnectionSecurity(ssl, port);
-		if (cCallB != NULL){
-			c->setCallbackFunction(cCallB);
-		}
-		c->receive();		
-	}*/
-//********************************************************************************************************************************
+		
+  	}
 }
