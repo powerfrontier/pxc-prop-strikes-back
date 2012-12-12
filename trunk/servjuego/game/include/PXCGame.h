@@ -43,7 +43,7 @@ class PXCGame : public ZoneCallback {
 	virtual bool init();
 };
 
-class PXCGameCreator {
+class PXCGameCreator : public ZoneCallbackCreator {
 public:
 	virtual ZoneCallback* create(int zoneId);
 };

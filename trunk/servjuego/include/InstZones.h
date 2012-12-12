@@ -1,16 +1,30 @@
 #ifndef _INST_ZONES_H_
 #define _INST_ZONES_H_
 
+#include <Datagram.h>
+
+//ID 7
 class SetZoneOrderRcvd : public Datagram<SetZoneOrderRcvd> {
-	- idZone: id de la zona a cargar
-	- idServer: id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
+	int idZone; //id de la zona a cargar
+	int idServer; //id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
+
+	void exec(Connection* c) throw();
 };
 
+//ID 4
 class GetZoneOrderRcvd : public Datagram<GetZoneOrderRcvd> {
-	- idZone: id de la zona a cargar
-	- idServerSource: id del servidor origen que tiene la zona	
+	int idZone; //id de la zona a cargar
+	int idServerSource; //id del servidor origen que tiene la zona
+	
+	void exec(Connection* c) throw();
 };
 
-class 
+//ID 3
+class SetZoneToServerRcvd : public Datagram<SetZoneToServerRcvd> {
+	int mIdZone; //id de la zona a cargar
+	int mIdServer; //id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este	
+
+	void exec(Connection* c) throw();
+};
 
 #endif

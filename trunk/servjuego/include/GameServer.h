@@ -9,7 +9,7 @@
 #include <Connection.h>
 
 class GameServer : public Singleton<GameServer>, public ConnectionCallback {
-	int idServer;
+	int mServerId;
 	std::map<int, ZoneHandler*> mZones;
 	std::map<int, std::pair<int, int> > mClients;
 	

@@ -1,6 +1,6 @@
 #include <Zone.h>
 
-Zone::Zone(int zoneId) : mZoneId(zoneId), mUsers() { }
+Zone::Zone(int zoneId) : mUsers(), mZoneId(zoneId) { }
 
 Zone::~Zone() { }
 

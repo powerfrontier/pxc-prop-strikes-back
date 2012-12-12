@@ -9,6 +9,7 @@
 int main(int argc, char** argv) {
 	ConnectionManager* cm = NULL;
 	GameServer* gs = NULL;
+	
 	std::string listeningPort = "";
 	std::string command = "";
 	
@@ -23,6 +24,8 @@ int main(int argc, char** argv) {
 	
 	//Create GameServer object
 	gs = GameServer::instancePtr();
+	
+	
 	
 	//Start listening
 	cm = new ConnectionManager();
@@ -46,6 +49,16 @@ int main(int argc, char** argv) {
 		delete cm;
 		return 1;
 	}
+	catch (...) {
+		std::cerr << "Unexpected error: " << std::endl;
+		
+		gs->stopAll();
+		delete gs;
+		delete cm;
+		return 1;
+	}
+	
+	gs->startZone(1);
 	
 	while (command != "exit") {
 		std::cin >> command;

@@ -40,11 +40,11 @@ void ZoneCallback::addInstruction (Instruction* ins, Connection* c) throw() {
 	if (ins) mInstructions.push(std::pair<Instruction*, Connection*>(ins, c));
 }
 
-ZoneCallbackCreator* ZoneHandler::sGameCreator = NULL;
+// ZoneCallbackCreator* ZoneHandler::sGameCreator = NULL;
 
-void ZoneHandler::setGameCreator(ZoneCallbackCreator* zcb) {
-	sGameCreator = zcb;
-}
+// void ZoneHandler::setGameCreator(ZoneCallbackCreator* zcb) {
+// 	sGameCreator = zcb;
+// }
 
 ZoneHandler::ZoneHandler(int zoneId) throw()	: mGame(sGameCreator->create(zoneId))
 						, mDetachableZone(-1)
@@ -67,8 +67,7 @@ ZoneHandler::ZoneHandler(int zoneId) throw()	: mGame(sGameCreator->create(zoneId
 
 ZoneHandler::~ZoneHandler() throw() {
 	run(false);
-	if (mRunThread) mRunThread->join();
-	delete mRunThread;
+	stop();
 	
 	if (mGame) {
 		delete mGame;
@@ -247,6 +246,8 @@ void ZoneHandler::start() throw() {
 void ZoneHandler::stop() throw() {
 	run(false);
 	if (mRunThread) mRunThread->join();
+	delete mRunThread;
+	mRunThread = NULL;
 }
 
 void ZoneHandler::doBackup() throw() {

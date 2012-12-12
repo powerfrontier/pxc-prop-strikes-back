@@ -1,21 +1,25 @@
 Envíos: Control envía a Juego
 
+//DONE
 SetZoneToServerSend - Se envían las zonas iniciales que cargarán los servidores en su encendido.
   ID instrucción: 7
 	Params:
 	- int idZone: id de la zona a cargar
 	- int idServer: id del server receptor, esta id se guarda para que el server sepa 'quien es', pues cuando se pida la carga de las zonas, a control le hará falta saber la id de este
 
+//DONE
 GetZoneSend - Se envía a un servidor de destino la zona que tiene que recoger
   ID instrucción: 4
 	Params:
 	- int idZone: id de la zona a cargar
 	- int idServerSource: id del servidor origen que tiene la zona
 
+//DONE
 RemoveZoneSend - Se envía a un servidor la orden de dejar de gestionar la zona
   ID instrucción: 3
 	Params:
 	- int idZone: id de la zona a eliminar
+
 
 ServerLoadSend - Se envía a un servidor una petición para que envíe la carga de todas sus zonas
   ID instrucción: 2
@@ -25,7 +29,8 @@ ServerLoadSend - Se envía a un servidor una petición para que envíe la carga 
 IPServerSend - Se envía la IP del servidor pedido
   ID instrucción: 6
   Params:
-   - IPSourceServer: Char[16] con la IP del server
+	char mIPServer[16]; //Char[16] con la IP del server
+	char mPortServer[5]; //Char[5] con el puerto del server
 
 Recepción: Control recibe de Juego
 
