@@ -45,7 +45,7 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 //***
 	/* Build our SSL context*/
 
-    	const SSL_METHOD *meth = SSLv23_method();
+    	auto *meth = SSLv23_method();
 
 	/* Set up a SIGPIPE handler */
 	signal(SIGPIPE, SIG_IGN);
