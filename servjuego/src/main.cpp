@@ -5,6 +5,7 @@
 
 #include <string>
 #include <iostream>
+#include <unistd.h>
 
 int main(int argc, char** argv) {
 	ConnectionManager* cm = NULL;
@@ -60,6 +61,7 @@ int main(int argc, char** argv) {
 	
 	while (command != "exit") {
 		std::cin >> command;
+		sleep(2);
 	}
 	
 	gs->stopAll();
