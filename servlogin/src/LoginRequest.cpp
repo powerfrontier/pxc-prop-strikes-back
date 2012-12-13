@@ -38,8 +38,8 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   }
   
   //Enviar info a balanceo  
-  NewClientSend* newClientSend = new NewClientSend(clientId,token);
-  Login::instance().controlConnection->send(*newClientSend);  
+  //NewClientSend* newClientSend = new NewClientSend(clientId,token);
+  //Login::instance().controlConnection->sendAnswer(*newClientSend);  
   //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
   c->sendAnswer(*loginRequestSend);
