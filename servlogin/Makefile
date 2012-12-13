@@ -4,7 +4,8 @@ SRCPATH = src/
 BINPATH = bin/
 CC      = g++
 CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -I../sqlConnector/$(INCLUDEPATH) -I../sqlConnector/$(INCLUDECPPCON) -I../mysqlDriver/$(INCLUDEPATH) -std=c++0x
-LDFLAGS = -lssl -lcrypto -lConnection -lmysqlcppconn-static -lmysqlclient -L$(BINPATH) -pthread
+LDFLAGS = -L$(BINPATH) -lConnection -lssl -lcrypto -pthread -lmysqlcppconn-static -lmysqlclient
+
 
 all: $(BINPATH)Login
 
