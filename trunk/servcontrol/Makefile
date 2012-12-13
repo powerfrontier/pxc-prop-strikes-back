@@ -1,8 +1,14 @@
 Done: Control
 	echo "DONE"
 
-Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o ServerLoad.o Server.o ControlProfile.o IPServer.o Control.o
-	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o TransferableProfile.o ServerLoad.o Server.o ControlProfile.o IPServer.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
+Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o
+	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
+
+DisconnectUser.o: ./src/DisconnectUser.cpp
+	g++ -c ./src/DisconnectUser.cpp -I./ -I../conexion/include -I./include -std=c++0x
+
+NewUser.o: ./src/NewUser.cpp
+	g++ -c ./src/NewUser.cpp -I./ -I../conexion/include -I./include -std=c++0x
 
 ServerLoad.o: ./src/ServerLoad.cpp
 	g++ -c ./src/ServerLoad.cpp -I./ -I../conexion/include -I./include -std=c++0x

@@ -13,6 +13,7 @@
 #include <RemoveZone.h>
 #include <GetZone.h>
 #include <RouterChangeZone.h>
+#include <LoginOnline.h>
 
 using namespace std;
 
@@ -130,6 +131,7 @@ char* Control::getPortServerById(int id){
 }
 
 void Control::initializeServerList() {
+cout << "initializeServerList" << endl;
 	list<Server*>::iterator it;
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();
@@ -213,8 +215,8 @@ void Control::initializeConnections() {
 	//	cout << "Servidor redireccion NO conectado\n";
 	//}
 	//cout << "3" << endl;
-
-	//loginConnection->connect(IP_LOGIN, PORT_LOGIN);
+cout << "!!!!!!!!" << endl;	
+	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
 	//routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
 
@@ -247,6 +249,7 @@ void Control::zoneAssignment(){
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
 		
 		server->c->send(*setZoneToServerSend);
+		delete(setZoneToServerSend);
 		zoneServer[i] = server;
 		zl = new ZoneLoad(i, 0);
 		server->load.distribution.push_back(zl);
@@ -316,9 +319,10 @@ bool compareServersLoad(Server* first, Server* second) {
 
 int main() {
 	//ControlProfile
-	TransferableFactory::instance().setProfile(new ControlProfile());
+cout << "1" << endl;
+	TransferableFactory::instance().setProfile(new ControlProfile());cout << "1.5" << endl;
 	TransferableFactory::instance().setProtocol("0.1a");
-	
+	cout << "2" << endl;
 	//Inicialización
 	Control::instance().initializeServerList();
 cout << "final inicializar servers" << endl;
@@ -332,7 +336,11 @@ cout << "final inicializar conexiones" << endl;
 	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
 	
 	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
-	
+
+	cout << "enviando conexion a login" << endl;
+	LoginOnlineSend* instr = new LoginOnlineSend();
+	Control::instance().loginConnection->send(*instr);
+	delete(instr);
 	
 	breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
 cout << "final inicializacion" << endl;	
@@ -347,6 +355,7 @@ cout << "final inicializacion" << endl;
 			cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;
 				//if((*it)->c->isLinkOnline()) {				
 					(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
+					delete(serverLoadSend);
 				//}
 				//else {
 					//cout << "ERROR: servidor: " << (*it)->id << "CAIDO" << endl;
