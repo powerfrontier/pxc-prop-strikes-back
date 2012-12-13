@@ -6,7 +6,7 @@
 
 using namespace std;
 
-LoginProfile::LoginProfile() : TransferableProfile(), mCreators(), mCreatorIds() {
+LoginProfile::LoginProfile() : TransferableProfile() {
 	mCreators.push_back(std::pair<int, TransferableCreator*>(100, new LoginRequestRcvd::Creator("LoginRequestRcvd"))); 
 	mCreators.push_back(std::pair<int, TransferableCreator*>(102, new LogoutRequestRcvd::Creator("LogoutRequestRcvd")));
 	
