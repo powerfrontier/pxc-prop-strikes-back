@@ -37,7 +37,7 @@ int main(int argc, char** argv){
 			
 			printf("Ahora hacemos logout\n");
 			TestTransferableSent102* sent102 = NULL;
-			sent102 = new TestTransferableSent102(0,0);
+			sent102 = new TestTransferableSent102(2,2);
 			printf("MainClient(): Sending102...\n");
 			fflush(stdout);
 			n->send(*sent102);

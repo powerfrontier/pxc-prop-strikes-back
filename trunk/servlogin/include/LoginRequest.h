@@ -6,6 +6,7 @@
 #include <Login.h>
 
 
+
 class LoginRequestSend : public Datagram<LoginRequestSend> {
   int answerCode; //Código de respuesta al intento de login. 0 = login correcto, 1=Wrong username or password, los demás que os hagan falta.
   char routerIp[16]; //Ip del router al que se conectará seguida de uno o más caracteres NULL \0 para indicar el final de string. Si no es un login correcto se ignora.

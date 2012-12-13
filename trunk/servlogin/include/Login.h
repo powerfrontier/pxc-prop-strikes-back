@@ -24,6 +24,7 @@ class Login : public Singleton<Login> {
 	unsigned int usersConnected;
 	friend class LoginRequestRcvd;
 	friend class LogoutRequestRcvd;
+	friend class ControlConnectionRcvd;
 public:
 
 	virtual ~Login();

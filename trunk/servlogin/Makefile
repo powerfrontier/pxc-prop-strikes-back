@@ -8,7 +8,7 @@ LDFLAGS = -lssl -lcrypto -lConnection -lmysqlcppconn-static -lmysqlclient -L$(BI
 
 all: $(BINPATH)Login
 
-$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlcppconn-static.a $(BINPATH)libmysqlclient.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
+$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlcppconn-static.a $(BINPATH)libmysqlclient.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)ControlConnection.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(BINPATH)libConnection.a:
@@ -28,6 +28,9 @@ $(BINPATH)LoginRequest.o: $(SRCPATH)LoginRequest.cpp $(INCLUDEPATH)LoginRequest.
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)LogoutRequest.o: $(SRCPATH)LogoutRequest.cpp $(INCLUDEPATH)LogoutRequest.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)ControlConnection.o: $(SRCPATH)ControlConnection.cpp $(INCLUDEPATH)ControlConnection.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)LoginProfile.o: $(SRCPATH)LoginProfile.cpp $(INCLUDEPATH)LoginProfile.h

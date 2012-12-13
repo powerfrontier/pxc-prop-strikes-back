@@ -1,4 +1,5 @@
 #include <LogoutRequest.h>
+#include <ClientDisconnect.h>
 #include <iostream>
 #include <map>
 #include <Login.h>
@@ -8,6 +9,7 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
   Login::instance().loginMutex.lock();
   int answerCode; //Código de respuesta de logout. 0=OK, 1=Invalid username. 2=Invalid token. El resto si os motiva hacer alguno.
   std::map<int,int>::iterator it;
+  std::cout << "Usuarios connectats : " << Login::instance().usersConnected << std::endl;
   if( Login::instance().userTokenMap.count(clientId) == 0 ){
     answerCode = 1;
   }else{
@@ -19,16 +21,18 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
 	Login::instance().userTokenMap.erase(it);
 	answerCode = 0;	
 	Login::instance().usersConnected--;
+	//Enviar info balanceo
+	ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
+	Login::instance().controlConnection->send(*clientDisconnectSend);  
       }    
   }
   Login::instance().loginMutex.unlock();
-  //Enviar info balanceo
   
   //Enviar info cliente
   LogoutRequestSend* logoutRequestSend = new LogoutRequestSend(answerCode);
   c->sendAnswer(*logoutRequestSend);
   delete logoutRequestSend;
-  
+  std::cout << "Usuarios connectats : " << Login::instance().usersConnected << std::endl;
   
 }
 
