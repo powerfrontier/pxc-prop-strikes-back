@@ -20,11 +20,6 @@
 #include <thread>
 
 #define CA_LIST "root.pem"
-//#define RANDOM  "random.pem"
-#define KEYFILE "client.pem"
-#define PASSWORD "password"
-
-
 
 TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	/* call the standard SSL init functions */
@@ -38,10 +33,9 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	tListen = NULL;
 	/* Create the TCP socket */
 	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-		std::cout << "DIE CREATING A SOCKET" << std::endl;
+		std::cerr << "DIE CREATING A SOCKET" << std::endl;
 	}
 	
-//***
 	/* Build our SSL context*/
 
     	auto *meth = SSLv23_method();
@@ -52,37 +46,14 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	/* Create our context*/
 	ctx=SSL_CTX_new(meth);
 
-	/* Load our keys and certificates*/
-//	if(!(SSL_CTX_use_certificate_chain_file(ctx, KEYFILE))){
-//		std::cout << "Can't read certificate file" << std::endl;
-//	}
-//	pass = (char *)malloc(8);
-//	strcpy(pass,PASSWORD);
-//	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
-//	if(!(SSL_CTX_use_PrivateKey_file(ctx, KEYFILE,SSL_FILETYPE_PEM))){
-//		std::cout << "Can't read key file" << std::endl;
-//	}
-
 	/* Load the CAs we trust*/
 	if(!(SSL_CTX_load_verify_locations(ctx, CA_LIST,0))){
-		std::cout << "Can't read CA list" << std::endl;
+		std::cerr << "Can't read CA list" << std::endl;
 	}
-
-//***
-
 	setLinkOnline(false);
 }
 
 TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() : Connection() {
-    /* call the standard SSL init functions */
-   /* CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
-    SSL_load_error_strings();
-    SSL_library_init();
-    ERR_load_BIO_strings();
-    ERR_load_crypto_strings();
-    OpenSSL_add_all_algorithms();
-    ssl= c;
-    tListen = NULL;*/
 	ssl = c;
 	mPort = port;
 	setLinkOnline(true);
@@ -102,7 +73,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	echoserver.sin_port = htons(atoi(port.c_str()));       /* server port */
 	/* Establish connection */
 	if (::connect(sock,(struct sockaddr *) &echoserver,sizeof(echoserver)) < 0) {
-		std::cout << "COULDN'T CONNECT TO SERVER " << std::endl;
+		std::cerr << "COULDN'T CONNECT TO SERVER " << std::endl;
 		return false;
 	}
 	/* Connect the SSL socket */
@@ -111,7 +82,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	SSL_set_bio(ssl,sbio,sbio);
 	int n = SSL_connect(ssl);
 	if(n<=0){
-		std::cout << "SSL connect error " << SSL_get_error(ssl, n) <<  std::endl;
+		std::cerr << "SSL connect error " << SSL_get_error(ssl, n) <<  std::endl;
 		return false;
 	}
 
@@ -126,7 +97,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	peer=SSL_get_peer_certificate(ssl);
 	X509_NAME_get_text_by_NID(X509_get_subject_name(peer),NID_commonName, peer_CN, 256);
 	if(strcasecmp(peer_CN,ipAddr.c_str())){
-		std::cout << "Common name " << peer_CN << " doesn't match host name " << ipAddr.c_str() <<std::endl;
+		std::cerr << "Common name " << peer_CN << " doesn't match host name " << ipAddr.c_str() <<std::endl;
 		return false;
 	}
 	mPort = port;
@@ -140,7 +111,25 @@ void TCPConnectionSecurity::close() throw(){
 }
 
 void TCPConnectionSecurity::close(bool threadListen) throw(){
-	
+	setLinkOnline(false);
+	int r = 0;
+	//if (sbio != NULL){
+		if (!threadListen && tListen != NULL){
+			std::cout << "CERRANDO LISTEN" << std::endl;
+			tListen->join();
+			delete tListen;
+		}
+		tListen = NULL;
+		std::cout << "CERRANDO SOCKET" << std::endl;
+		//r = BIO_free(sbio);
+		//if (r == 0) {
+		//	std::cout << "ERROR AL CERRAR SOCKET" << std::endl;
+		//} 
+		//sbio = NULL;
+		//std::cout << "CONEXION CERRADA" << std::endl;
+	//}else{
+	//	//std::cout << "LA CONEXION ESTABA CERRADA" << std::endl;
+	//}
 }
 
 bool TCPConnectionSecurity::isLinkOnline() throw(){
@@ -163,15 +152,15 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 	char buffer[lengthPacket];
 	std::string protocol = TransferableFactory::instance().protocol();
 	if (protocol.size() > 8){	
-		std::cout << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
+		std::cerr << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
 		return;
 	}
 	int type; 
 	try{
 		type = message.type();
 	}catch(TransferableVersionException& e){
-		std::cout << "Error using Transferable, message.type incorrect " << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cerr << "Error using Transferable, message.type incorrect " << std::endl;
+		std::cerr << e.what() << std::endl;
 		return;
 	}
 	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
@@ -190,16 +179,49 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 				std::cerr << "Incomplete write!" << std::endl;
 			break;
 		default:
+			close(false);
 			std::cerr << "SSL write problem" << std::endl;
 	}
-/*	if (::send(sock, buffer, lengthPacket, 0) != lengthPacket) {
-		std::cout << "Missmatch in number of sent bytes" << std::endl;
-	}*/
 	sleep(1);
 }
 
 void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionException){
-	send(message);
+	size_t lengthMessage = message.size();
+	int lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
+	char buffer[lengthPacket];
+	std::string protocol = TransferableFactory::instance().protocol();
+	if (protocol.size() > 8){	
+		std::cerr << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
+		return;
+	}
+	int type; 
+	try{
+		type = message.type();
+	}catch(TransferableVersionException& e){
+		std::cerr << "Error using Transferable, message.type incorrect " << std::endl;
+		std::cerr << e.what() << std::endl;
+		return;
+	}
+	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
+	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
+	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
+	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
+
+
+
+	/* Send the word to the server */
+	int r;
+	r=SSL_write(ssl,buffer,lengthPacket);
+	switch(SSL_get_error(ssl,r)){      
+		case SSL_ERROR_NONE:
+			if(lengthPacket!=r)
+				std::cerr << "Incomplete write!" << std::endl;
+			break;
+		default:
+			close(true);
+			std::cerr << "SSL write problem" << std::endl;
+	}
+	sleep(1);
 }
 
 
@@ -212,7 +234,7 @@ void TCPConnectionSecurity::receiveThread(){
 		try{
 			receiveTransfThread();
 		}catch (std::exception e){	
-			std::cout << e.what() << std::endl;
+			std::cerr << e.what() << std::endl;
 			fflush(stdout);
 		}
 	}
@@ -225,9 +247,6 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 	char protocol[8];
 	int instruction;
 	
-	//BIO *io,*ssl_bio;
-    
-    	
 	/* Receive the word back from the server */
 	int r;
 	r=SSL_read(ssl,bufsizeCommunication,lengthCommunication);
@@ -245,42 +264,18 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 			std::cerr << "SSL Error: Premature close" << std::endl;
 			return;
 		default:
+			close(true);
 			std::cerr << "SSL read problem" << std::endl;
+			return;
 	}
 	
-	/*io=BIO_new(BIO_f_buffer());
-    	ssl_bio=BIO_new(BIO_f_ssl());
-    	BIO_set_ssl(ssl_bio,ssl,BIO_CLOSE);
-    	BIO_push(io,ssl_bio);
-	int received;
-	received =BIO_gets(io,bufsizeCommunication,lengthCommunication);
-	switch(SSL_get_error(ssl,received)){
-		case SSL_ERROR_NONE:
-			memcpy(&sizeMessage, bufsizeCommunication, sizeof(size_t));
-			memcpy(protocol, bufsizeCommunication+sizeof(size_t), 8);
-			memcpy(&instruction, bufsizeCommunication+sizeof(size_t) + 8, sizeof(int));
-			break;
-		default:
-			std::cerr << "SSL read problem" << std::endl;
-	}
-	*/
-        
-	/*int received =0;
-	while (received < lengthCommunication) {
-		int bytes = 0;
-		if ((bytes = recv(sock, bufsizeCommunication, lengthCommunication, 0)) < 1) {
-			std::cout << "Failed to receive bytes from server" << std::endl;
-		}
-		received += bytes;
-	}*/
-
 
 	TransferableCreator* c;
 	try {
 		TransferableFactory::instance().setProtocol(protocol);
 		c = TransferableFactory::instance().creator(instruction);
 	}catch(TransferableVersionException& e){
-		std::cout << "Protocol or instruction received incorrect" << std::endl;
+		std::cerr << "Protocol or instruction received incorrect" << std::endl;
 		throw ConnectionException(e.what());
 	}
 
@@ -311,35 +306,8 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 			std::cerr << "SSL Error: Premature close" << std::endl;
 			return;
 		default:
+			close(true);
 			std::cerr << "SSL read problem" << std::endl;
-	}
-	/*received =BIO_gets(io,bufferMessage,sizeMessage);
-	switch(SSL_get_error(ssl,received)){
-		case SSL_ERROR_NONE:
-			Transferable *t;
-			try{
-				t = c->create((void*)bufferMessage);
-				if (!mCallback) {
-					t->exec(this);
-					delete t;
-				}else{
-					mCallback->callbackFunction(t, this);
-				}
-			}catch(TransferableVersionException& e){
-				throw ConnectionException(e.what());
-			}   
-			break;
-		default:
-			std::cerr << "SSL read problem" << std::endl;
-	}
-	*/
-	/*received = 0;
-	while (received < sizeMessage) {
-		int bytes = 0;
-		if ((bytes = recv(sock, bufferMessage, sizeMessage, 0)) < 1) {
-			std::cout << "Failed to receive bytes from server" << std::endl;
-		}
-		received += bytes;
-        }*/
-    
+			return;
+	}   
 }

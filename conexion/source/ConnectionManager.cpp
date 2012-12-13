@@ -21,9 +21,8 @@
 #include <openssl/ssl.h>
 
 #define KEYFILE "server.pem"
-#define PASSWORD "password"
+//#define PASSWORD "password"
 #define CA_LIST "root.pem"
-#define PASSWORD "password"
 #define DHFILE "dh1024.pem"
 
 /**
@@ -145,8 +144,8 @@ void ConnectionManager::listenThreadSecure(const std::string& port) throw(Connec
 		return;
 	}
 
-	pass = (char *)malloc(8);
-	strcpy(pass,PASSWORD);
+//	pass = (char *)malloc(8);
+//	strcpy(pass,PASSWORD);
 //	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
 	if(!(SSL_CTX_use_PrivateKey_file(ctx,KEYFILE,SSL_FILETYPE_PEM))){
 		std::cerr << "Can't read key file" << std::endl;
