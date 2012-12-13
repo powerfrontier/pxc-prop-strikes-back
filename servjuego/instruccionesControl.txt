@@ -49,3 +49,14 @@ IPServerRcvd - Control recibe la petición para enviar la ip de un server
   - int idServer: id del server del cual se quiere la IP
 
 
+GameNewUserSend - Control comunica a gameserver que se incorpora un usuario nuevo y que vaya a cargar sus datos a "BD"
+	ID instruccion: 8
+	Params:
+	- int idUser: id del user nuevo
+	- int idZona: zona en que estaba o comienza
+
+ 
+
+
+
+
