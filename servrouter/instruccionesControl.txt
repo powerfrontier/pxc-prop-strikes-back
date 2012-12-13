@@ -1,0 +1,6 @@
+RouterNewUserSend - Control comunica a router que se incorpora un usuario nuevo
+	ID instruccion: 60
+	Params:
+	- int idUser: id del user nuevo
+	- int token: token del user dado por login
+	- int idZona: zona en que estaba o comienza
