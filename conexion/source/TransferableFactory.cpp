@@ -4,7 +4,9 @@
 const std::string TransferableFactory::NO_PROTOCOL = "none";
 
 TransferableFactory::TransferableFactory() throw()	: mProtocolVersion(NO_PROTOCOL)
-							, mCreators() { }
+							, mCreators() {
+	mProfile = NULL;
+}
 
 TransferableFactory::~TransferableFactory() throw() {
 	clear();
