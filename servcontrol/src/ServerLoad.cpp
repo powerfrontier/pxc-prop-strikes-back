@@ -7,7 +7,7 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 	
 	//Inserir la carrega a la carrega del server que toca i actualitzar la mascara on toca també
 	std::cout << "recibiendo mensaje del server: " << idServer << std::endl;
-	std::cout <<  idServer << " "  << idZone << " " << zoneLoad << " " << remainingZones << std::endl;
+	//std::cout <<  idServer << " "  << idZone << " " << zoneLoad << " " << remainingZones << std::endl;
 	std::list<Server*>::iterator it;
 	int i;
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
@@ -20,7 +20,7 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 					Control::instance().recievedMutex.unlock();	
 				}
 			}
-			(*it)->printServer();
+			//(*it)->printServer();
 			if(remainingZones == 0){
 				Control::instance().recievedMutex.lock();
 				//std::cout <<  "Resultat de la mascara: " << Control::instance().recievedConnectionMask << "\n";
