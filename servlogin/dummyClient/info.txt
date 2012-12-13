@@ -1,8 +1,0 @@
-g++ -c ../source/*.cpp -I../include -std=c++0x
-g++ ConnectionException.o ConnectionManager.o Connection.o TCPConnection.o testServer.o TransferableFactory.o Transferable.o -o testServer -lssl -lcrypto -pthread
-g++ ConnectionException.o ConnectionManager.o Connection.o TCPConnection.o test.o TransferableFactory.o Transferable.o -o test -lssl -lcrypto -pthread
-
-./testServer "puerto"
-netstat -nap | grep "puerto"  <- Coger ip
-./test "ip" "puerto"
-
