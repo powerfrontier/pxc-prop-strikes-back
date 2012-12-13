@@ -62,5 +62,5 @@ int main() {
 	    cout << " (MySQL error code: " << e.getErrorCode();
 	    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
 	}*/
-	while (1){}
+	while (1){sleep(50);}
 }
