@@ -1,4 +1,5 @@
 #include <Transferable.h>
+#include <iostream>
 
 const std::string TransferableFactory::NO_PROTOCOL = "none";
 
@@ -12,7 +13,7 @@ TransferableFactory::~TransferableFactory() throw() {
 
 void TransferableFactory::clear() throw() {
 	mProtocolVersion = NO_PROTOCOL;
-
+	std::cout << "Soy tan tonto que me borro" << std::endl;
 	mCreators.clear();
 	mSendingType.clear();
 }
@@ -86,7 +87,7 @@ int TransferableFactory::type(const std::string& type) const throw(TransferableV
 
 TransferableCreator* TransferableFactory::creator(int creatorType) const throw(TransferableVersionException&){
 	std::map<int, TransferableCreator*>::const_iterator it;
-	
+	std::cout << "Tamaño creators" << mCreators.size() << std::endl;
 	if (!mProfile) throw TransferableVersionException("No Profile set for TransferableFactory");
 	if (mProtocolVersion == NO_PROTOCOL) throw TransferableVersionException("No protocol stablished");
 
