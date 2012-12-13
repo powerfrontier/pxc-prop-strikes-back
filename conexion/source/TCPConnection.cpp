@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Connection.h"
+#include <iostream>
 
 /**
  * Simple log function
