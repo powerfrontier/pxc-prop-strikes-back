@@ -53,15 +53,15 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	ctx=SSL_CTX_new(meth);
 
 	/* Load our keys and certificates*/
-	if(!(SSL_CTX_use_certificate_chain_file(ctx, KEYFILE))){
-		std::cout << "Can't read certificate file" << std::endl;
-	}
-	pass = (char *)malloc(8);
-	strcpy(pass,PASSWORD);
+//	if(!(SSL_CTX_use_certificate_chain_file(ctx, KEYFILE))){
+//		std::cout << "Can't read certificate file" << std::endl;
+//	}
+//	pass = (char *)malloc(8);
+//	strcpy(pass,PASSWORD);
 //	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
-	if(!(SSL_CTX_use_PrivateKey_file(ctx, KEYFILE,SSL_FILETYPE_PEM))){
-		std::cout << "Can't read key file" << std::endl;
-	}
+//	if(!(SSL_CTX_use_PrivateKey_file(ctx, KEYFILE,SSL_FILETYPE_PEM))){
+//		std::cout << "Can't read key file" << std::endl;
+//	}
 
 	/* Load the CAs we trust*/
 	if(!(SSL_CTX_load_verify_locations(ctx, CA_LIST,0))){
@@ -109,9 +109,9 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	ssl=SSL_new(ctx);
 	sbio=BIO_new_socket(sock,BIO_NOCLOSE);
 	SSL_set_bio(ssl,sbio,sbio);
-
-	if(SSL_connect(ssl)<=0){
-		std::cout << "SSL connect error" << std::endl;
+	int n = SSL_connect(ssl);
+	if(n<=0){
+		std::cout << "SSL connect error " << SSL_get_error(ssl, n) <<  std::endl;
 		return false;
 	}
 
@@ -126,7 +126,7 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 	peer=SSL_get_peer_certificate(ssl);
 	X509_NAME_get_text_by_NID(X509_get_subject_name(peer),NID_commonName, peer_CN, 256);
 	if(strcasecmp(peer_CN,ipAddr.c_str())){
-		std::cout << "Common name doesn't match host name"<<std::endl;
+		std::cout << "Common name " << peer_CN << " doesn't match host name " << ipAddr.c_str() <<std::endl;
 		return false;
 	}
 	mPort = port;

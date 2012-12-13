@@ -210,7 +210,7 @@ void ConnectionManager::listenThreadSecure(const std::string& port) throw(Connec
 		ssl=SSL_new(ctx);
 		SSL_set_bio(ssl,sbio,sbio);
 		if((r=SSL_accept(ssl)<=0)){
-			std::cerr << "SSL accept error" << std::endl;	
+			std::cerr << "SSL accept error because..." << SSL_get_error(ssl, r) << std::endl;	
 			continue;
 		}else{
 			Connection *c = new TCPConnectionSecurity(ssl, port);

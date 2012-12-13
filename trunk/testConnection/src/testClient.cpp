@@ -13,10 +13,12 @@ int main(int argc, char** argv){
 	std::string port(argv[2]);
 	printf("MainClient(): 1\n");
         fflush(stdout);
-	Connection* n = new TCPConnection();
+	Connection* n = new TCPConnectionSecurity();
 	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
+		delete n;
+		n = new TCPConnectionSecurity();
 	}
 	printf("MainClient(): objeto Conexion creado\n");
         fflush(stdout);
@@ -51,6 +53,8 @@ int main(int argc, char** argv){
 			}else{
 				std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 				sleep(3);
+				delete n;
+				n = new TCPConnectionSecurity();
 			}
 		}
 
