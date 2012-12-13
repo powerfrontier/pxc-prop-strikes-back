@@ -50,9 +50,11 @@ void Control::zoneChange(Server* sourceServer, int changedZonePosition, Server* 
 	// Ordenamos quitar la zona de un servidor
 	cout << "zone change: " << "origen: " << sourceServer->id << " zona: " << changedZonePosition << " desti: " << destinationServer->id << endl;
 	RemoveZoneSend* removeZoneSend = new RemoveZoneSend(changedZonePosition);
-	sourceServer->c->send(*removeZoneSend);  	
+	sourceServer->c->send(*removeZoneSend);
+	delete(removeZoneSend);  	
 	GetZoneSend* getZoneSend = new GetZoneSend(changedZonePosition, sourceServer->id);
-	destinationServer->c->send(*getZoneSend);  
+	destinationServer->c->send(*getZoneSend);
+	delete(getZoneSend);   
 	//RouterChangeZoneSend* routerChangeZoneSend = new RouterChangeZoneSend(changedZonePosition, sourceServer->id, destinationServer->id );
 	
 }
@@ -131,7 +133,6 @@ char* Control::getPortServerById(int id){
 }
 
 void Control::initializeServerList() {
-cout << "initializeServerList" << endl;
 	list<Server*>::iterator it;
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();
@@ -215,7 +216,7 @@ void Control::initializeConnections() {
 	//	cout << "Servidor redireccion NO conectado\n";
 	//}
 	//cout << "3" << endl;
-cout << "!!!!!!!!" << endl;	
+	
 	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
 	//routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
@@ -319,10 +320,9 @@ bool compareServersLoad(Server* first, Server* second) {
 
 int main() {
 	//ControlProfile
-cout << "1" << endl;
-	TransferableFactory::instance().setProfile(new ControlProfile());cout << "1.5" << endl;
+ 	ControlProfile* c = new ControlProfile();
+	TransferableFactory::instance().setProfile(c);
 	TransferableFactory::instance().setProtocol("0.1a");
-	cout << "2" << endl;
 	//Inicialización
 	Control::instance().initializeServerList();
 cout << "final inicializar servers" << endl;

@@ -21,11 +21,10 @@ ControlProfile::ControlProfile() : TransferableProfile() {
 	mCreatorIds.push_back(std::pair<std::string, int>("SetZoneToServerSend", 7)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("GameNewUserSend", 8)); // Envio x con id y
 
-mCreatorIds.push_back(std::pair<std::string, int>("LoginOnlineSend", 51)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("LoginOnlineSend", 51)); // Envio x con id y
 
+	mCreatorIds.push_back(std::pair<std::string, int>("RouterChangeZoneSend", 5)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("RouterNewUserSend", 60)); // Envio x con id y
-	//mCreatorIds.push_back(std::pair<std::string, int>("RouterChangeZoneSend", 5)); // Envio x con id y
-
 	
 }
 
