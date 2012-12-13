@@ -70,12 +70,12 @@ void Control::balance() {
 	double minDev = 1.0; //TODO S'ha d'ajustar bé el valor
 	
 	standardDev = 2;//solamente de debug
-	cout << "Algoritmo balanceo:" << endl;
+	/*cout << "Algoritmo balanceo:" << endl;
 	cout << "stdDev: " << standardDev << endl;
 	cout << "iteracion:" << numIterations << endl;
 	cout << "server size: " << servers.size() << endl;
 	cout << "maxloadserver id: " << maxLoadServer->id << endl;
-	cout << "size:" << maxLoadServer->load.distribution.size() << endl;
+	cout << "size:" << maxLoadServer->load.distribution.size() << endl;*/
 	while (standardDev > minDev && numIterations < servers.size() && maxLoadServer->load.distribution.size() != 1 && maxLoadServer != minLoadServer)
 	{	cout << "entro en while" << endl;
 		// Escogemos la zona menos cargada de maxLoadServer
@@ -201,23 +201,23 @@ void Control::initializeConnections() {
 	}
 	//cout << "salgo del bucle" << endl;
 
-	//loginConnection = new TCPConnection();
-	//if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
-	//	cout << "Servidor login conectado\n";
+	loginConnection = new TCPConnection();
+	if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
+		cout << "Servidor login conectado\n";
 				
-	//}else{
-	//	cout << "Servidor login NO conectado\n";
-	//}
+	}else{
+		cout << "Servidor login NO conectado\n";
+	}
 	//routerConnection = new TCPConnection();
-	//if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
-	//	cout << "Servidor redireccion conectado\n";
+	/*if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
+		cout << "Servidor redireccion conectado\n";
 				
-	//}else{
-	//	cout << "Servidor redireccion NO conectado\n";
-	//}
+	}else{
+		cout << "Servidor redireccion NO conectado\n";
+	}*/
 	//cout << "3" << endl;
 	
-	loginConnection->connect(IP_LOGIN, PORT_LOGIN);
+	//loginConnection->connect(IP_LOGIN, PORT_LOGIN);
 	//routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
 
@@ -320,8 +320,7 @@ bool compareServersLoad(Server* first, Server* second) {
 
 int main() {
 	//ControlProfile
- 	ControlProfile* c = new ControlProfile();
-	TransferableFactory::instance().setProfile(c);
+	TransferableFactory::instance().setProfile(new ControlProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
 	//Inicialización
 	Control::instance().initializeServerList();
@@ -374,15 +373,15 @@ cout << "final inicializacion" << endl;
 				Control::instance().writeDownServer();
 			}
 			
-			for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+			/*for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 				cout << "id!!! " << (*it)->id << endl;
 				cout << "load!" << (*it)->load.totalLoad << endl;
-			}
+			}*/
 			Control::instance().servers.sort(compareServersLoad); //ordenamos la lista
-			for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
+			/*for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 				cout << "id!!! " << (*it)->id << endl;
 				cout << "load!" << (*it)->load.totalLoad << endl;
-			}
+			}*/
 			Control::instance().balance(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
 			//poner la alarma para el proximo rebalanceo
 			breakflag = 0; 
