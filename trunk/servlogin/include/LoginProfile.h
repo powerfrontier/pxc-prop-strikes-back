@@ -6,7 +6,7 @@
 class LoginProfile : public TransferableProfile {
 public:
 	LoginProfile();
-	virtual ~LoginProfile();
+	virtual ~LoginProfile(); 
 };
 
 #endif
