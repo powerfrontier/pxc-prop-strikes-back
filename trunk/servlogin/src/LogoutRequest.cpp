@@ -22,8 +22,8 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
 	answerCode = 0;	
 	Login::instance().usersConnected--;
 	//Enviar info balanceo
-	ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
-	Login::instance().controlConnection->send(*clientDisconnectSend);  
+//	ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
+//	Login::instance().controlConnection->sendAnswer(*clientDisconnectSend);  
       }    
   }
   Login::instance().loginMutex.unlock();
