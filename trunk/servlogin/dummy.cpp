@@ -8,7 +8,7 @@ using namespace std;
 
 try
 {
-Connection* conn = new Connection("BDpxc03", "mysqlfib.fib.upc.edu", "pxc03", "BDpxc03",3306);
+Connection* conn = new Connection("BDpxc03", "mysqlfib.fib.upc.edu", "pxc03", "nJoW03Hi",3306);
 cout << "Conexió realitzada? " << conn->connected() << endl;
 }
 catch (ConnectionFailed& e)
