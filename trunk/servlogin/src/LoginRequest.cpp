@@ -38,10 +38,13 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   }
   
   //Enviar info a balanceo  
-  //NewClientSend* newClientSend = new NewClientSend(clientId,token);
-  //Login::instance().controlConnection->sendAnswer(*newClientSend);  
+  NewClientSend* newClientSend = new NewClientSend(clientId,token);
+  Login::instance().controlConnection->sendAnswer(*newClientSend);  
+cout << "Valor controlconn2: " << Login::instance().controlConnection << endl;
+	cout << "port de control: " << Login::instance().controlConnection->getPort() << endl;
   //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
+	cout << "port de client: " << c->getPort() << endl;
   c->sendAnswer(*loginRequestSend);
   
   //delete newClientSend;

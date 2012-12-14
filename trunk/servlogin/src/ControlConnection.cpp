@@ -1,6 +1,7 @@
 #include <ControlConnection.h>
 #include <Login.h>
 #include <iostream>
+#include <NewClient.h>
 
 using namespace std;
 
