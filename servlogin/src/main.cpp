@@ -8,6 +8,9 @@
 */
 #include <mysql_connection.h>
 #include <mysql_driver.h>
+#include <my_global.h>
+#include <mysql.h>
+
 
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
@@ -26,6 +29,7 @@ int main() {
 	TransferableFactory::instance().setProtocol("0.1a");
 	Login::instance().initializeManager();
 	printf("Login: Estoy en listen\n");
+printf("MySQL client version: %s\n", mysql_get_client_info());
  	fflush(stdout);
 	/*try {
 	sql::mysql::MySQL_Driver *driver;
