@@ -7,6 +7,7 @@
 class GameNewUserSend : public Datagram<GameNewUserSend> {
 public:
 	int idUser;
+	int idZone;
 	
-	GameNewUserSend(): Datagram<GameNewUserSend>("GameNewUserSend")  {};
+	GameNewUserSend(int user, int zone): Datagram<GameNewUserSend>("GameNewUserSend"), idUser(user), idZone(zone)  {};
 };
