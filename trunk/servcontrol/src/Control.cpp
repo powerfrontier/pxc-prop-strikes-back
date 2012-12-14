@@ -316,7 +316,9 @@ bool compareServersLoad(Server* first, Server* second) {
 	return (first->load.totalLoad < second->load.totalLoad);
 }
 
-
+int getZoneDB(int idUsuari) {
+	return (rand() % 3 + 1); //valor entre 0-4
+}
 
 int main() {
 	//ControlProfile
