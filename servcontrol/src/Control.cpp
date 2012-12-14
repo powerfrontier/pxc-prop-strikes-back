@@ -293,6 +293,11 @@ void Control::eliminarServidor(const int idServer) { //Elimina el servidor de la
 	return;
 }
 
+int Control::getZoneDB(int idUsuari) {
+	return (rand() % 3 + 1); //valor entre 0-4
+}
+
+
 Control::~Control(){
 	list<Server*>::iterator it;
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
@@ -316,9 +321,6 @@ bool compareServersLoad(Server* first, Server* second) {
 	return (first->load.totalLoad < second->load.totalLoad);
 }
 
-int getZoneDB(int idUsuari) {
-	return (rand() % 3 + 1); //valor entre 0-4
-}
 
 int main() {
 	//ControlProfile
