@@ -1,8 +1,8 @@
-Done: Control dummy
+Done: Control
 	echo "DONE"
 
 Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o
-	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
+	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x `mysql_config --libs` -lmysqlpp
 
 dummy: dummy.o
 	g++ dummy.o `mysql_config --libs` -lmysqlpp -o dummy
@@ -39,7 +39,7 @@ TransferableProfile.o: ../conexion/source/TransferableProfile.cpp
 IPServer.o: ./src/IPServer.cpp
 	g++ -c ./src/IPServer.cpp -I./ -I../conexion/include -I./include -std=c++0x
 Control.o: ./src/Control.cpp
-	g++ -c ./src/Control.cpp -I./ -I../conexion/include -I./include -std=c++0x
+	g++ -c ./src/Control.cpp -I./ -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 
 
 
