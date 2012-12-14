@@ -1,8 +1,14 @@
-Done: Control
+Done: Control dummy
 	echo "DONE"
 
 Control: Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o
 	g++ ConnectionException.o Connection.o TCPConnection.o TransferableFactory.o Transferable.o TransferableProfile.o ServerLoad.o NewUser.o DisconnectUser.o Server.o ControlProfile.o IPServer.o Control.o -o Control -lssl -lcrypto -pthread -std=c++0x
+
+dummy: dummy.o
+	g++ dummy.o `mysql_config --libs` -lmysqlpp -o dummy
+
+dummy.o: ./dummy.cpp
+	g++ -Wall -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++ -c dummy.cpp
 
 DisconnectUser.o: ./src/DisconnectUser.cpp
 	g++ -c ./src/DisconnectUser.cpp -I./ -I../conexion/include -I./include -std=c++0x
