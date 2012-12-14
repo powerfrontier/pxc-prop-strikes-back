@@ -6,6 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <mysql++.h>
+
 #include <Control.h>
 #include <ServerLoad.h>
 #include <SetZoneToServer.h>
@@ -294,6 +296,8 @@ void Control::eliminarServidor(const int idServer) { //Elimina el servidor de la
 }
 
 int Control::getZoneDB(int idUsuari) {
+
+	//cout << 	
 	return (rand() % 3 + 1); //valor entre 0-4
 }
 
@@ -323,6 +327,16 @@ bool compareServersLoad(Server* first, Server* second) {
 
 
 int main() {
+	//Conexio a BD
+	try
+	{
+		mysqlpp::Connection* conn = new mysqlpp::Connection("BDpxc03", "mysqlfib.fib.upc.edu", "pxc03", "nJoW03Hi", 3306);
+		cout << "Conexió a BD realitzada? " << conn->connected() << endl;
+	}
+	catch (mysqlpp::ConnectionFailed& e)
+	{
+		cerr << "ERROR a conexio a BD! Exception: " << e.what() << endl;
+	}	
 	//ControlProfile
 	TransferableFactory::instance().setProfile(new ControlProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
