@@ -10,5 +10,5 @@ public:
 	int token;
 	int zonaUser;
 	
-	RouterNewUserSend(): Datagram<RouterNewUserSend>("RouterNewUserSend")  {};
+	RouterNewUserSend(int user, int tok, int zone): Datagram<RouterNewUserSend>("RouterNewUserSend"), idUser(user), token(tok), zonaUser(zone)  {};
 };

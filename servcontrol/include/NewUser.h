@@ -9,7 +9,7 @@
 class NewUserRcvd : public Datagram<NewUserRcvd> {
 	int idUser;
 	int token;
-	
+
 	public:
 	NewUserRcvd() : Datagram<NewUserRcvd>("NewUserRcvd") {}
 	virtual ~NewUserRcvd();
