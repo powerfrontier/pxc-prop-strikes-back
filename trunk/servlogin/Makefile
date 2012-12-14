@@ -10,7 +10,7 @@ LDFLAGS = -L$(BINPATH) -lConnection -lssl -lcrypto -pthread -lmysqlcppconn-stati
 all: $(BINPATH)Login
 
 $(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlcppconn-static.a $(BINPATH)libmysqlclient.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)ControlConnection.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS) `mysql_config --cflags --libs`
 
 $(BINPATH)libConnection.a:
 	$(MAKE) -C ../conexion/
