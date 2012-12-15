@@ -6,8 +6,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <mysql++.h>
-
 #include <Control.h>
 #include <ServerLoad.h>
 #include <SetZoneToServer.h>
@@ -15,6 +13,7 @@
 #include <RemoveZone.h>
 #include <GetZone.h>
 #include <RouterChangeZone.h>
+#include <IPServer.h>
 #include <LoginOnline.h>
 
 using namespace std;
@@ -245,15 +244,20 @@ void Control::zoneAssignment(){
 	int i;
 	ZoneLoad* zl;
 	SetZoneToServerSend* setZoneToServerSend;
+	IPServerSend* ipServerSend;
 	Server* server = servers.front();
 	for(i = 0; i < modZonesPerServer; ++i){
 
 		//fflush(stdout);
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
-		
 		server->c->send(*setZoneToServerSend);
+		Control::instance().routerConnection->send(*setZoneToServerSend); //reutilizamos la instr para avisar a router tambien
+		ipServerSend = new IPServerSend(server->ip, server->port);
+		Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto tambien a router reaprovechando la instruccion IPServer
 		delete(setZoneToServerSend);
-		zoneServer[i] = server;
+		delete(ipServerSend);
+		zoneServer[i] = server;		
+
 		zl = new ZoneLoad(i, 0);
 		server->load.distribution.push_back(zl);
 		server->load.totalLoad = 0;
@@ -266,6 +270,11 @@ void Control::zoneAssignment(){
 			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
 			//cout << zoneIndex << " " << (*it)->id << endl;
 			(*it)->c->send(*setZoneToServerSend);
+			Control::instance().routerConnection->send(*setZoneToServerSend); 
+			ipServerSend = new IPServerSend(server->ip, server->port);
+			Control::instance().routerConnection->send(*ipServerSend);
+			delete(setZoneToServerSend);
+			delete(ipServerSend); 
 			//cout << zoneIndex << " " << (*it)->id << endl;
 			zoneServer[zoneIndex] = (*it);
 
@@ -298,7 +307,12 @@ void Control::eliminarServidor(const int idServer) { //Elimina el servidor de la
 int Control::getZoneDB(int idUsuari) {
 
 	//cout << 	
-	return (rand() % 3 + 1); //valor entre 0-4
+	//return (rand() % 3 + 1); //valor entre 0-4
+	mysqlpp::Query query = Control::instance().cbd->query("select IDZONE from PLAYERS where IDUSER="+idUsuari);
+        if (mysqlpp::StoreQueryResult res = query.store()) {
+		return res[0][0];
+	}
+	return -1;
 }
 
 
@@ -332,10 +346,22 @@ int main() {
 	{
 		mysqlpp::Connection* conn = new mysqlpp::Connection("BDpxc03", "mysqlfib.fib.upc.edu", "pxc03", "nJoW03Hi", 3306);
 		cout << "Conexió a BD realitzada? " << conn->connected() << endl;
+		Control::instance().cbd = conn;
 	}
 	catch (mysqlpp::ConnectionFailed& e)
 	{
 		cerr << "ERROR a conexio a BD! Exception: " << e.what() << endl;
+	}
+	if(Control::instance().cbd->connected()) { cout << "haciendo query" << endl;
+			mysqlpp::Query query = Control::instance().cbd->query("select * from ADDRESSES");
+        		if (mysqlpp::StoreQueryResult res = query.store()) {
+            			//cout << "Resultado" << endl;
+            			/*for (size_t i = 0; i < res.num_rows(); ++i) {
+                			cout << '\t' << res[i][0] << endl;
+					cout << '\t' << res[i][1] << endl;
+					cout << '\t' << res[i][2] << endl;
+            			}*/
+			}
 	}	
 	//ControlProfile
 	TransferableFactory::instance().setProfile(new ControlProfile());

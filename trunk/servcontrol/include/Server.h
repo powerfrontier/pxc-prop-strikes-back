@@ -15,6 +15,7 @@ class Server {
 	};  
 	int id;
 	char* ip;
+	char* port;
 	Connection* c;
 	serverLoad load;
 	bool operator < (const Server & s) const

@@ -6,6 +6,7 @@
 #include <Connection.h>
 #include <Server.h>
 #include <Singleton.h>
+#include <mysql++.h>
 
 #define IPLENGTH 16
 #define PORTLENGTH 5
@@ -37,7 +38,7 @@ class Control : public Singleton<Control> {
 
 
 public:
-
+	mysqlpp::Connection* cbd;
 	Server* zoneServer[NZONES];
 	std::list<Server*> servers;
 	std::mutex recievedMutex;

@@ -11,13 +11,13 @@ dummy.o: ./dummy.cpp
 	g++ -Wall -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++ -c dummy.cpp
 
 DisconnectUser.o: ./src/DisconnectUser.cpp
-	g++ -c ./src/DisconnectUser.cpp -I./ -I../conexion/include -I./include -std=c++0x
+	g++ -c ./src/DisconnectUser.cpp -I./ -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 
 NewUser.o: ./src/NewUser.cpp
-	g++ -c ./src/NewUser.cpp -I./ -I../conexion/include -I./include -std=c++0x
+	g++ -c ./src/NewUser.cpp -I./ -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 
 ServerLoad.o: ./src/ServerLoad.cpp
-	g++ -c ./src/ServerLoad.cpp -I./ -I../conexion/include -I./include -std=c++0x
+	g++ -c ./src/ServerLoad.cpp -I./ -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 
 Server.o: ./src/Server.cpp
 	g++ -c ./src/Server.cpp -I./ -I../conexion/include -I./include -std=c++0x
@@ -37,14 +37,14 @@ TransferableFactory.o: ../conexion/source/TransferableFactory.cpp
 TransferableProfile.o: ../conexion/source/TransferableProfile.cpp
 	g++ -c ../conexion/source/TransferableProfile.cpp -I../conexion/include/ -std=c++0x
 IPServer.o: ./src/IPServer.cpp
-	g++ -c ./src/IPServer.cpp -I./ -I../conexion/include -I./include -std=c++0x
+	g++ -c ./src/IPServer.cpp -I./ -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 Control.o: ./src/Control.cpp
 	g++ -c ./src/Control.cpp -I./ -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 
 
 
 ControlProfile.o: ./src/ControlProfile.cpp
-	g++ -c ./src/ControlProfile.cpp -I../conexion/include -I./include -std=c++0x
+	g++ -c ./src/ControlProfile.cpp -I../conexion/include -I./include -std=c++0x -pedantic -Wno-long-long -O2 `mysql_config --include` -I/usr/include/mysql++
 
 clean:
 	rm *.o
