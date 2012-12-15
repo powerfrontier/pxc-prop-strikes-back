@@ -8,8 +8,6 @@
 #include <unistd.h>
 
 
-
-
 int main(int argc, char** argv){
 	//Esto se hace al principio del main (inicialiación de la conexión)
 	//TestProfile es herenccia de TransferableProfile para decirle 
@@ -20,6 +18,8 @@ int main(int argc, char** argv){
 	printf("MainServer: Primera instruccion\n");
  	fflush(stdout);
 	ConnectionManager* n = new ConnectionManager();
+	Derp t;
+	n->setMyClose(&t);
 	printf("MainServer: Objeto ConnectionManager creado\n");
  	fflush(stdout);
 	n->listenSecure(std::string(argv[1]));

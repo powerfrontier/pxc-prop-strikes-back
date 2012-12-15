@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	std::string port(argv[2]);
 	printf("MainClient(): 1\n");
         fflush(stdout);
-	Connection* n = new TCPConnectionSecurity();
+	Connection* n = new MyTCPConnectionSecurity();
 	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
@@ -46,6 +46,7 @@ int main(int argc, char** argv){
 			printf("MainClient(): sent102\n");
 	       		fflush(stdout);
 			delete sent102;
+			
 		}else{
 			std::cout << "Conexion perdida, Reconectando... "<< std::endl;
 			if(n->connect(ip, port)) {
