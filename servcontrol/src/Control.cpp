@@ -108,21 +108,39 @@ void Control::balance() {
 }
 
 void Control::fillIpServerTable(){
-	for(int i=0; i<NZONES; i++) { // Se necesita memoria dinamica
+	for(int i=0; i<NSERVERS; i++) { // Se necesita memoria dinamica
 		ipServers[i] = (char*) malloc (17);
+		portServers[i] = (char*) malloc (PORTLENGTH);
 	}
-	strcpy(ipServers[0],IP_GAME_1);
+	int j = 0;
+	for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
+		if(Control::instance().resultBD[i][2] == "game" && j < NSERVERS) {
+			cout << "copiando ip y port de server juego de bd en ipServerTable" << endl; 
+			strcpy(ipServers[j], Control::instance().resultBD[i][0]);
+			strcpy(portServers[j], Control::instance().resultBD[i][1]);
+			j++;
+		}
+        }
+	
+	/*strcpy(ipServers[0],IP_GAME_1);
 	strcpy(ipServers[1],IP_GAME_2);
-	strcpy(ipServers[2],IP_GAME_3);
+	strcpy(ipServers[2],IP_GAME_3);*/
 }
 
 void Control::fillPortServerTable(){
-	for(int i=0; i<NZONES; i++) { // Se necesita memoria dinamica
+	/*for(int i=0; i<NSERVERS; i++) { // Se necesita memoria dinamica
 		portServers[i] = (char*) malloc (PORTLENGTH);
 	}
-	strcpy(portServers[0],PORT_GAME_1);
+	for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
+		if(Control::instance().resultBD[i][2] == "game") {
+			cout << "copiando ip server juego de bd en ipServerTable" << endl; 
+			strcpy(ipServers[j], Control::instance().resultBD[i][0]);
+			j++;
+		}
+        }*/
+	/*strcpy(portServers[0],PORT_GAME_1);
 	strcpy(portServers[1],PORT_GAME_2);
-	strcpy(portServers[2],PORT_GAME_3);
+	strcpy(portServers[2],PORT_GAME_3);*/
 }
 
 char* Control::getIpServerById(int id){
@@ -137,11 +155,11 @@ void Control::initializeServerList() {
 	list<Server*>::iterator it;
 	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();
-	Control::fillPortServerTable();	
+	//Control::fillPortServerTable();	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
 	//	cout << "!!!!3" << endl;
-		servers.push_back(new Server(i,ipServers[i]));
+		servers.push_back(new Server(i,ipServers[i], portServers[i]));
 	}
 	//for(it=servers.begin();it!=servers.end();it++)
 	//	cout << (*it)->id << endl;	
@@ -354,14 +372,15 @@ int main() {
 	}
 	if(Control::instance().cbd->connected()) { cout << "haciendo query" << endl;
 			mysqlpp::Query query = Control::instance().cbd->query("select * from ADDRESSES");
-        		if (mysqlpp::StoreQueryResult res = query.store()) {
+			Control::instance().resultBD = query.store();
+        		/*if (mysqlpp::StoreQueryResult res = query.store()) {
             			//cout << "Resultado" << endl;
-            			/*for (size_t i = 0; i < res.num_rows(); ++i) {
+            			for (size_t i = 0; i < res.num_rows(); ++i) {
                 			cout << '\t' << res[i][0] << endl;
 					cout << '\t' << res[i][1] << endl;
 					cout << '\t' << res[i][2] << endl;
-            			}*/
-			}
+            			}
+			}*/
 	}	
 	//ControlProfile
 	TransferableFactory::instance().setProfile(new ControlProfile());

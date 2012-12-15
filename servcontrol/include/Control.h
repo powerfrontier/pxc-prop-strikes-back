@@ -39,6 +39,7 @@ class Control : public Singleton<Control> {
 
 public:
 	mysqlpp::Connection* cbd;
+	mysqlpp::StoreQueryResult resultBD;
 	Server* zoneServer[NZONES];
 	std::list<Server*> servers;
 	std::mutex recievedMutex;
