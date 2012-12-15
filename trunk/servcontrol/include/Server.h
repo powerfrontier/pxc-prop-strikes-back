@@ -25,7 +25,7 @@ class Server {
 	}
 
 
-	Server(int idServer, char* ipServer): id(idServer), ip(ipServer) {} 	
+	Server(int idServer, char* ipServer, char* portServer): id(idServer), ip(ipServer), port(portServer) {} 	
 	Server(){}
 	virtual ~Server();
 	void printServer();
