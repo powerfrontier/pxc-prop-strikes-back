@@ -40,6 +40,7 @@ TestTransferableRcvd101::~TestTransferableRcvd101() {
 
 void TestTransferableRcvd101::exec(Connection* c) const throw() {
 	std::cout <<"Ha llegado una instruccion 101: " << std::endl;
+	std::cout << "answerCode: " << answerCode << std::endl;
 	std::cout << "Idcliente: " << clientId << std::endl;
 	std::cout << "Token: " << token << std::endl;
 }
