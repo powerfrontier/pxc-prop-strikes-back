@@ -2,8 +2,19 @@
 #define _TEST_CLASSESSERVER_H_
 
 #include <Datagram.h>
-
+#include <iostream>
+#include <Connection.h>
 //Orden que se envía
+
+
+class Derp : public ConnectionClosedListener {
+
+
+public:
+	void callOnClose(Connection*) throw(){
+		std::cout << "SE HA CERRADO WIIIIII " << std::endl;	
+	}
+};
 class TestTransferableSent : public Datagram<TestTransferableSent> {
         int m_1;
         int m_2;

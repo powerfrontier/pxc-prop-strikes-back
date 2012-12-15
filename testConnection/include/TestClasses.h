@@ -2,6 +2,8 @@
 #define _TEST_CLASSES_H_
 
 #include <Datagram.h>
+#include <Connection.h>
+#include <iostream>
 
 //Orden que se envía
 class TestTransferableSent100 : public Datagram<TestTransferableSent100> {
