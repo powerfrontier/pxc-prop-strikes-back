@@ -28,10 +28,21 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  answerCode = 0;
 	  strcpy(routerIp, ROUTER_IP);
 	  strcpy(routerPort,ROUTER_PORT);
-	cout << "token repartido: " << Login::instance().nextFreeToken << endl;
+	  cout << "token repartido: " << Login::instance().nextFreeToken << endl;
 	  clientId = Login::instance().nextFreeToken;
 	  token = Login::instance().nextFreeToken;
 	  Login::instance().userTokenMap.insert(pair<int,int>(clientId,token));
+	  if(Login::instance().userConnectionMap.count(c) == 0){
+	    //Insertamos en el mapa de usuario/conexión
+	    Login::instance().userConnectionMap.insert(pair<Connection*,int>(c,clientId));
+	    
+	  }else{
+	    //Hacemos logout del antiguo usuario
+	    ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
+	    Login::instance().controlConnection->sendAnswer(*clientDisconnectSend); 
+	    
+	    //Enviamos los nuevos datos de los usuarios a control
+	  }
 	  Login::instance().nextFreeToken++;
 	  Login::instance().usersConnected++;
   }else{
