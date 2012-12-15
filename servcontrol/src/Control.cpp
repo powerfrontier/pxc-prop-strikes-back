@@ -121,10 +121,6 @@ void Control::fillIpServerTable(){
 			j++;
 		}
         }
-	
-	/*strcpy(ipServers[0],IP_GAME_1);
-	strcpy(ipServers[1],IP_GAME_2);
-	strcpy(ipServers[2],IP_GAME_3);*/
 }
 
 void Control::fillPortServerTable(){
@@ -153,72 +149,26 @@ char* Control::getPortServerById(int id){
 
 void Control::initializeServerList() {
 	list<Server*>::iterator it;
-	//rellenar la lista de servidores con servidores con ip definida en el .h como constante y id secuencial 
 	Control::fillIpServerTable();
-	//Control::fillPortServerTable();	
 	int i;
 	for(i = 0; i < NSERVERS; ++i){
-	//	cout << "!!!!3" << endl;
 		servers.push_back(new Server(i,ipServers[i], portServers[i]));
 	}
-	//for(it=servers.begin();it!=servers.end();it++)
-	//	cout << (*it)->id << endl;	
 }
 
 void Control::initializeConnections() {
-
-
 	list<Server*>::iterator it;
-	//char* gamePortchar;
-	//long double i = 0;
 	int i=0;
-	//string gamePortStr;
-	//int gamePort;
-	//cout << "inici Conexions";
-	//fflush(stdout);	
-	//gamePortchar = (char*) malloc(5);
-	//strcpy(gamePortchar,PORT_GAME_1);
-	//cout << "preatoi";
-	//fflush(stdout);
-	//gamePort = atoi(gamePortchar);
-	//		cout << "postatoi";
-	//fflush(stdout);
 	
 	for(it=servers.begin();it!=servers.end();it++) {
-//cout << "!!!!" << (*it)->id << endl;
 		(*it)->c = new TCPConnection();
-//cout << "!!!!2" << endl;
-		//cout << (*it)->c << endl;
-		//cout << to_string(gamePort + i);
-		/*if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
-			cout << (gamePort + i) << endl;
-		}*/
-
-		if(i == 0){
-			if((*it)->c->connect((*it)->ip, PORT_GAME_1)){
+		if((*it)->c->connect((*it)->ip, (*it)->port)){
 				cout << "Servidor " << i << " conectado\n";
 			}else{
 				cout << "Servidor " << i << " NO conectado\n";
-			}
-		}else if( i == 1){
-			if((*it)->c->connect((*it)->ip, PORT_GAME_2)){
-				cout << "Servidor " << i << " conectado\n";
-			}else{
-				cout << "Servidor " << i << " NO conectado\n";
-			}
-			//while ((*it)->c->connect((*it)->ip, PORT_GAME_2) == false){
-			//	cout << "5 ingenieros, nuff said";
-			//}
-		}else if( i == 2){
-			if((*it)->c->connect((*it)->ip, PORT_GAME_3)){
-				cout << "Servidor " << i << " conectado\n";
-			}else{
-				cout << "Servidor " << i << " NO conectado\n";
-			}
 		}
-		++i;
+		i++;
 	}
-	//cout << "salgo del bucle" << endl;
 
 	loginConnection = new TCPConnection();
 	if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
@@ -227,6 +177,7 @@ void Control::initializeConnections() {
 	}else{
 		cout << "Servidor login NO conectado\n";
 	}
+
 	//routerConnection = new TCPConnection();
 	/*if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
 		cout << "Servidor redireccion conectado\n";
@@ -234,10 +185,6 @@ void Control::initializeConnections() {
 	}else{
 		cout << "Servidor redireccion NO conectado\n";
 	}*/
-	//cout << "3" << endl;
-	
-	//loginConnection->connect(IP_LOGIN, PORT_LOGIN);
-	//routerConnection->connect(IP_ROUTER, PORT_ROUTER);
 }
 
 void Control::writeDownServer(){
@@ -269,11 +216,11 @@ void Control::zoneAssignment(){
 		//fflush(stdout);
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
 		server->c->send(*setZoneToServerSend);
-		Control::instance().routerConnection->send(*setZoneToServerSend); //reutilizamos la instr para avisar a router tambien
-		ipServerSend = new IPServerSend(server->ip, server->port);
-		Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto tambien a router reaprovechando la instruccion IPServer
+		//Control::instance().routerConnection->send(*setZoneToServerSend); //reutilizamos la instr para avisar a router tambien
+		//ipServerSend = new IPServerSend(server->ip, server->port);
+		//Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto tambien a router reaprovechando la instruccion IPServer
 		delete(setZoneToServerSend);
-		delete(ipServerSend);
+		//delete(ipServerSend);
 		zoneServer[i] = server;		
 
 		zl = new ZoneLoad(i, 0);
@@ -288,11 +235,11 @@ void Control::zoneAssignment(){
 			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
 			//cout << zoneIndex << " " << (*it)->id << endl;
 			(*it)->c->send(*setZoneToServerSend);
-			Control::instance().routerConnection->send(*setZoneToServerSend); 
-			ipServerSend = new IPServerSend(server->ip, server->port);
-			Control::instance().routerConnection->send(*ipServerSend);
+			//Control::instance().routerConnection->send(*setZoneToServerSend); 
+			//ipServerSend = new IPServerSend(server->ip, server->port);
+			//Control::instance().routerConnection->send(*ipServerSend);
 			delete(setZoneToServerSend);
-			delete(ipServerSend); 
+			//delete(ipServerSend); 
 			//cout << zoneIndex << " " << (*it)->id << endl;
 			zoneServer[zoneIndex] = (*it);
 
