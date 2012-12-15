@@ -4,6 +4,7 @@
 #include <Singleton.h>
 #include <Connection.h>
 #include <ConnectionManager.h>
+#include <mysql.h>
 
 #include <map>
 
@@ -14,12 +15,18 @@
 #define IP_LENGTH 16
 #define PORT_LENGTH 5
 
-class Login : public Singleton<Login> {
+#define DBHOSTNAME "mysqlfib.fib.upc.es"
+#define DBUSER   "pxc03"
+#define DBPASSWORD "nJoW03Hi"
+#define DBNAME       "BDpxc03"
 
+class Login : public Singleton<Login> {
+	MYSQL *mysqlConnection;
 	Connection* controlConnection;
 	ConnectionManager* manager;
 	unsigned int nextFreeToken;
 	std::map<int,int> userTokenMap;
+	std::map<Connection*,int> userConnectionMap;
 	std::mutex loginMutex;
 	unsigned int usersConnected;
 	friend class LoginRequestRcvd;

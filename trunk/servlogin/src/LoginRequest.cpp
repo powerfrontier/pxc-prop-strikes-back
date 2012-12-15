@@ -28,6 +28,7 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  answerCode = 0;
 	  strcpy(routerIp, ROUTER_IP);
 	  strcpy(routerPort,ROUTER_PORT);
+	cout << "token repartido: " << Login::instance().nextFreeToken << endl;
 	  clientId = Login::instance().nextFreeToken;
 	  token = Login::instance().nextFreeToken;
 	  Login::instance().userTokenMap.insert(pair<int,int>(clientId,token));
@@ -38,10 +39,10 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   }
   
   //Enviar info a balanceo  
-  NewClientSend* newClientSend = new NewClientSend(clientId,token);
-  Login::instance().controlConnection->sendAnswer(*newClientSend);  
-cout << "Valor controlconn2: " << Login::instance().controlConnection << endl;
-	cout << "port de control: " << Login::instance().controlConnection->getPort() << endl;
+  //NewClientSend* newClientSend = new NewClientSend(clientId,token);
+  //Login::instance().controlConnection->sendAnswer(*newClientSend);  
+//cout << "Valor controlconn2: " << Login::instance().controlConnection << endl;
+	//cout << "port de control: " << Login::instance().controlConnection->getPort() << endl;
   //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
 	cout << "port de client: " << c->getPort() << endl;

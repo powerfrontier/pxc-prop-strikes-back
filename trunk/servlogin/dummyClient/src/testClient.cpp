@@ -25,7 +25,7 @@ int main(int argc, char** argv){
 
 	if (n->isLinkOnline()){			
 			TestTransferableSent100* sent100 = NULL;
-			sent100 = new TestTransferableSent100("usuario","pass");
+			sent100 = new TestTransferableSent100("user1","user9891");
 		
 			printf("MainClient(): Sending100...\n");
 			fflush(stdout);
