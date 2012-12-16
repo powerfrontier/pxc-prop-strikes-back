@@ -158,29 +158,21 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 }
 
 bool TCPConnectionSecurity::checkCertificate(){
-	std::cout << "WHERE " << std::endl;
-	std::string ipAddr("127.0.0.1");
-	std::cout << "IS " << std::endl;
+	std::string nameHost("127.0.0.1");
 	X509 *peer;
-	std::cout << "the " << std::endl;
 	char peer_CN[256];
-	std::cout << "error " << std::endl;
 	if(SSL_get_verify_result(ssl)!=X509_V_OK){
 		std::cerr << "Certificate doesn't verify " << std::endl ;
 		std::cerr << "The expected certificate is "<< X509_V_OK << " The received certificate is " << SSL_get_verify_result(ssl)  << std::endl ;
 		return false;
 	}
-	std::cout << SSL_get_verify_result(ssl) << std::endl;
-	std::cout << "FUUU " << std::endl;
 	/*Check the common name*/
 	peer=SSL_get_peer_certificate(ssl);
-	std::cout << "I DONT CARE " << std::endl;
 	X509_NAME_get_text_by_NID(X509_get_subject_name(peer),NID_commonName, peer_CN, 256);
-	if(strcasecmp(peer_CN,ipAddr.c_str())){//TODO:ipS?
-		std::cerr << "Common name " << peer_CN << " doesn't match host name " << ipAddr.c_str() <<std::endl;
+	if(strcasecmp(peer_CN,nameHost.c_str())){//TODO:ipS?
+		std::cerr << "Common name " << peer_CN << " doesn't match host name " << nameHost <<std::endl;
 		return false;
 	}
-	std::cout << "IS NOT HERE " << std::endl;
 	return true;
 }
 
@@ -189,10 +181,11 @@ void TCPConnectionSecurity::close() throw(){
 }
 
 void TCPConnectionSecurity::close(bool threadListen) throw(){
-	setLinkOnline(false);
+
 	int r = 0;
 	int shutdown = 0;
 	if (isLinkOnline()){
+		setLinkOnline(false);
 		if (ssl != NULL){
 			while (shutdown == 0){
 				shutdown = SSL_shutdown(ssl);
