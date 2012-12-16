@@ -51,9 +51,9 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	    Login::instance().usersConnected--;
 	    delete oldConnection;
 	    
-	    /*ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(oldClientId,oldToken);
+	    ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(oldClientId,oldToken);
 	    Login::instance().controlConnection->sendAnswer(*clientDisconnectSend); 	    	    
-	    delete clientDisconnectSend;*/
+	    delete clientDisconnectSend;
 	  }
 	  //Insertamos en el mapa de usuario/conexión
 	  Login::instance().connectionToIdMap.insert(pair<Connection*,int>(c,clientId));
@@ -66,13 +66,13 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  answerCode = 1;
   }  
   //Enviar info a balanceo  
-  //NewClientSend* newClientSend = new NewClientSend(clientId,token);
-  //Login::instance().controlConnection->sendAnswer(*newClientSend);  
+  NewClientSend* newClientSend = new NewClientSend(clientId,token);
+  Login::instance().controlConnection->sendAnswer(*newClientSend);  
    //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
   cout << "port de client: " << c->getPort() << endl;
   c->sendAnswer(*loginRequestSend);  
-  //delete newClientSend;
+  delete newClientSend;
   delete loginRequestSend;
   Login::instance().loginMutex.unlock();
   cout << "Salimos de exec de loginrequest" << endl;
