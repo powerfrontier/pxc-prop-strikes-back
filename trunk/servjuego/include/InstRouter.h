@@ -5,7 +5,7 @@
 
 //SENT
 
-//ID 
+//ID 155
 class EndZoneTransferSend : public Datagram<EndZoneTransferSend> {
 	int mZoneId;
 public:
