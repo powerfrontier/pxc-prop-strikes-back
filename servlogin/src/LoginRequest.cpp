@@ -21,7 +21,6 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   int clientId,oldClientId; //Id del cliente en nuestro sistema (mapeo directo id-username)
   int token,oldToken; //Token de sesión si es un login correcto. Si no, se ignora. Login necesita mandar el mismo token con el id del cliente al router, junto a la zona en la que se encuentra inicialmente
   ///////////////////////
-  cout << "Recibimos conexión" << std::endl;
   Login::instance().loginMutex.lock();
   
   userPointer = username;
@@ -30,8 +29,7 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  answerCode = 0;
 	  strcpy(routerIp, ROUTER_IP);
 	  strcpy(routerPort,ROUTER_PORT);
-	  cout << "token repartido: " << Login::instance().nextFreeToken << endl;
-	  clientId = Login::instance().nextFreeToken;
+	   clientId = Login::instance().nextFreeToken;
 	  token = Login::instance().nextFreeToken;
 	  Login::instance().userTokenMap.insert(pair<int,int>(clientId,token));
 	  it = Login::instance().userConnectionMap.find(c);
@@ -41,12 +39,12 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  }else{
 	    //Hacemos logout del antiguo usuario
 	    // Recogemos los datos antiguos
-	    cout << "User ya conectado, enviamos datos a control" << endl;
 	    Login::instance().usersConnected--;
 	    oldClientId = it->second;
 	    oldToken = Login::instance().userTokenMap.find(oldClientId)->second;
 	    ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(oldClientId,oldToken);
 	    Login::instance().controlConnection->sendAnswer(*clientDisconnectSend); 	    	    
+	    delete clientDisconnectSend;
 	  }
 	  Login::instance().nextFreeToken++;
 	  Login::instance().usersConnected++;
@@ -56,15 +54,14 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   //Enviar info a balanceo  
   NewClientSend* newClientSend = new NewClientSend(clientId,token);
   Login::instance().controlConnection->sendAnswer(*newClientSend);  
-  cout << "Valor controlconn2: " << Login::instance().controlConnection << endl;
-  cout << "port de control: " << Login::instance().controlConnection->getPort() << endl;
-  //Enviar info a cliente
+   //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
   cout << "port de client: " << c->getPort() << endl;
   c->sendAnswer(*loginRequestSend);  
-  //delete newClientSend;
+  delete newClientSend;
   delete loginRequestSend;
   Login::instance().loginMutex.unlock();
+  cout << "Salimos de exec de loginrequest" << endl;
 }
 
 LoginRequestRcvd::~LoginRequestRcvd(){

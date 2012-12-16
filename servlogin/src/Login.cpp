@@ -33,12 +33,10 @@ bool Login::validate(const char* user, const char* pwd){
   string pwdString(pwd);
   cout << "user i password enviats: " << userString << " " << pwdString << endl;
   string query = "SELECT * FROM USERS WHERE USERNAME='" + userString + "' AND PASSWORD='" + pwdString +"'" ;
-  cout << "Query: " << query << endl;
   mysql_query(mysqlConnection, query.c_str());
   result = mysql_store_result(mysqlConnection);
   num_fields = mysql_num_fields(result);
-	num_rows = mysql_num_rows(result);
-	cout << "resultats " << num_rows << endl;
+  num_rows = mysql_num_rows(result);
   while ((row = mysql_fetch_row(result)))
   {
       for(i = 0; i < num_fields; i++)
@@ -48,7 +46,8 @@ bool Login::validate(const char* user, const char* pwd){
       printf("\n");
   }
   mysql_free_result(result);
-	return num_rows;
+  return num_rows;
+	
 }
 
 
