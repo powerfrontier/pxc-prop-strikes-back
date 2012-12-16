@@ -1,5 +1,5 @@
 #include "Connection.h"
-
+#include <iostream>
 Connection::Connection() throw() : mCallback(NULL), mIsOpen(false) {}
 
 Connection::~Connection() throw(ConnectionException){
