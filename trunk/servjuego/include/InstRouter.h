@@ -5,6 +5,13 @@
 
 //SENT
 
+class EndZoneTransferSend : public Datagram<EndZoneTransferSend> {
+	int mZoneId;
+public:
+	EndZoneTransferSend();
+	~EndZoneTransferSend();
+};
+
 //RECEIVED
 
 class AddRouterRcvd : public Datagram<AddRouterRcvd> {
