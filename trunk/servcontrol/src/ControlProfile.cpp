@@ -2,6 +2,7 @@
 #include <ServerLoad.h>
 #include <IPServer.h>
 #include <NewUser.h>
+#include <RouterDeleteUser.h>
 #include <DisconnectUser.h>
 #include <iostream>
 
@@ -25,6 +26,7 @@ ControlProfile::ControlProfile() : TransferableProfile() {
 
 	mCreatorIds.push_back(std::pair<std::string, int>("RouterChangeZoneSend", 5)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("RouterNewUserSend", 60)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("RouterDeleteUserSend", 61));
 	
 }
 
