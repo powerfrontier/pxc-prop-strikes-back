@@ -10,7 +10,7 @@ LDFLAGS = -L$(BINPATH) -lConnection -lssl -lcrypto -pthread -lmysqlclient -lpthr
 
 all: $(BINPATH)Login
 
-$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlclient.a $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)ControlConnection.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
+$(BINPATH)Login: $(BINPATH)libConnection.a $(BINPATH)libmysqlclient.a $(BINPATH)ClientClosedConnection.o $(BINPATH)LoginRequest.o $(BINPATH)LogoutRequest.o $(BINPATH)ControlConnection.o $(BINPATH)LoginProfile.o $(BINPATH)Login.o $(BINPATH)main.o 
 	$(CC) -o $@ $^ $(LDFLAGS) 
 
 $(BINPATH)libConnection.a:
@@ -22,6 +22,9 @@ $(BINPATH)libmysqlclient.a:
 	cp ../mysqlDriver/lib/libmysqlclient.a $(BINPATH)
 
 $(BINPATH)Login.o: $(SRCPATH)Login.cpp $(INCLUDEPATH)Login.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)ClientClosedConnection.o: $(SRCPATH)ClientClosedConnection.cpp $(INCLUDEPATH)ClientClosedConnection.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)LoginRequest.o: $(SRCPATH)LoginRequest.cpp $(INCLUDEPATH)LoginRequest.h
@@ -43,8 +46,8 @@ $(BINPATH)main.o: $(SRCPATH)main.cpp
 clean:
 	rm -f $(BINPATH)*.o
 	rm -f $(BINPATH)libConnection.a
-	rm -f $(BINPATH)libmysqlcppconn-static.a
-
+	rm -f $(BINPATH)libmysqlclient.a
+	
 cleanest: clean
 	rm -f $(BINPATH)Login
 

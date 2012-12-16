@@ -34,6 +34,7 @@ class Login : public Singleton<Login> {
 	friend class LoginRequestRcvd;
 	friend class LogoutRequestRcvd;
 	friend class ControlConnectionRcvd;
+	friend class ClientClosedConnection;
 public:
 
 	virtual ~Login();
