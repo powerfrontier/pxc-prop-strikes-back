@@ -7,9 +7,11 @@ class ConnectionManager{
 private:
 struct
 std::thread *tListen;
-std::list<std::thread *> tListenN;
 ConnectionCallback *cCallB;
 ConnectionClosedListener *myClose;
+bool imListening;
+std::mutex mOnlineMutex;
+std::list<Connection *> conexions;
 void listenThread(const std::string& port) throw(ConnectionException);
 void listenThreadSecure(const std::string& port, bool) throw(ConnectionException);
 void receive(Connection*) throw(ConnectionException);
@@ -21,5 +23,6 @@ void listen(const std::string&) throw(ConnectionException);
 void listenSecure(const std::string&, bool) throw(ConnectionException);
 void setCallbackFunction(ConnectionCallback*) throw();
 void setMyClose(ConnectionClosedListener *func);
+bool isListening();
 };
 #endif

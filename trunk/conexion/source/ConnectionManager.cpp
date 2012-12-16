@@ -64,26 +64,45 @@ ConnectionManager::ConnectionManager() throw(){
     OpenSSL_add_all_algorithms();
     cCallB = NULL;
     myClose = NULL;
+    tListen = NULL;
+    this->setListenOnline(false);
 }
 
 ConnectionManager::~ConnectionManager() throw(){
-	//TODO: KILL THREADS
 	cCallB = NULL;
 	myClose = NULL;
+	this->closeManager();
+}
+
+void ConnectionManager::closeManager(){
+	this->setListenOnline(false);
+	this->checkConexionsOffline();
 	if (tListen != NULL){
+		tListen->join();
 		delete tListen;
 		tListen = NULL;
 	}
+
+}
+
+void ConnectionManager::checkConexionsOffline(){
+	//TODO:VOY A COMER
 }
 
 void ConnectionManager::listen(const std::string& port) throw(ConnectionException){
-	std::thread *t = new std::thread(&ConnectionManager::listenThread, this, port);
-	tListenN.push_back(t);
+	if (tListen == NULL) {
+		tListen = new std::thread(&ConnectionManager::listenThread, this, port);
+	}else{
+		std::cerr << "ERROR: CONEXIONMANAGER LISTENING ALREADY" << std::endl;
+	}
 }
 
 void ConnectionManager::listenSecure(const std::string& port, bool bidirectional) throw(ConnectionException){
-	std::thread *t = new std::thread(&ConnectionManager::listenThreadSecure, this, port, bidirectional);
-	tListenN.push_back(t);
+	if (tListen == NULL){
+		tListen = new std::thread(&ConnectionManager::listenThreadSecure, this, port, bidirectional);
+	}else{
+		std::cerr << "ERROR: CONEXIONMANAGER LISTENING ALREADY" << std::endl;
+	}
 }
 
 void ConnectionManager::setCallbackFunction(ConnectionCallback* callB) throw(){
@@ -105,7 +124,8 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 		char message[] = "ListenThread(): bioStack <= 0.\n";
  		print_ssl_error2(message, stdout);
 	}
-	while (1){
+	this->setListenOnline(true);
+	while (this->isListening()){
 		cbio = BIO_pop(bioStack);
 		if (cbio != NULL){
 			Connection *c = new TCPConnection(cbio, port);
@@ -116,6 +136,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 				c->setCloseFunction(myClose);
 			}
 			c->receive();
+			conexions.push_back(c);
 		}
 		/* Wait for incoming connection */
 		printf("ESPERANDO CONEXION\n");
@@ -123,7 +144,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
         		char message[] = "bioStack <= 0 x2.\n";
 	 		print_ssl_error2(message, stdout);
 		}
-		
+		this->checkConexionsOffline();
 	}
 }
 
@@ -201,9 +222,10 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 	}
 	
     	::listen(sock,5);  
+	this->setListenOnline(true);
 	bool secureOk = false;
 
-	while(1){
+	while(this.isListening()){
 		std::cout << "LISTENING " << std::endl;
 		if((s=accept(sock,0,0))<0){
 			std::cerr << "Problem accepting" << std::endl;
@@ -243,6 +265,8 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 			}else{
 				c->close();
 			}
+			this->checkConexionsOffline();
+			conexions.push_back(c);
 		}
 		
   	}
@@ -250,4 +274,14 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 
 void ConnectionManager::setMyClose(ConnectionClosedListener *func){
 	myClose = func;
+}
+
+bool ConnectionManager::isListening() throw(){
+	std::lock_guard<std::mutex> lk(mOnlineMutex);
+	return imListening;
+}
+
+void ConnectionManager::setListenOnline(bool b){
+	std::lock_guard<std::mutex> lk(mOnlineMutex);
+	online = b;
 }
