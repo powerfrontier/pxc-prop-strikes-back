@@ -9,7 +9,7 @@
 #include <map>
 
 #define CLIENT_PORT "3450"
-#define CONTROL_PORT "3456"
+#define CONTROL_PORT "3457"
 #define ROUTER_IP "127.0.0.1"
 #define ROUTER_PORT "3500"
 #define IP_LENGTH 16
