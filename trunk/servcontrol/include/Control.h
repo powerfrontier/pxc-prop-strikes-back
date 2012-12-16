@@ -15,16 +15,9 @@
 #define REBALANCING_TIME 4
 #define WAITING_RESPONSE_TIME 2
 #define NZONES 4
-#define IP_LOGIN "0.0.0.0"
-#define PORT_LOGIN "3457"
-#define IP_ROUTER "0.0.0.0"
-#define PORT_ROUTER "3456"
-#define IP_GAME_1 "0.0.0.0"
-#define IP_GAME_2 "0.0.0.0"
-#define IP_GAME_3 "0.0.0.0"
-#define PORT_GAME_1 "3458"
-#define PORT_GAME_2 "3459"
-#define PORT_GAME_3 "3460"
+#define TYPE_GAME_SERVER "game"
+#define TYPE_ROUTER_SERVER "router"
+#define TYPE_LOGIN_SERVER "login"
 
 class Control : public Singleton<Control> {
 	double getAverage();
@@ -32,23 +25,24 @@ class Control : public Singleton<Control> {
 	char* ipServers[NSERVERS];
 	char* portServers[NSERVERS];
 	void fillIpServerTable();
-	void fillPortServerTable();
 	bool compareServersLoad(Server* first, Server* second);	
 	//friend class Singleton<Control>;	
 
-
 public:
+	char* ipRouter;
+	char* portRouter;
+	char* ipLogin;
+	char* portLogin;
 	mysqlpp::Connection* cbd;
 	mysqlpp::StoreQueryResult resultBD;
 	Server* zoneServer[NZONES];
 	std::list<Server*> servers;
 	std::mutex recievedMutex;
 	unsigned int recievedConnectionMask;
-	Connection* loginConnection;  //= new TCPConnection();
-	Connection* routerConnection; // = new TCPConnection();
+	Connection* loginConnection;
+	Connection* routerConnection;
 	virtual ~Control();
 
-	//Control();
 	int getZoneDB(int idUsuari);
 	void eliminarServidor(const int idServer);
 	char* getIpServerById(int id);
