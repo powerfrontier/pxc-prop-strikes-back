@@ -54,8 +54,7 @@ public:
 
 	virtual void exec(Connection* c) const throw() {}
 	
-	virtual bool gameInstruction() const throw() { return false; }
-	virtual int id() const throw() { return -1; }
+	virtual int targetId() const throw() { return -1; }
 };
 
 #endif
