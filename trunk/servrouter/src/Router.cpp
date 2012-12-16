@@ -1,44 +1,88 @@
 #include <Router.h>
 
+Router::ControlListener::ControlListener() { }
+Router::ControlListener::~ControlListener() { }
+void Router::ControlListener::callbackFunction(Transferable* received, Connection* c) throw() {
+	if (received) {
+		received->exec(c);
+		delete received;
+	}
+}
+
+
+Router::ServerListener::ServerListener() { }
+Router::ServerListener::~ServerListener() { }
+void Router::ServerListener::callbackFunction(Transferable* received, Connection* c) throw() {
+	if (received) {
+		received->exec(c);
+		delete received;
+	}
+}
+
+
+Router::ClientListener::ClientListener() { }
+Router::ClientListener::~ClientListener() { }
+void Router::ClientListener::callbackFunction(Transferable* received, Connection* c) throw() {
+	int serverId = -1;
+	if (received) {
+		serverId = received->targetId();
+		Router::instance().sendToServerUsers(serverId, received);
+		delete received;
+	}
+}
+
+
 void Router::clear() {
+	mRouterUsersMutex.lock();
 	auto itUser = mUsers.begin();
-	auto itZone = mZones.begin();
-	auto itServer = mServers.begin();
-	
 	while (itUser != mUsers.end()) {
 		delete itUser->second;
 		++itUser;
 	}
 	mUsers.clear();
+	mRouterUsersMutex.unlock();
 	
+	mRouterZonesMutex.lock();
+	auto itZone = mZones.begin();
 	while (itZone != mZones.end()) {
 		delete itZone->second;
 		++itZone;
 	}
 	mZones.clear();
+	mRouterZonesMutex.unlock();
 	
+	mRouterServersMutex.lock();
+	auto itServer = mServers.begin();
 	while (itServer != mServers.end()) {
 		delete itServer->second;
 		++itServer;
 	}
 	mServers.clear();
+	mRouterServersMutex.unlock();
 }
 
-Router::Router() : mServers(), mZones(), mUsers() {
+Router::Router()	: CONTROL_LISTENER(new ControlListener())
+			, SERVER_LISTENER(new ServerListener())
+			, CLIENT_LISTENER(new ClientListener())
+			, mRouterUsersMutex()
+			, mRouterZonesMutex()
+			, mRouterServersMutex()
+			, mServers()
+			, mZones()
+			, mUsers() {
 	
 }
 
 	
 Router::~Router() {
 	clear();
-}
-
-
-void Router::callbackFunction(Transferable* received, Connection* c) throw() {
-	//TODO: Check if client/server/control
+	delete CONTROL_LISTENER;
+	delete SERVER_LISTENER;
+	delete CLIENT_LISTENER;
 }
 
 void Router::addServer(int idServer) {
+	std::lock_guard<std::mutex> lk(mRouterServersMutex);
 	auto it = mServers.find(idServer);
 	Server* srv = NULL;
 	
@@ -49,6 +93,7 @@ void Router::addServer(int idServer) {
 }
 
 void Router::connectServer(int idServer, Connection* c) {
+	std::lock_guard<std::mutex> lk(mRouterServersMutex);
 	auto it = mServers.find(idServer);
 	
 	if (it != mServers.end()) {
@@ -57,6 +102,7 @@ void Router::connectServer(int idServer, Connection* c) {
 }
 
 void Router::delServer(int idServer) {
+	std::lock_guard<std::mutex> lk(mRouterServersMutex);
 	auto it = mServers.find(idServer);
 	
 	if (it != mServers.end()) {
@@ -67,8 +113,8 @@ void Router::delServer(int idServer) {
 
 
 
-
 void Router::addZone(int idZone) {
+	std::lock_guard<std::mutex> lk(mRouterZonesMutex);
 	auto itZone = mZones.find(idZone);
 	Zone* zn = NULL;
 	
@@ -79,6 +125,7 @@ void Router::addZone(int idZone) {
 }
 
 void Router::delZone(int idZone) {
+	std::lock_guard<std::mutex> lk(mRouterZonesMutex);
 	auto itZone = mZones.find(idZone);
 	
 	if (itZone != mZones.end()) {
@@ -92,6 +139,8 @@ void Router::delZone(int idZone) {
 }
 
 void Router::startZoneToServerTransfer(int idZone, int newServer) {
+	std::lock_guard<std::mutex> lk(mRouterZonesMutex);
+	std::lock_guard<std::mutex> lk2(mRouterServersMutex);
 	auto itZone = mZones.find(idZone);
 	auto itServer = mServers.find(newServer);
 	
@@ -101,6 +150,8 @@ void Router::startZoneToServerTransfer(int idZone, int newServer) {
 }
 
 void Router::endZoneToServerTransfer(int idZone) {
+	std::lock_guard<std::mutex> lk(mRouterZonesMutex);
+	std::lock_guard<std::mutex> lk2(mRouterServersMutex);
 	auto itZone = mZones.find(idZone);
 	int oldServer = -1;
 	int newServer = -1;
@@ -123,6 +174,8 @@ void Router::endZoneToServerTransfer(int idZone) {
 }
 
 void Router::setUserToZone(int idUser, int idZone) {
+	std::lock_guard<std::mutex> lk(mRouterUsersMutex);
+	std::lock_guard<std::mutex> lk2(mRouterZonesMutex);
 	auto itUser = mUsers.find(idUser);
 	auto itNewZone = mZones.find(idZone);
 	int oldZone;
@@ -140,6 +193,7 @@ void Router::setUserToZone(int idUser, int idZone) {
 
 
 void Router::addUser(int idUser, int token) {
+	std::lock_guard<std::mutex> lk(mRouterUsersMutex);
 	auto itUser = mUsers.find(idUser);
 	
 	if (itUser == mUsers.end()) {
@@ -152,12 +206,14 @@ void Router::addUser(int idUser, int token) {
 }
 
 bool Router::validateUser(int idUser, int token) {
+	std::lock_guard<std::mutex> lk(mRouterUsersMutex);
 	auto itUser = mUsers.find(idUser);
 	
 	return (itUser != mUsers.end() && itUser->second->validate(token));
 }
 
 void Router::connectUser(int idUser, int token, Connection* c) {
+	std::lock_guard<std::mutex> lk(mRouterUsersMutex);
 	auto itUser = mUsers.find(idUser);
 	
 	if (itUser != mUsers.end() && itUser->second->validate(token)) {
@@ -166,6 +222,7 @@ void Router::connectUser(int idUser, int token, Connection* c) {
 }
 
 void Router::delUser(int idUser) {
+	std::lock_guard<std::mutex> lk(mRouterUsersMutex);
 	auto itUser = mUsers.find(idUser);
 	
 	if (itUser != mUsers.end()) {
@@ -179,6 +236,7 @@ void Router::delUser(int idUser) {
 
 
 void Router::sendToServer(int idServer, Transferable* t) {
+	std::lock_guard<std::mutex> lk(mRouterServersMutex);
 	auto itServer = mServers.find(idServer);
 	
 	if (itServer != mServers.end()) {
@@ -187,6 +245,7 @@ void Router::sendToServer(int idServer, Transferable* t) {
 }
 
 void Router::sendToServerUsers(int idServer, Transferable* t) {
+	std::lock_guard<std::mutex> lk(mRouterServersMutex);
 	auto itServer = mServers.find(idServer);
 	
 	if (itServer != mServers.end()) {
@@ -195,6 +254,7 @@ void Router::sendToServerUsers(int idServer, Transferable* t) {
 }
 
 void Router::sendToZone(int idZone, Transferable* t) {
+	std::lock_guard<std::mutex> lk(mRouterZonesMutex);
 	auto itZone = mZones.find(idZone);
 	
 	if (itZone == mZones.end()) {
@@ -203,6 +263,7 @@ void Router::sendToZone(int idZone, Transferable* t) {
 }
 
 void Router::sendToUser(int idUser, Transferable* t) {
+	std::lock_guard<std::mutex> lk(mRouterUsersMutex);
 	auto itUser = mUsers.find(idUser);
 	
 	if (itUser != mUsers.end()) {

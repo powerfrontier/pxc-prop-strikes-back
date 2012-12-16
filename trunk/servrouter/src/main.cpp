@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
 	serverCM = new ConnectionManager();
 	clientCM = new ConnectionManager();
 	
-	controlCM->setCallbackFunction(r);
-	serverCM->setCallbackFunction(r);
-	clientCM->setCallbackFunction(r);
+	controlCM->setCallbackFunction(r->CONTROL_LISTENER);
+	serverCM->setCallbackFunction(r->SERVER_LISTENER);
+	clientCM->setCallbackFunction(r->CLIENT_LISTENER);
 	try {
 		controlCM->listenSecure(controlPort, true);
 		serverCM->listenSecure(serverPort, true);

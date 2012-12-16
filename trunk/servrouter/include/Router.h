@@ -32,9 +32,9 @@ class Router : public Singleton<Router> {
 		void callbackFunction(Transferable* received, Connection* c) throw();
 	};
 	
-	ControlListener CONTROL_LISTENER;
-	ServerListener SERVER_LISTENER;
-	ClientListener CLIENT_LISTENER;
+	ControlListener* CONTROL_LISTENER;
+	ServerListener* SERVER_LISTENER;
+	ClientListener* CLIENT_LISTENER;
 	
 	protected:
 	class User {
@@ -120,7 +120,10 @@ class Router : public Singleton<Router> {
 	friend class Singleton<Router>;
 	Router();
 
-	std::mutex mRouterMutex;
+	std::mutex mRouterServersMutex;
+	std::mutex mRouterZonesMutex;
+	std::mutex mRouterUsersMutex;
+	
 	std::map<int, Server*> 	mServers;
 	std::map<int, Zone*> 	mZones;
 	std::map<int, User*> 	mUsers;
