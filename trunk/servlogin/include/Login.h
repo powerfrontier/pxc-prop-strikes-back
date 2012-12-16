@@ -26,6 +26,7 @@ class Login : public Singleton<Login> {
 	ConnectionManager* managerClient;
 	ConnectionManager* managerControl;
 	ClientClosedConnection* clientClosedConnection;
+	bool controlConnected;
 	unsigned int nextFreeToken;
 	std::map<int,int> userTokenMap;
 	std::map<int,Connection*> idToConnectionMap;

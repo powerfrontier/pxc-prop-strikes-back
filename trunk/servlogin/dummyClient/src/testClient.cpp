@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	std::string port(argv[2]);
 	printf("MainClient(): 1\n");
         fflush(stdout);
-	Connection* n = new TCPConnection();
+	Connection* n = new TCPConnectionSecurity();
 	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
@@ -35,10 +35,11 @@ int main(int argc, char** argv){
 			delete sent100;
 
 			
-			//printf("Ahora hacemos logout\n");
+			printf("Ahora hacemos logout\n");
+			fflush(stdout);
 			TestTransferableSent102* sent102 = NULL;
 			sent102 = new TestTransferableSent102(atoi(argv[3]),atoi(argv[4]));
-			//printf("MainClient(): Sending102...\n");
+			printf("MainClient(): Sending102...\n");
 			fflush(stdout);
 			n->send(*sent102);
 			printf("MainClient(): sent102\n");
