@@ -10,7 +10,6 @@ void ControlConnectionRcvd::exec(Connection* c) const throw(){
 }
 
 ControlConnectionRcvd::~ControlConnectionRcvd(){
-
-	
+	  
 }
 
