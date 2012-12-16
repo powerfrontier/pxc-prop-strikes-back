@@ -261,12 +261,8 @@ void ZoneHandler::doBackup() throw() {
 	}
 }
 
-void ZoneHandler::addInstruction(Instruction* ins, Connection* c, bool gameInstruction) throw() {
-	assert(ins);
-	
-	if (!gameInstruction) ins->exec(c); 
-	std::lock_guard<std::mutex> lk(mGameMutex);
-	if (mGame) mGame->addInstruction(ins, c);
+void ZoneHandler::addInstruction(Instruction* ins, Connection* c) throw() {
+	//TODO
 }
 
 double ZoneHandler::getLoad() throw() {
