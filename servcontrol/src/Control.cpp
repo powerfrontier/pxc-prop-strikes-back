@@ -154,13 +154,16 @@ void Control::initializeServerList() {
 void Control::initializeConnections() {
 	list<Server*>::iterator it;
 	int i=0;
-	
+	Control::instance().numberServersIni = Control::instance().numberServers;	
+
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnection();
 		if((*it)->c->connect((*it)->ip, (*it)->port)){
 				cout << "Servidor " << i << " conectado" << endl;
-			}else{
-				cout << "Servidor " << i << " NO conectado" << endl;
+		}else{
+				(*it)->c = NULL;
+				Control::instance().numberServers--;
+				cout << "Servidor " << i << " NO conectado" << (*it)->c << endl;
 		}
 		i++;
 	}
@@ -187,7 +190,7 @@ void Control::writeDownServer(){
 	int serverMask = 1;
 	int serverNum = 0;
 	int serverConnectList = ~recievedConnectionMask;
-	for( i = 0; i < Control::instance().numberServers; i++){
+	for( i = 0; i < Control::instance().numberServersIni; i++){
 		serverNum = serverConnectList & serverMask;
 		if(!serverNum){
 			cout << "El servidor: " << i << " NO responde" << endl;
@@ -207,41 +210,45 @@ void Control::zoneAssignment(){
 	Server* server = servers.front();
 
 	for(i = 0; i < modZonesPerServer; ++i){
-		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor a juego para que este lo guarde
-		server->c->send(*setZoneToServerSend);
-		cout << "server: " << server->id << " zona: " << i << endl; //debug
+		if(server->c != NULL && server->c->isLinkOnline()) {
+			setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor a juego para que este lo guarde	
+			server->c->send(*setZoneToServerSend);
+			cout << "server: " << server->id << " zona: " << i << endl; //debug
 		//Control::instance().routerConnection->send(*setZoneToServerSend); //reutilizamos la instr para avisar a router tambien
-		//ipServerSend = new IPServerSend(server->ip, server->port);
+		//ipServerSend = new IPServerSend(server->id, server->ip, server->port);
 		//Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto a router
-		delete(setZoneToServerSend);
+			delete(setZoneToServerSend);
 		//delete(ipServerSend);
-		zoneServer[i] = server;		
-		zl = new ZoneLoad(i, 0); //Creamos las distribuciones de zonas y carga para el objeto Server
-		server->load.distribution.push_back(zl);
-		server->load.totalLoad = 0;
-		zonesRestants--;	
+			zoneServer[i] = server;		
+			zl = new ZoneLoad(i, 0); //Creamos las distribuciones de zonas y carga para el objeto Server
+			server->load.distribution.push_back(zl);
+			server->load.totalLoad = 0;
+			zonesRestants--;
+		}	
 	}
 	
 	list<Server*>::iterator it;
 	while(zonesRestants > 0) {
 		for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
-			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); 
-			(*it)->c->send(*setZoneToServerSend);
-			cout << "server: " << (*it)->id << " zona: " << zoneIndex << endl; //debug
-			//Control::instance().routerConnection->send(*setZoneToServerSend); 
-			//ipServerSend = new IPServerSend(server->ip, server->port);
-			//Control::instance().routerConnection->send(*ipServerSend);
-			delete(setZoneToServerSend);
-			//delete(ipServerSend); 
-			zoneServer[zoneIndex] = (*it);
-			zl = new ZoneLoad(zoneIndex, 0);
-			(*it)->load.distribution.push_back(zl);
-			(*it)->load.totalLoad = 0;		
-			zoneIndex++;
-			if ( zoneIndex == NZONES ){
-				return;
-			}
-			zonesRestants--;		
+			if((*it)->c != NULL && (*it)->c->isLinkOnline()) {
+				setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); 
+				(*it)->c->send(*setZoneToServerSend);
+				cout << "server: " << (*it)->id << " zona: " << zoneIndex << endl; //debug
+				//Control::instance().routerConnection->send(*setZoneToServerSend); 
+				//ipServerSend = new IPServerSend(server->id, server->ip, server->port);
+				//Control::instance().routerConnection->send(*ipServerSend);
+				delete(setZoneToServerSend);
+				//delete(ipServerSend); 
+				zoneServer[zoneIndex] = (*it);
+				zl = new ZoneLoad(zoneIndex, 0);
+				(*it)->load.distribution.push_back(zl);
+				(*it)->load.totalLoad = 0;		
+				zoneIndex++;
+				if ( zoneIndex == NZONES ){
+					return;
+				}
+				zonesRestants--;
+			}		
 		}
 	}
 		
@@ -293,7 +300,14 @@ bool compareServersLoad(Server* first, Server* second) {
 int main(int argc, char** argv) {
 	//Cogemos el numero de servidores como el argumento de entrada
 	if(argc >= 2) {
-		Control::instance().numberServers = atoi(argv[1]);
+		int aux = atoi(argv[1]);
+		if(aux <= MAX_GAME_SERVERS) {
+			Control::instance().numberServers = aux;
+		}
+		else {
+			Control::instance().numberServers = MAX_GAME_SERVERS;
+			cout << "Se ha especificado un numero de servers de juego mayor que el limite. Se aplica el valor maximo" << endl; 
+		}
 	}
 	else {
 		Control::instance().numberServers = DEF_GAME_SERVERS; //Sino ponemos un numero por defecto
@@ -314,24 +328,18 @@ int main(int argc, char** argv) {
 		cerr << "ERROR en conexion a BD! Exception: " << e.what() << endl;
 	}
 	if(Control::instance().cbd->connected()) { 
-			mysqlpp::Query query = Control::instance().cbd->query("select * from ADDRESSES");
-			Control::instance().resultBD = query.store();
-			std::string auxquery = "select COUNT(*) from ADDRESSES where TYPE=\"game\"";
-			cout << auxquery << endl; 
-			mysqlpp::Query query2 = Control::instance().cbd->query(auxquery);
-			mysqlpp::StoreQueryResult res2 = query.store();
-			int aux = 0;
-			for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
-				if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER) {
-					aux++;	
-				}
+		mysqlpp::Query query = Control::instance().cbd->query("select * from ADDRESSES");
+		Control::instance().resultBD = query.store();
+		int aux = 0;
+		for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
+			if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER) {
+				aux++;	
 			}
-			aux = res2[0][0];
-			cout << res2[0][0] << endl;
-			if( aux < Control::instance().numberServers) {
-				Control::instance().numberServers = aux;
-				cout << "El numero de servidores de juego en la BD es menor que el que se demanda. Corrigiendo numero de servers de juego a: " << aux << endl; 
-			}
+		}
+		if( aux < Control::instance().numberServers) {
+			Control::instance().numberServers = aux;
+			cout << "El numero de servidores de juego en la BD es menor que el que se demanda. Corrigiendo numero de servers de juego a el de la BD: " << aux << endl; 
+		}
 			
 	}	
 	//ControlProfile
@@ -366,13 +374,13 @@ int main(int argc, char** argv) {
 			alarm(0);// Apagamos el timer
 			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
 				// Inicializamos la carga total del server
-				(*it)->load.totalLoad = 0;
-				ServerLoadSend* serverLoadSend = new ServerLoadSend();
-				//cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;
-				//if((*it)->c->isLinkOnline()) {				
+				if((*it)->c != NULL && (*it)->c->isLinkOnline()) {				
+					(*it)->load.totalLoad = 0;
+					ServerLoadSend* serverLoadSend = new ServerLoadSend();
+					//cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;				
 					(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
 					delete(serverLoadSend);
-				//}
+				}
 				//else {
 					//cout << "ERROR: servidor: " << (*it)->id << "CAIDO" << endl;
 					//Control::instance().eliminarServidor((*it)->id);

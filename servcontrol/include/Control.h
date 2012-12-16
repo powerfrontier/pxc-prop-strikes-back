@@ -30,6 +30,7 @@ class Control : public Singleton<Control> {
 	bool compareServersLoad(Server* first, Server* second);	
 
 	public:
+	int numberServersIni;
 	int numberServers;
 	char* ipRouter;
 	char* portRouter;

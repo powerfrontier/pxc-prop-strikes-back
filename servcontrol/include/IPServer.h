@@ -5,10 +5,11 @@
 #include <list>
 
 class IPServerSend : public Datagram<IPServerSend> {
+  int idServer;
   char ipSourceServer[IPLENGTH];
   char portSourceServer[PORTLENGTH]; 
 public:
-	IPServerSend(char ip[IPLENGTH], char port[PORTLENGTH]): Datagram<IPServerSend>("IPServerSend") {
+	IPServerSend(int id, char ip[IPLENGTH], char port[PORTLENGTH]): Datagram<IPServerSend>("IPServerSend") {
 		int i = 0;
 		for( i = 0; i < IPLENGTH; ++i){
 			ipSourceServer[i] = ip[i];
@@ -18,7 +19,8 @@ public:
 		for( i = 0; i < PORTLENGTH; ++i){
 			portSourceServer[i] = port[i];
 			if(port[i] == '\0' ) return;
-		}	
+		}
+		idServer = id;	
 	};
 };
 
