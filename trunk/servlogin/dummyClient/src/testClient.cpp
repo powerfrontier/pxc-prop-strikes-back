@@ -22,7 +22,7 @@ int main(int argc, char** argv){
         fflush(stdout);
 	printf("MainClient(): Connected\n");
         fflush(stdout);
-    
+
 	if (n->isLinkOnline()){			
 			TestTransferableSent100* sent100 = NULL;
 			sent100 = new TestTransferableSent100("user1","user1");
@@ -36,14 +36,14 @@ int main(int argc, char** argv){
 
 			
 			//printf("Ahora hacemos logout\n");
-			//TestTransferableSent102* sent102 = NULL;
-			//sent102 = new TestTransferableSent102(2,2);
+			TestTransferableSent102* sent102 = NULL;
+			sent102 = new TestTransferableSent102(atoi(argv[3]),atoi(argv[4]));
 			//printf("MainClient(): Sending102...\n");
 			fflush(stdout);
-			//n->send(*sent102);
+			n->send(*sent102);
 			printf("MainClient(): sent102\n");
 	       		fflush(stdout);
-			//delete sent102;
+			delete sent102;
 		}else{
 			std::cout << "Conexion perdida, Reconectando... "<< std::endl;
 			if(n->connect(ip, port)) {
@@ -53,6 +53,7 @@ int main(int argc, char** argv){
 				sleep(3);
 			}
 		}
+      
 
 }
 

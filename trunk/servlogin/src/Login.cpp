@@ -23,16 +23,14 @@ void Login::initializeLogin(){
     } 
 }
 
-bool Login::validate(const char* user, const char* pwd){
+bool Login::validate(string user, string pwd){
 
   MYSQL_RES *result;
   MYSQL_ROW row;
   int num_fields, num_rows;
   int i;
-  string userString(user);
-  string pwdString(pwd);
-  cout << "user i password enviats: " << userString << " " << pwdString << endl;
-  string query = "SELECT * FROM USERS WHERE USERNAME='" + userString + "' AND PASSWORD='" + pwdString +"'" ;
+  cout << "user i password enviats: " << user << " " << pwd << endl;
+  string query = "SELECT * FROM USERS WHERE USERNAME='" + user + "' AND PASSWORD='" + pwd +"'" ;
   mysql_query(mysqlConnection, query.c_str());
   result = mysql_store_result(mysqlConnection);
   num_fields = mysql_num_fields(result);

@@ -5,7 +5,6 @@
 #include <Connection.h>
 #include <ConnectionManager.h>
 #include <mysql.h>
-
 #include <map>
 
 #define CLIENT_PORT "3456"
@@ -26,7 +25,10 @@ class Login : public Singleton<Login> {
 	ConnectionManager* manager;
 	unsigned int nextFreeToken;
 	std::map<int,int> userTokenMap;
-	std::map<Connection*,int> userConnectionMap;
+	std::map<int,Connection*> idToConnectionMap;
+	std::map<Connection*,int> connectionToIdMap;
+	std::map<std::string,int> userToIdMap;
+	std::map<int,std::string> idToUserMap;
 	std::mutex loginMutex;
 	unsigned int usersConnected;
 	friend class LoginRequestRcvd;
@@ -37,7 +39,7 @@ public:
 	virtual ~Login();
 	void initializeManager();
 	void initializeLogin();
-	bool validate(const char* user,const char* pwd);
+	bool validate(std::string user,std::string pwd);
 	Connection* getControlConnection();
 	
 };
