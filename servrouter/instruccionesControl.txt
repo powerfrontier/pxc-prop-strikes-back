@@ -5,4 +5,14 @@ RouterNewUserSend - Control comunica a router que se incorpora un usuario nuevo
 	- int token: token del user dado por login
 	- int idZona: zona en que estaba o comienza
 
-ID 5
+SetZoneToServerSend - Control comunica a router que se incorpora un nuevo server
+	ID instruccion: 7
+	Params:
+	int idServer;
+	int idZone;
+
+IPServerSend - respuesta de control que devuelve la ip y puerto del server solicitado
+	ID instruccion: 6
+	Params:
+		char ipSourceServer[IPLENGTH]; IPLENGHT=16
+  		char portSourceServer[PORTLENGTH]; PORTLENGT=5
