@@ -41,6 +41,8 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  }else{
 	    //Hacemos logout del antiguo usuario
 	    // Recogemos los datos antiguos
+	    cout << "User ya conectado, enviamos datos a control" << endl;
+	    Login::instance().usersConnected--;
 	    oldClientId = it->second;
 	    oldToken = Login::instance().userTokenMap.find(oldClientId)->second;
 	    ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(oldClientId,oldToken);
