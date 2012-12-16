@@ -2,7 +2,10 @@
 #include <ServerLoad.h>
 #include <IPServer.h>
 #include <NewUser.h>
+#include <RouterNewUser.h>
 #include <RouterDeleteUser.h>
+#include <GameNewUser.h>
+#include <GameDeleteUser.h>
 #include <DisconnectUser.h>
 #include <iostream>
 
@@ -21,6 +24,7 @@ ControlProfile::ControlProfile() : TransferableProfile() {
 	mCreatorIds.push_back(std::pair<std::string, int>("IPServerSend", 6)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("SetZoneToServerSend", 7)); // Envio x con id y
 	mCreatorIds.push_back(std::pair<std::string, int>("GameNewUserSend", 8)); // Envio x con id y
+	mCreatorIds.push_back(std::pair<std::string, int>("GameDeleteUserSend", 9)); // Envio x con id y
 
 	mCreatorIds.push_back(std::pair<std::string, int>("LoginOnlineSend", 51)); // Envio x con id y
 

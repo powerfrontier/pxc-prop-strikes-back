@@ -157,7 +157,7 @@ void Control::initializeConnections() {
 	Control::instance().numberServersIni = Control::instance().numberServers;	
 
 	for(it=servers.begin();it!=servers.end();it++) {
-		(*it)->c = new TCPConnection();
+		(*it)->c = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
 		if((*it)->c->connect((*it)->ip, (*it)->port)){
 				cout << "Servidor " << i << " conectado" << endl;
 		}else{
@@ -168,7 +168,7 @@ void Control::initializeConnections() {
 		i++;
 	}
 
-	loginConnection = new TCPConnection();
+	loginConnection = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
 	if(loginConnection->connect(Control::instance().ipLogin, Control::instance().portLogin)){
 		cout << "Servidor login conectado" << endl;
 				
@@ -176,7 +176,7 @@ void Control::initializeConnections() {
 		cout << "Servidor login NO conectado" << endl;
 	}
 
-	//routerConnection = new TCPConnection();
+	//routerConnection = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
 	/*if(routerConnection->connect(Control::instance().ipRouter, Control::instance().portRouter)){
 		cout << "Servidor redireccion conectado" << endl;
 				
@@ -267,10 +267,14 @@ void Control::eliminarServidor(const int idServer) {
 
 int Control::getZoneDB(int idUsuari) {	
 	//return (rand() % 3 + 1); //valor entre 0-4
-	mysqlpp::Query query = Control::instance().cbd->query("select IDZONE from PLAYERS where IDUSER="+idUsuari);
+	//std::string aux (idUsuari);cout << aux << endl;
+	std::string consulta = std::string("select IDZONE from PLAYERS where IDUSER='") + std::to_string(idUsuari) + std::string("'");
+	cout << consulta << endl;
+	mysqlpp::Query query = Control::instance().cbd->query(consulta);
         if (mysqlpp::StoreQueryResult res = query.store()) {
-		return res[0][0];
+		return res[0][0];cout << res[0][0] << endl;
 	}
+	cout << "nooooooooooo!!!!!!!!!!!!!" << endl;
 	return -1;
 }
 
