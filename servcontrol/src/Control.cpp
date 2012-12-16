@@ -28,7 +28,7 @@ double Control::getAverage() {
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 		incr += (*it)->load.totalLoad;
 	}
-	return incr/NSERVERS;
+	return incr/Control::instance().numberServers;
 }
 
 double Control::getStDev() {
@@ -39,11 +39,11 @@ double Control::getStDev() {
 	for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 	    	incr += pow((*it)->load.totalLoad - avg, 2);
 	}
-	if(NSERVERS < 2) {
-		return sqrt(incr / NSERVERS);
+	if(Control::instance().numberServers < 2) {
+		return sqrt(incr / Control::instance().numberServers);
 	}
 	else {
-		return sqrt(incr / (NSERVERS - 1));
+		return sqrt(incr / (Control::instance().numberServers - 1));
 	}
 }
 
@@ -107,7 +107,7 @@ void Control::balance() {
 }
 
 void Control::fillIpServerTable(){
-	for(int i=0; i<NSERVERS; i++) { // Se necesita memoria dinamica
+	for(int i=0; i<Control::instance().numberServers; i++) { // Se necesita memoria dinamica
 		ipServers[i] = (char*) malloc (IPLENGTH);
 		portServers[i] = (char*) malloc (PORTLENGTH);
 	}
@@ -117,7 +117,7 @@ void Control::fillIpServerTable(){
 	Control::instance().portLogin = (char*) malloc (PORTLENGTH);
 	int j = 0;
 	for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
-		if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER && j < NSERVERS) {
+		if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER && j < Control::instance().numberServers) {
 			strcpy(ipServers[j], Control::instance().resultBD[i][0]);
 			strcpy(portServers[j], Control::instance().resultBD[i][1]);
 			j++;
@@ -144,7 +144,7 @@ char* Control::getPortServerById(int id){
 void Control::initializeServerList() {
 	list<Server*>::iterator it;
 	Control::fillIpServerTable();
-	for(int i = 0; i < NSERVERS; ++i){
+	for(int i = 0; i < Control::instance().numberServers; ++i){
 		servers.push_back(new Server(i,ipServers[i], portServers[i]));
 	}
 }
@@ -185,7 +185,7 @@ void Control::writeDownServer(){
 	int serverMask = 1;
 	int serverNum = 0;
 	int serverConnectList = ~recievedConnectionMask;
-	for( i = 0; i < NSERVERS; i++){
+	for( i = 0; i < Control::instance().numberServers; i++){
 		serverNum = serverConnectList & serverMask;
 		if(!serverNum){
 			cout << "El servidor: " << i << " NO responde" << endl;
@@ -196,7 +196,7 @@ void Control::writeDownServer(){
 
 void Control::zoneAssignment(){
 	int zonesRestants = NZONES;
-	int modZonesPerServer = NZONES % NSERVERS;
+	int modZonesPerServer = NZONES % Control::instance().numberServers;
 	int zoneIndex = modZonesPerServer;
 	int i;
 	ZoneLoad* zl;
@@ -207,6 +207,7 @@ void Control::zoneAssignment(){
 	for(i = 0; i < modZonesPerServer; ++i){
 		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor a juego para que este lo guarde
 		server->c->send(*setZoneToServerSend);
+		cout << "server: " << server->id << " zona: " << i << endl; //debug
 		//Control::instance().routerConnection->send(*setZoneToServerSend); //reutilizamos la instr para avisar a router tambien
 		//ipServerSend = new IPServerSend(server->ip, server->port);
 		//Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto a router
@@ -224,6 +225,7 @@ void Control::zoneAssignment(){
 		for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); 
 			(*it)->c->send(*setZoneToServerSend);
+			cout << "server: " << (*it)->id << " zona: " << zoneIndex << endl; //debug
 			//Control::instance().routerConnection->send(*setZoneToServerSend); 
 			//ipServerSend = new IPServerSend(server->ip, server->port);
 			//Control::instance().routerConnection->send(*ipServerSend);
@@ -286,7 +288,15 @@ bool compareServersLoad(Server* first, Server* second) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
+	//Cogemos el numero de servidores como el argumento de entrada
+	if(argc >= 2) {
+		Control::instance().numberServers = atoi(argv[1]);
+	}
+	else {
+		Control::instance().numberServers = DEF_GAME_SERVERS; //Sino ponemos un numero por defecto
+	}
+	cout << "Nº Servers de juego: " << Control::instance().numberServers << endl;
 	//Conexio a BD
 	try
 	{
@@ -319,9 +329,9 @@ int main() {
 	list<Server*>::iterator it;
 	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
-	unsigned int shift = (sizeof(int) * 8) - NSERVERS;	
+	unsigned int shift = (sizeof(int) * 8) - Control::instance().numberServers;	
 	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
-	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
+	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente el numero de servidores de juego
 	
 	//Enviando señal de vida a login
 	LoginOnlineSend* instr = new LoginOnlineSend();

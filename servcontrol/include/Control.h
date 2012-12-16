@@ -11,7 +11,8 @@
 #define IPLENGTH 16
 #define PORTLENGTH 5
 #define MAXDESV 2
-#define NSERVERS 3
+#define DEF_GAME_SERVERS 3
+#define MAX_GAME_SERVERS 50
 #define REBALANCING_TIME 4
 #define WAITING_RESPONSE_TIME 2
 #define NZONES 4
@@ -19,16 +20,18 @@
 #define TYPE_ROUTER_SERVER "router"
 #define TYPE_LOGIN_SERVER "login"
 
+
 class Control : public Singleton<Control> {
 	double getAverage();
 	double getStDev();
-	char* ipServers[NSERVERS];
-	char* portServers[NSERVERS];
+	char* ipServers[MAX_GAME_SERVERS];
+	char* portServers[MAX_GAME_SERVERS];
 	void fillIpServerTable();
 	bool compareServersLoad(Server* first, Server* second);	
 	//friend class Singleton<Control>;	
 
 public:
+	int numberServers;
 	char* ipRouter;
 	char* portRouter;
 	char* ipLogin;
