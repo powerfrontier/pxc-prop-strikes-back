@@ -31,15 +31,16 @@ int main(int argc, char** argv) {
 	
 	//Create GameServer object
 	gs = GameServer::instancePtr();
-	gs->controlPort(controlPort);
+	
 	//Start listening
 	controlCM = new ConnectionManager();
 	routerCM = new ConnectionManager();
 	
-	controlCM->setCallbackFunction(gs);
+	controlCM->setCallbackFunction(gs->CONTROL_LISTENER);
+	routerCM->setCallbackFunction(gs->ROUTER_LISTENER);
 	try {
-		controlCM->listen(controlPort);
-		routerCM->listen(routerPort);
+		controlCM->listenSecure(controlPort, true);
+		routerCM->listenSecure(routerPort, true);
 	}
 	catch (ConnectionException& cs) {
 		std::cerr << "Error trying to listen connections: " << cs.what() << std::endl;

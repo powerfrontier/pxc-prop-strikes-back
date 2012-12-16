@@ -122,7 +122,7 @@ public:
 	void start () throw();
 	void stop () throw();
 	void doBackup () throw();
-	void addInstruction(Instruction*, Connection*, bool gameInstruction) throw();
+	void addInstruction(Instruction*, Connection*) throw();
 	
 	// Returns a number from 0 to 1 with the current load
 	// With 0 equals no load and 1 equals max load

@@ -1,30 +1,50 @@
 #include <GameServer.h>
 #include <InstServerLoad.h>
 
+
+GameServer::ControlListener::ControlListener() : ConnectionCallback() { }
+GameServer::ControlListener::~ControlListener() { }
+void GameServer::ControlListener::callbackFunction(Transferable* received, Connection* c) throw() {
+	if (received) {
+		received->exec(c);
+		delete received;
+	}
+}
+
+GameServer::RouterListener::RouterListener() : ConnectionCallback() { }
+GameServer::RouterListener::~RouterListener() { }
+void GameServer::RouterListener::callbackFunction(Transferable* received, Connection* c) throw() {
+	if(received) {
+		int idZone = received->targetId();
+		GameServer::instance().queueInstruction(idZone, received, c);
+	}
+}
+
+
 bool GameServer::hasZone(int zoneId) const {
 	std::map<int, ZoneHandler*>::const_iterator it = mZones.find(zoneId);
 
 	return it != mZones.end();
 }
 
-GameServer::GameServer() : Singleton<GameServer>(), mServerId(-1), mZones(), mClients(), mControlPort() {
+GameServer::GameServer() 	: Singleton<GameServer>()
+				, CONTROL_LISTENER(new ControlListener())
+				, ROUTER_LISTENER(new RouterListener())
+				, mServerId(-1)
+				, mZones()
+				, mClients()
+				, mRouters()
+				, mZonesMutex()
+				, mClientsMutex()
+				, mRoutersMutex() {
 
 }
 
 
 GameServer::~GameServer() {
 	stopAll();
-}
-
-
-void GameServer::callbackFunction(Transferable* received, Connection* c) throw() {
-	if (c->getPort() == controlPort()) {
-		received->exec(c);
-		delete received;
-	}
-	else {
-		//TODO: Obtener zoneId
-	}
+	delete CONTROL_LISTENER;
+	delete ROUTER_LISTENER;
 }
 
 void GameServer::serverId(int id) {
@@ -33,14 +53,6 @@ void GameServer::serverId(int id) {
 
 int GameServer::serverId() const {
 	return mServerId;
-}
-
-void GameServer::controlPort(const std::string& port) {
-	mControlPort = port;
-}
-
-const std::string& GameServer::controlPort() const {
-	return mControlPort;
 }
 
 void GameServer::addClient(int clientId, int clientZone) {
@@ -96,9 +108,9 @@ void GameServer::stopZone(int zoneId, bool force) {
 }
 
 void GameServer::stopAll() {
+	std::lock_guard<std::mutex> lk(mZonesMutex);
 	std::map<int, ZoneHandler*>::iterator it;
 	
-	std::lock_guard<std::mutex> lk(mZonesMutex);
 	for (it = mZones.begin(); it != mZones.end(); ++it) {
 		if (it->second) {
 			it->second->stop();
@@ -109,9 +121,9 @@ void GameServer::stopAll() {
 }
 
 void GameServer::markForDetach(int zoneId, int idServer) {
+	std::lock_guard<std::mutex> lk(mZonesMutex);
 	std::map<int, ZoneHandler*>::iterator it;
 
-	std::lock_guard<std::mutex> lk(mZonesMutex);
 	it = mZones.find(zoneId);
 	if (it != mZones.end()) {
 		it->second->maskAsDetachable(idServer);
@@ -119,22 +131,41 @@ void GameServer::markForDetach(int zoneId, int idServer) {
 }
 
 void GameServer::receiveZone(int zoneId, Connection* oldServer) {
+	std::lock_guard<std::mutex> lk(mZonesMutex);
 	std::map<int, ZoneHandler*>::iterator it;
 
-	std::lock_guard<std::mutex> lk(mZonesMutex);
 	it = mZones.find(zoneId);
 	//TODO: Implement
 }
 
 void GameServer::detachZone(int zoneId, Connection* newServer) {
+	std::lock_guard<std::mutex> lk(mZonesMutex);
 	std::map<int, ZoneHandler*>::iterator it;
 
-	std::lock_guard<std::mutex> lk(mZonesMutex);
 	it = mZones.find(zoneId);
 	//TODO: Implement
 }
-
+void GameServer::queueInstruction(int idZone, Instruction* ins, Connection* c) {
+	if (ins) {
+		std::lock_guard<std::mutex> lk(mZonesMutex);
+		std::map<int, ZoneHandler*>::iterator it;
+		
+		it = mZones.find(idZone);
+		if (it != mZones.end()) {
+			it->second->addInstruction(ins, c);
+		}
+	}
+}	
+	
+void GameServer::addRouter(int routerId, Connection* c) {
+	if (c) {
+		std::lock_guard<std::mutex> lk(mRoutersMutex);
+		mRouters[routerId] = c;
+	}
+}
+	
 void GameServer::SendZoneLoads(Connection* c) {
+	std::lock_guard<std::mutex> lk(mZonesMutex);
 	auto it = mZones.begin();
 	ServerLoadAnswerSend* answer = NULL;
 	int idZone = -1;
@@ -155,5 +186,10 @@ void GameServer::SendZoneLoads(Connection* c) {
 }
 
 void GameServer::sendToClients(Transferable* t) {
-	//TODO: Implement
+	std::lock_guard<std::mutex> lk(mRoutersMutex);
+	auto it = mRouters.begin();
+	while(it != mRouters.end()) {
+		it->second->send(*t);
+		++it;
+	}
 }

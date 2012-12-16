@@ -30,7 +30,8 @@ bool PXCGame::gameStep (double stepTime) throw() {
 }
 
 void PXCGame::sendState() throw() {
-	//TODO: Send status to all connected clients
+	//TODO: Estado de los usuarios
+	//GameServer::instance().sendToClients();
 }
 
 ZoneCallback* PXCGameCreator::create(int zoneId) {

@@ -9,14 +9,38 @@
 #include <Singleton.h>
 #include <Connection.h>
 
-class GameServer : public Singleton<GameServer>, public ConnectionCallback {
+class GameServer : public Singleton<GameServer> {
+public:
+	class ControlListener : public ConnectionCallback {
+		friend class GameServer;
+		ControlListener();
+		~ControlListener();
+	public:
+		virtual void callbackFunction(Transferable* received, Connection* c) throw();
+	};
+	
+	class RouterListener : public ConnectionCallback {
+		friend class GameServer;
+		RouterListener();
+		~RouterListener();
+	public:
+		virtual void callbackFunction(Transferable* received, Connection* c) throw();
+	};
+	
+	ControlListener* CONTROL_LISTENER;
+	RouterListener* ROUTER_LISTENER;
+	
+private:
+	
 	int mServerId;
 	std::map<int, ZoneHandler*> mZones;
-	std::map<int, int > mClients; //Map client-zone
-	std::string mControlPort;
+	std::map<int, int> mClients; //Map client-zone
+	
+	std::map<int, Connection*> mRouters;
 	
 	std::mutex mZonesMutex;
 	std::mutex mClientsMutex;
+	std::mutex mRoutersMutex;
 
 protected:
 	bool hasZone(int zoneId) const;
@@ -27,13 +51,9 @@ protected:
 public:
 	virtual ~GameServer();
 	
-	virtual void callbackFunction(Transferable* received, Connection* c) throw();
 	
 	void serverId(int id);
 	int serverId() const;
-	
-	void controlPort(const std::string&);
-	const std::string& controlPort() const;
 	
 	void addClient(int clientId, int clientZone);
 	void delClient(int clientId);
@@ -57,6 +77,10 @@ public:
 	//And sending zone's events to the new server untill all data is copied.
 	void detachZone(int zoneId, Connection* newServer);
 
+	void queueInstruction(int idZone, Instruction* ins, Connection* c);
+	
+	
+	void addRouter(int idRouter, Connection* c);
 	//Start collecting zone loads and sending then back to balance 
 	void SendZoneLoads(Connection*);
 	
