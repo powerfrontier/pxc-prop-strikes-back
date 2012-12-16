@@ -55,5 +55,5 @@ clean:
 	rm -f $(BINPATH)libConnection.a
 
 cleanest: clean
-	rm -f $(BINPATH)gameServer
+	rm -f $(BINPATH)router
 
