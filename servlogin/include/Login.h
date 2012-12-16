@@ -4,6 +4,7 @@
 #include <Singleton.h>
 #include <Connection.h>
 #include <ConnectionManager.h>
+#include <ClientClosedConnection.h>
 #include <mysql.h>
 #include <map>
 
@@ -22,7 +23,9 @@
 class Login : public Singleton<Login> {
 	MYSQL *mysqlConnection;
 	Connection* controlConnection;
-	ConnectionManager* manager;
+	ConnectionManager* managerClient;
+	ConnectionManager* managerControl;
+	ClientClosedConnection* clientClosedConnection;
 	unsigned int nextFreeToken;
 	std::map<int,int> userTokenMap;
 	std::map<int,Connection*> idToConnectionMap;

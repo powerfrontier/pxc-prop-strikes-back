@@ -15,8 +15,9 @@ int main() {
 	//TestProfile es herenccia de TransferableProfile para decirle 
 	TransferableFactory::instance().setProfile(new LoginProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
-	Login::instance().initializeManager();
 	Login::instance().initializeLogin();
+	Login::instance().initializeManager();
+
 	printf("Login: Estoy en listen\n");
 printf("MySQL client version: %s\n", mysql_get_client_info());
  	fflush(stdout);

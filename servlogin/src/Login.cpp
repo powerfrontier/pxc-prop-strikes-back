@@ -2,17 +2,24 @@
 #include <LoginProfile.h>
 #include <iostream>
 #include <mysql.h>
+#include <ClientClosedConnection.h>
+#include <Connection.h>
 
 using namespace std;
 
 void Login::initializeManager(){
-    manager = new ConnectionManager();
-    manager->listen(CONTROL_PORT);
-    manager->listen(CLIENT_PORT);
+ 
+    managerControl = new ConnectionManager();
+    managerClient = new ConnectionManager();
+    managerControl->listen(CONTROL_PORT);    
+    managerClient->setMyClose(clientClosedConnection);
+    managerClient->listen(CLIENT_PORT);
+    
 }
 
 void Login::initializeLogin(){
-		my_bool reconnect = 1;
+    clientClosedConnection = new ClientClosedConnection();
+    my_bool reconnect = 1;
     nextFreeToken = 0;
     usersConnected = 0;
     mysqlConnection = mysql_init(NULL);
@@ -44,6 +51,7 @@ bool Login::validate(string user, string pwd){
       printf("\n");
   }
   mysql_free_result(result);
+  //delete result;
   return num_rows;
 	
 }
@@ -52,6 +60,7 @@ bool Login::validate(string user, string pwd){
 
 Login::~Login(){
   mysql_close(mysqlConnection);
-  delete manager;
+  delete managerClient;
+  delete managerControl;
 }
 
