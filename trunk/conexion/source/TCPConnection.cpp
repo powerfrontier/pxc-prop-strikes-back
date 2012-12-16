@@ -41,6 +41,7 @@ TCPConnection::TCPConnection() throw() : Connection() {
     OpenSSL_add_all_algorithms();
     tListen = NULL;
     sbio =  NULL;
+    mClosedConn = NULL; 
     setLinkOnline(false);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
@@ -56,6 +57,7 @@ TCPConnection::TCPConnection(BIO* b, std::string port) throw() : Connection() {
     sbio = b;
     tListen = NULL;
     mPort = port;
+    mClosedConn = NULL; 
     setLinkOnline(true);
     /* seed the random number system - only really nessecary for systems without '/dev/random' */
     /* RAND_add(?,?,?); need to work out a cryptographically significant way of generating the seed */
@@ -127,7 +129,12 @@ void TCPConnection::close(bool threadListen) throw(){
 		tListen = NULL;
 		std::cout << "CERRANDO SOCKET" << std::endl;
 		r = BIO_free(sbio);
-		if (mClosedConn != NULL) mClosedConn->callOnClose(this);
+		std::cout << "Pre de if de mclosed conn" << std::endl;
+		if (mClosedConn != NULL) {
+		  std::cout << "Dentro de if pre mclosed conn" << std::endl;
+		  mClosedConn->callOnClose(this);
+		  std::cout << "Dentro de if post mclosed conn" << std::endl;
+		}
 		if (r == 0) {
 			std::cout << "ERROR AL CERRAR SOCKET" << std::endl;
 		} 
