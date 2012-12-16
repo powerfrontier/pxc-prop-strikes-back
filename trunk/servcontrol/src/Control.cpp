@@ -188,14 +188,13 @@ void Control::writeDownServer(){
 	for( i = 0; i < NSERVERS; i++){
 		serverNum = serverConnectList & serverMask;
 		if(!serverNum){
-			cout << "El servidor: " << i << " no responde" << endl;
+			cout << "El servidor: " << i << " NO responde" << endl;
 		}
 		serverMask *= 2;
 	}
 }
 
 void Control::zoneAssignment(){
-	cout << "asignando zonas" << endl;
 	int zonesRestants = NZONES;
 	int modZonesPerServer = NZONES % NSERVERS;
 	int zoneIndex = modZonesPerServer;
