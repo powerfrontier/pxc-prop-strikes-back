@@ -122,6 +122,7 @@ TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() :
 	ssl = c;
 	mPort = port;
 	mClosedConn = NULL;
+	tListen = NULL;
 	setLinkOnline(true);
 }
 
@@ -229,42 +230,44 @@ void TCPConnectionSecurity::setLinkOnline(bool b){
 
 void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionException){
 	std::lock_guard<std::mutex> lk(mSendMutex);
-	size_t lengthMessage = message.size();
-	int lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
-	char buffer[lengthPacket];
-	std::string protocol = TransferableFactory::instance().protocol();
-	if (protocol.size() > 8){	
-		std::cerr << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
-		return;
-	}
-	int type; 
-	try{
-		type = message.type();
-	}catch(TransferableVersionException& e){
-		std::cerr << "Error using Transferable, message.type incorrect " << std::endl;
-		std::cerr << e.what() << std::endl;
-		return;
-	}
-	memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
-	memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
-	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
-	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
+	if (this->isLinkOnline()){
+		size_t lengthMessage = message.size();
+		int lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
+		char buffer[lengthPacket];
+		std::string protocol = TransferableFactory::instance().protocol();
+		if (protocol.size() > 8){	
+			std::cerr << "Error using Transferable, size of protocol incorrect, it must be equal or less than 8" << std::endl;
+			return;
+		}
+		int type; 
+		try{
+			type = message.type();
+		}catch(TransferableVersionException& e){
+			std::cerr << "Error using Transferable, message.type incorrect " << std::endl;
+			std::cerr << e.what() << std::endl;
+			return;
+		}
+		memcpy(buffer, (char *) &lengthMessage, sizeof(size_t));
+		memcpy(buffer+sizeof(size_t), protocol.c_str(), 8);
+		memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
+		memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
 
 
 
-	/* Send the word to the server */
-	int r;
-	r=SSL_write(ssl,buffer,lengthPacket);
-	switch(SSL_get_error(ssl,r)){      
-		case SSL_ERROR_NONE:
-			if(lengthPacket!=r)
-				std::cerr << "Incomplete write!" << std::endl;
-			break;
-		default:
-			close(false);
-			std::cerr << "SSL write problem" << std::endl;
+		/* Send the word to the server */
+		int r;
+		r=SSL_write(ssl,buffer,lengthPacket);
+		switch(SSL_get_error(ssl,r)){      
+			case SSL_ERROR_NONE:
+				if(lengthPacket!=r)
+					std::cerr << "Incomplete write!" << std::endl;
+				break;
+			default:
+				close(false);
+				std::cerr << "SSL write problem" << std::endl;
+		}
+		sleep(1);
 	}
-	sleep(1);
 }
 
 void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionException){
