@@ -55,6 +55,12 @@ GameNewUserSend - Control comunica a gameserver que se incorpora un usuario nuev
 	- int idUser: id del user nuevo
 	- int idZona: zona en que estaba o comienza
 
+GameDeleteUserSend - Control comunica a gameserver que se desconecta un usuario y que vaya a guardar sus datos a "BD"
+	ID instruccion: 9
+	Params:
+	- int idUser: id del user
+	
+
  
 
 
