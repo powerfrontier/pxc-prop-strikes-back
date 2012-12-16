@@ -14,11 +14,13 @@ int main(int argc, char** argv){
 	printf("MainClient(): 1\n");
         fflush(stdout);
 	Connection* n = new TCPConnectionSecurity("ValidClient.pem", "dh1024.pem");
+//	Connection* n = new TCPConnection();
 	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
 		delete n;
-		n = new TCPConnectionSecurity();
+		//n = new TCPConnection();
+		n = new TCPConnectionSecurity("ValidClient.pem", "dh1024.pem");
 	}
 	printf("MainClient(): objeto Conexion creado\n");
         fflush(stdout);

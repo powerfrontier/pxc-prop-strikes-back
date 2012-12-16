@@ -23,6 +23,7 @@ int main(int argc, char** argv){
 	printf("MainServer: Objeto ConnectionManager creado\n");
  	fflush(stdout);
 	n->listenSecure(std::string(argv[1]), true);
+//n->listen(std::string(argv[1]));
 	printf("MainServer: Estoy en listen\n");
  	fflush(stdout);
 	while (1){ sleep(5);  }
