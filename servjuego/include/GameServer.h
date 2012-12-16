@@ -36,7 +36,7 @@ private:
 	std::map<int, ZoneHandler*> mZones;
 	std::map<int, int> mClients; //Map client-zone
 	
-	std::map<int, Connection*> mRouters;
+	std::vector<Connection*> mRouters;
 	
 	std::mutex mZonesMutex;
 	std::mutex mClientsMutex;
@@ -80,7 +80,7 @@ public:
 	void queueInstruction(int idZone, Instruction* ins, Connection* c);
 	
 	
-	void addRouter(int idRouter, Connection* c);
+	void addRouter(Connection* c);
 	//Start collecting zone loads and sending then back to balance 
 	void SendZoneLoads(Connection*);
 	

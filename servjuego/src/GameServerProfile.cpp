@@ -1,6 +1,6 @@
 #include <GameServerProfile.h>
-#include <InstServerLoad.h>
-#include <InstZones.h>
+#include <InstRouter.h>
+#include <InstControl.h>
 
 GameServerProfile::GameServerProfile() {
 	mCreators.push_back(std::pair<int, TransferableCreator*>(2, new ServerLoadOrderRcvd::Creator("ServerLoadOrderRcvd")));

@@ -16,8 +16,7 @@ $(BINPATH)gameServer: 	$(BINPATH)libConnection.a \
 			$(BINPATH)main.o \
 			$(BINPATH)Zone.o \
 			$(BINPATH)ZoneHandler.o \
-			$(BINPATH)InstZones.o \
-			$(BINPATH)InstServerLoad.o \
+			$(BINPATH)InstControl.o \
 			$(BINPATH)InstRouter.o
 
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -45,10 +44,7 @@ $(BINPATH)Zone.o: $(SRCPATH)Zone.cpp $(INCLUDEPATH)Zone.h
 $(BINPATH)ZoneHandler.o: $(SRCPATH)ZoneHandler.cpp $(INCLUDEPATH)Zone.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(BINPATH)InstZones.o: $(SRCPATH)InstZones.cpp $(INCLUDEPATH)InstZones.h
-	$(CC) -c $(CFLAGS) $< -o $@
-
-$(BINPATH)InstServerLoad.o: $(SRCPATH)InstServerLoad.cpp $(INCLUDEPATH)InstServerLoad.h
+$(BINPATH)InstControl.o: $(SRCPATH)InstControl.cpp $(INCLUDEPATH)InstControl.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)InstRouter.o: $(SRCPATH)InstRouter.cpp $(INCLUDEPATH)InstRouter.h
