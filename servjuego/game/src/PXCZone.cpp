@@ -54,9 +54,11 @@ void PXCZone::User::normalizeDirection() {
 			+ mDestination[1] * mDestination[1] 
 			+ mDestination[2] * mDestination[2] );
 	
-	mDestination[0] /= length;
-	mDestination[1] /= length;
-	mDestination[2] /= length;
+	if (length != 0.0) {
+		mDestination[0] /= length;
+		mDestination[1] /= length;
+		mDestination[2] /= length;
+	}
 }
 
 PXCZone::PXCZone(int id) : Zone(id) {
