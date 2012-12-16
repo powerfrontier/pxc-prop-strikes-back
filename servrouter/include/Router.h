@@ -2,7 +2,7 @@
 #define _ROUTER_H_
 
 #include <Connection.h>
-#include <Singleton>
+#include <Singleton.h>
 
 class Router : public Singleton<Router>, public ConnectionCallback {
 	
@@ -22,14 +22,14 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 		int id() const;
 		
 		int token() const;
-		User& token(int);
+		User* token(int);
 		bool validate(int);
 		
 		void zone(int);
 		int zone() const;
 		
 		void connection(Connection* c);
-		Connection* Connection() const;
+		Connection* connection() const;
 		
 		void send(Transferable*);
 	};
@@ -42,7 +42,9 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 		bool mInTransfer;
 		
 	public:
-		Zone(int id, int server);
+		Zone(int id);
+		
+		int id() const;
 		
 		int server() const;
 		void server(int);
@@ -87,9 +89,9 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 	friend class Singleton<Router>;
 	Router();
 
-	std::map<int, Server> mServers;
-	std::map<int. Zone> mZones;
-	std::map<int, User> mUsers;
+	std::map<int, Server*> 	mServers;
+	std::map<int, Zone*> 	mZones;
+	std::map<int, User*> 	mUsers;
 
 	void clear();
 	public:
@@ -110,7 +112,7 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 	
 	void addUser(int idUser, int token);
 	void delUser(int idUser);
-	void validateUser(int idUser, int token);
+	bool validateUser(int idUser, int token);
 	
 	void connectUser(int idUser, int token, Connection*);
 	void setUserToZone(int idUser, int idZone);

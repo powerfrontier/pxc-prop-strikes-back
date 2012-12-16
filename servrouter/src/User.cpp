@@ -1,11 +1,13 @@
 #include <Router.h>
 
-Router::User::User(int id, int token) mId(id), mToken(token), mZone(-1), mConnection(NULL) {
+Router::User::User(int id, int token) : mId(id), mToken(token), mZone(-1), mConnection(NULL) {
 	
 }
 
 Router::User::~User() {
-	delete mConnection;
+	if (mConnection) {
+		delete mConnection;
+	}
 }
 
 
@@ -18,8 +20,9 @@ int Router::User::token() const {
 	return mToken;
 }
 
-User& Router::User::token(int token) {
+Router::User* Router::User::token(int token) {
 	mToken = token;
+	return this;
 }
 
 bool Router::User::validate(int token) {
@@ -37,14 +40,15 @@ int Router::User::zone() const {
 
 
 void Router::User::connection(Connection* c) {
+	if (mConnection) delete mConnection;
 	mConnection = c;
 }
 
-Connection* Router::User::Connection() const {
+Connection* Router::User::connection() const {
 	return mConnection;
 }
 
 
 void Router::User::send(Transferable* t) {
-	if (mConnection) mConnection->send(t);
+	if (mConnection) mConnection->send(*t);
 }

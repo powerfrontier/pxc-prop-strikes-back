@@ -8,6 +8,8 @@ class Instruction {
 	
 	//Implementable function at the receiving side to apply any neccesary changes to the app's state
 	virtual void exec(Connection*) const throw() = 0;
+	virtual bool gameInstruction() const throw() = 0;
+	virtual int id() const throw() = 0;
 };
 
 #endif

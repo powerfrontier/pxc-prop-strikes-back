@@ -23,7 +23,7 @@ void GameServer::callbackFunction(Transferable* received, Connection* c) throw()
 		delete received;
 	}
 	else {
-		//TODO
+		//TODO: Obtener zoneId
 	}
 }
 

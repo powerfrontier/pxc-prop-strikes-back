@@ -3,7 +3,7 @@
 void Router::clear() {
 	auto itUser = mUsers.begin();
 	auto itZone = mZones.begin();
-	auto itServers = mServers.begin();
+	auto itServer = mServers.begin();
 	
 	while (itUser != mUsers.end()) {
 		delete itUser->second;
@@ -30,7 +30,7 @@ Router::Router() : mServers(), mZones(), mUsers() {
 
 	
 Router::~Router() {
-	Clear();
+	clear();
 }
 
 
@@ -48,7 +48,7 @@ void Router::addServer(int idServer) {
 	}
 }
 
-void connectServer(int idServer, Connection* c) {
+void Router::connectServer(int idServer, Connection* c) {
 	auto it = mServers.find(idServer);
 	
 	if (it != mServers.end()) {
@@ -72,9 +72,9 @@ void Router::addZone(int idZone) {
 	auto itZone = mZones.find(idZone);
 	Zone* zn = NULL;
 	
-	if (itZone == mZoness.end()) {
+	if (itZone == mZones.end()) {
 		zn = new Zone(idZone);
-		itZone[idZone] = zn;
+		mZones[idZone] = zn;
 	}
 }
 
@@ -82,9 +82,9 @@ void Router::delZone(int idZone) {
 	auto itZone = mZones.find(idZone);
 	
 	if (itZone != mZones.end()) {
-		auto itServer = mServers.find(mZones->second->server());
+		auto itServer = mServers.find(itZone->second->server());
 		if (itServer != mServers.end()) {
-			itServer->delZone(idZone);
+			itServer->second->delZone(idZone);
 		}
 		delete itZone->second;
 		mZones.erase(itZone);
@@ -93,11 +93,10 @@ void Router::delZone(int idZone) {
 
 void Router::startZoneToServerTransfer(int idZone, int newServer) {
 	auto itZone = mZones.find(idZone);
-	auto itServer = mZones.find(idServer);
+	auto itServer = mServers.find(newServer);
 	
 	if (itZone != mZones.end() && itServer != mServers.end()) {
-		itZone->second->inTransfer(true);
-		itZone->second->newServer(idServer);
+		itZone->second->newServer(newServer);
 	}
 }
 
@@ -116,7 +115,7 @@ void Router::endZoneToServerTransfer(int idZone) {
 		if (itOldServer != mServers.end() && itNewServer != mServers.end()) {
 			itOldServer->second->delZone(idZone);
 			itNewServer->second->addZone(itZone->second);
-			itZone->second->inTransfer(false);
+			itZone->second->endTransfer();
 		} else {
 			//TODO: START SCREAMING AND RUN IN CIRCLES
 		}
@@ -152,7 +151,7 @@ void Router::addUser(int idUser, int token) {
 	}
 }
 
-void Router::validateUser(int idUser, int token) {
+bool Router::validateUser(int idUser, int token) {
 	auto itUser = mUsers.find(idUser);
 	
 	return (itUser != mUsers.end() && itUser->second->validate(token));
@@ -198,7 +197,7 @@ void Router::sendToServerUsers(int idServer, Transferable* t) {
 void Router::sendToZone(int idZone, Transferable* t) {
 	auto itZone = mZones.find(idZone);
 	
-	if (itZone = mZones.end()) {
+	if (itZone == mZones.end()) {
 		itZone->second->sendToUsers(t);
 	}
 }

@@ -1,13 +1,7 @@
 #include <Router.h>
 
-class Router::Zone:: {
-		int mId;
-		int mServer;
-		int mNewServer;
-		std::map<int, User*> mUsers;
-		
-	public:
-Router::Zone::Zone(int id, int server) : mId(id), mServer(server), mNewServer(-1), mUsers(), mTransfer(false) {
+
+Router::Zone::Zone(int id) : mId(id), mServer(-1), mNewServer(-1), mUsers(), mInTransfer(false) {
 	
 }
 
@@ -19,6 +13,9 @@ void Router::Zone::server(int server) {
 	mServer = server;
 }
 
+int Router::Zone::id() const {
+	return mId;
+}
 
 void Router::Zone::endTransfer() {
 	if (mInTransfer) {
@@ -47,7 +44,7 @@ void Router::Zone::addUser(User* usr) {
 	if (usr) {
 		auto itUser = mUsers.find(usr->id());
 		if (itUser == mUsers.end()) {
-			mUsers[idUser] = usr;
+			mUsers[usr->id()] = usr;
 		}
 	}
 }
@@ -70,6 +67,6 @@ void Router::Zone::sendToUsers(Transferable* t) {
 	
 	while (itUser != mUsers.end()) {
 		itUser->second->send(t);
-		++itUsers;
+		++itUser;
 	}
 }
