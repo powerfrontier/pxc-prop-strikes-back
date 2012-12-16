@@ -14,5 +14,6 @@ SetZoneToServerSend - Control comunica a router que se incorpora un nuevo server
 IPServerSend - respuesta de control que devuelve la ip y puerto del server solicitado
 	ID instruccion: 6
 	Params:
+		int idServer
 		char ipSourceServer[IPLENGTH]; IPLENGHT=16
   		char portSourceServer[PORTLENGTH]; PORTLENGT=5
