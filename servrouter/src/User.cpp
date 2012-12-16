@@ -6,7 +6,8 @@ Router::User::User(int id, int token) : mId(id), mToken(token), mZone(-1), mConn
 
 Router::User::~User() {
 	if (mConnection) {
-		delete mConnection;
+		mConnection->close();
+		//delete mConnection;
 	}
 }
 

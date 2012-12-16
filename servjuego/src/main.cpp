@@ -8,18 +8,22 @@
 #include <unistd.h>
 
 int main(int argc, char** argv) {
-	ConnectionManager* cm = NULL;
+	ConnectionManager* controlCM = NULL;
+	ConnectionManager* routerCM = NULL;
+	
 	GameServer* gs = NULL;
 	
-	std::string listeningPort = "";
+	std::string controlPort = "";
+	std::string routerPort = "";
 	std::string command = "";
 	
-	if (argc < 2) {
-		std::cerr << "Error: No listening port set." << std::endl;
+	if (argc < 3) {
+		std::cerr << "Error: No listening ports entered." << std::endl;
 		return 1;
 	}
 
-	listeningPort = std::string(argv[1]);
+	controlPort = std::string(argv[1]);
+	routerPort = std::string(argv[2]);
 	
 	//Configure connection
 	TransferableFactory::instance().setProfile(new GameServerProfile());
@@ -27,19 +31,23 @@ int main(int argc, char** argv) {
 	
 	//Create GameServer object
 	gs = GameServer::instancePtr();
-	gs->controlPort(listeningPort);
+	gs->controlPort(controlPort);
 	//Start listening
-	cm = new ConnectionManager();
-	cm->setCallbackFunction(gs);
+	controlCM = new ConnectionManager();
+	routerCM = new ConnectionManager();
+	
+	controlCM->setCallbackFunction(gs);
 	try {
-	cm->listen(listeningPort);
+		controlCM->listen(controlPort);
+		routerCM->listen(routerPort);
 	}
 	catch (ConnectionException& cs) {
 		std::cerr << "Error trying to listen connections: " << cs.what() << std::endl;
 		
 		gs->stopAll();
 		delete gs;
-		delete cm;
+		delete controlCM;
+		delete routerCM;
 		return 1;
 	}
 	catch (std::system_error& se) {
@@ -47,7 +55,8 @@ int main(int argc, char** argv) {
 		
 		gs->stopAll();
 		delete gs;
-		delete cm;
+		delete controlCM;
+		delete routerCM;
 		return 1;
 	}
 	catch (...) {
@@ -55,16 +64,18 @@ int main(int argc, char** argv) {
 		
 		gs->stopAll();
 		delete gs;
-		delete cm;
+		delete controlCM;
+		delete routerCM;
 		return 1;
 	}
 	
 	while (command != "exit") {
 		std::cin >> command;
-		//sleep(2);
+		
 	}
 	
 	gs->stopAll();
+	delete controlCM;
+	delete routerCM;
 	delete gs;
-	delete cm;
 }

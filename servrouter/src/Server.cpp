@@ -6,7 +6,8 @@ Router::Server::Server (int idServer) : mId(idServer), mZones(), mConnection(NUL
 
 Router::Server::~Server() {
 	if (mConnection) {
-		delete mConnection;
+		mConnection->close();
+		//delete mConnection;
 	}
 }
 

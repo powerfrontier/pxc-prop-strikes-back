@@ -3,12 +3,42 @@
 
 #include <Connection.h>
 #include <Singleton.h>
+#include <thread>
 
-class Router : public Singleton<Router>, public ConnectionCallback {
+class Router : public Singleton<Router> {
+	
+	public:
+	class ControlListener : public ConnectionCallback {
+		friend class Router;
+		ControlListener();
+		~ControlListener();
+		public:
+		void callbackFunction(Transferable* received, Connection* c) throw();
+	};
+	
+	class ServerListener : public ConnectionCallback {
+		friend class Router;
+		ServerListener();
+		~ServerListener();
+		public:
+		void callbackFunction(Transferable* received, Connection* c) throw();
+	};
+	
+	class ClientListener : public ConnectionCallback {
+		friend class Router;
+		ClientListener();
+		~ClientListener();
+		public:
+		void callbackFunction(Transferable* received, Connection* c) throw();
+	};
+	
+	ControlListener CONTROL_LISTENER;
+	ServerListener SERVER_LISTENER;
+	ClientListener CLIENT_LISTENER;
 	
 	protected:
-	
 	class User {
+		std::mutex mUserMutex;
 		int mId;
 		int mToken;
 		
@@ -35,13 +65,14 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 	};
 	
 	class Zone {
+		std::mutex mZoneMutex;
 		int mId;
 		int mServer;
 		int mNewServer;
 		std::map<int, User*> mUsers;
 		bool mInTransfer;
 		
-	public:
+		public:
 		Zone(int id);
 		
 		int id() const;
@@ -63,11 +94,12 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 	};
 	
 	class Server {
+		std::mutex mServerMutex;
 		int mId;
 		std::map<int, Zone*> mZones;
 		Connection* mConnection;
 		
-	public:
+		public:
 		Server (int idServer);
 		virtual ~Server();
 		
@@ -85,19 +117,18 @@ class Router : public Singleton<Router>, public ConnectionCallback {
 		void sendToUsersInZone(int idZone, Transferable* t);
 	};
 	
-	
 	friend class Singleton<Router>;
 	Router();
 
+	std::mutex mRouterMutex;
 	std::map<int, Server*> 	mServers;
 	std::map<int, Zone*> 	mZones;
 	std::map<int, User*> 	mUsers;
 
 	void clear();
+	
 	public:
 	virtual ~Router();
-
-	virtual void callbackFunction(Transferable* received, Connection* c) throw();
 
 	void addServer(int idServer);
 	void connectServer(int idServer, Connection*);
