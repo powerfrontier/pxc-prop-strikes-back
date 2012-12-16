@@ -54,9 +54,74 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	setLinkOnline(false);
 }
 
+TCPConnectionSecurity::TCPConnectionSecurity(std::string certificate, std::string dhfile) throw() : Connection() {
+	/* call the standard SSL init functions */
+	CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
+	SSL_load_error_strings();
+	SSL_library_init();
+	ERR_load_BIO_strings();
+	ERR_load_crypto_strings();
+	OpenSSL_add_all_algorithms();
+
+	tListen = NULL;
+	mClosedConn = NULL;
+	/* Create the TCP socket */
+	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+		std::cerr << "DIE CREATING A SOCKET" << std::endl;
+	}
+	
+	/* Build our SSL context*/
+
+    	auto *meth = SSLv23_method();
+
+	/* Set up a SIGPIPE handler */
+	signal(SIGPIPE, SIG_IGN);
+
+	/* Create our context*/
+	ctx=SSL_CTX_new(meth);
+	/* Load our keys and certificates*/
+
+	if(!(SSL_CTX_use_certificate_chain_file(ctx,certificate.c_str()))){
+		std::cerr << "Can't read certificate file" << certificate << std::endl;
+		return;
+	}
+
+//	pass = (char *)malloc(8);
+//	strcpy(pass,PASSWORD);
+//	SSL_CTX_set_default_passwd_cb(ctx,password_cb);
+	if(!(SSL_CTX_use_PrivateKey_file(ctx,certificate.c_str(),SSL_FILETYPE_PEM))){
+		std::cerr << "Can't read key file" << std::endl;
+		return;
+	}
+
+	/* Load the CAs we trust*/
+	if(!(SSL_CTX_load_verify_locations(ctx, CA_LIST,0))){
+		std::cerr << "Can't read CA list" << std::endl;
+	}
+
+	DH *ret=0;
+	BIO *bio;
+
+	if ((bio=BIO_new_file(dhfile.c_str(),"r")) == NULL){
+		std::cerr << "Couldn't open DH file" << std::endl;
+		return;
+	}
+
+	ret=PEM_read_bio_DHparams(bio,NULL,NULL,NULL);
+	BIO_free(bio);
+	if(SSL_CTX_set_tmp_dh(ctx,ret)<0){
+		std::cerr << "Couldn't set DH parameters" << std::endl;
+		return;
+	}
+
+	setLinkOnline(false);
+}
+
+
 TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() : Connection() {
 	ssl = c;
 	mPort = port;
+	mClosedConn = NULL;
 	setLinkOnline(true);
 }
 

@@ -118,6 +118,7 @@ public:
 bool checkCertificate();
 TCPConnectionSecurity() throw();
 TCPConnectionSecurity(SSL*, std::string port) throw();
+TCPConnectionSecurity(std::string certif, std::string dhfile) throw();
 virtual ~TCPConnectionSecurity() throw();
 virtual const std::string& getPort();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);

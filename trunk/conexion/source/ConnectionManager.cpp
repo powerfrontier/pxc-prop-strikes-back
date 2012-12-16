@@ -112,6 +112,9 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 			if (cCallB != NULL){
 				c->setCallbackFunction(cCallB);
 			}
+			if (myClose != NULL){
+				c->setCloseFunction(myClose);
+			}
 			c->receive();
 		}
 		/* Wait for incoming connection */
@@ -198,7 +201,7 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 	}
 	
     	::listen(sock,5);  
-
+	bool secureOk = false;
 
 	while(1){
 		std::cout << "LISTENING " << std::endl;
@@ -206,22 +209,28 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 			std::cerr << "Problem accepting" << std::endl;
 			continue;
 		}
+		secureOk= false;
+		if (secureBidirectional){
+		        SSL_CTX_set_verify(ctx,SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,0);
+		}else{
+			SSL_CTX_set_verify(ctx,SSL_VERIFY_NONE,0);
+			secureOk = true;
+		}
 
 		ssl=SSL_new(ctx);
 		sbio=BIO_new_socket(s,BIO_NOCLOSE);
 		SSL_set_bio(ssl,sbio,sbio);
 		if((r=SSL_accept(ssl)<=0)){
-			std::cerr << "SSL accept error because..." << SSL_get_error(ssl, r) << std::endl;	
+			std::cerr << "SSL accept error" << std::endl;	
 			continue;
 		}else{
 			TCPConnectionSecurity *c = new TCPConnectionSecurity(ssl, port);
-			bool secureOk;
 			if (secureBidirectional){
-				//std::cout << "WHAT" << std::endl;
-				//secureOk = c->checkCertificate();//TODO: IpS?
-				//std::cout << "NOW" << std::endl;
-			}else{
-				secureOk = true;
+				if (c->checkCertificate()) {
+					secureOk = true;	
+				}else{
+					secureOk = false;
+				}
 			}
 			if (secureOk){
 				if (cCallB != NULL){

@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	std::string port(argv[2]);
 	printf("MainClient(): 1\n");
         fflush(stdout);
-	Connection* n = new TCPConnectionSecurity();
+	Connection* n = new TCPConnectionSecurity("noValidClient.pem", "dh1024.pem");
 	while(!n->connect(ip, port)) { 
 		std::cout << "No se ha podido conectar. Se volvera a intentar en unos momentos.. "<< std::endl; 
 		sleep(3);
