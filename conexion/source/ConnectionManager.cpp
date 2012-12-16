@@ -76,7 +76,7 @@ ConnectionManager::~ConnectionManager() throw(){
 
 void ConnectionManager::closeManager(){
 	this->setListenOnline(false);
-	this->checkConexionsOffline();
+
 	if (tListen != NULL){
 		tListen->join();
 		delete tListen;
@@ -86,7 +86,18 @@ void ConnectionManager::closeManager(){
 }
 
 void ConnectionManager::checkConexionsOffline(){
-	//TODO:VOY A COMER
+	for (std::list<Connection *>::iterator it=conexions.begin(); it != conexions.end(); ++it){
+		if (*it == NULL){
+			it = conexions.erase(it);
+			--it;
+		}else{
+			if (!(*it)->isLinkOnline()){
+				(*it)->close();
+				it = conexions.erase(it);
+				--it;
+			}
+		}
+	}
 }
 
 void ConnectionManager::listen(const std::string& port) throw(ConnectionException){
@@ -126,6 +137,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 	}
 	this->setListenOnline(true);
 	while (this->isListening()){
+		this->checkConexionsOffline();
 		cbio = BIO_pop(bioStack);
 		if (cbio != NULL){
 			Connection *c = new TCPConnection(cbio, port);
@@ -144,7 +156,6 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
         		char message[] = "bioStack <= 0 x2.\n";
 	 		print_ssl_error2(message, stdout);
 		}
-		this->checkConexionsOffline();
 	}
 }
 
@@ -225,7 +236,8 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 	this->setListenOnline(true);
 	bool secureOk = false;
 
-	while(this.isListening()){
+	while(this->isListening()){
+		this->checkConexionsOffline();
 		std::cout << "LISTENING " << std::endl;
 		if((s=accept(sock,0,0))<0){
 			std::cerr << "Problem accepting" << std::endl;
@@ -265,7 +277,6 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 			}else{
 				c->close();
 			}
-			this->checkConexionsOffline();
 			conexions.push_back(c);
 		}
 		
@@ -283,5 +294,5 @@ bool ConnectionManager::isListening() throw(){
 
 void ConnectionManager::setListenOnline(bool b){
 	std::lock_guard<std::mutex> lk(mOnlineMutex);
-	online = b;
+	imListening = b;
 }
