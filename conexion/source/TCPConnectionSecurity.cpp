@@ -228,6 +228,7 @@ void TCPConnectionSecurity::setLinkOnline(bool b){
 }
 
 void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionException){
+	std::lock_guard<std::mutex> lk(mSendMutex);
 	size_t lengthMessage = message.size();
 	int lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
 	char buffer[lengthPacket];
@@ -267,6 +268,7 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 }
 
 void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionException){
+	std::lock_guard<std::mutex> lk(mSendMutex);
 	size_t lengthMessage = message.size();
 	int lengthPacket = sizeof(size_t) + 8 + sizeof(int) + lengthMessage;
 	char buffer[lengthPacket];
@@ -322,6 +324,7 @@ void TCPConnectionSecurity::receiveThread(){
 }
 
 void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
+	std::lock_guard<std::mutex> lk(mReceiveMutex);
 	size_t sizeMessage;
 	size_t lengthCommunication = sizeof(size_t)+8+sizeof(int);
 	char bufsizeCommunication[lengthCommunication];

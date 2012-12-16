@@ -69,6 +69,8 @@ private:
 BIO *sbio;
 std::thread *tListen;
 std::mutex mOnlineMutex;
+std::mutex mSendMutex;
+std::mutex mReceiveMutex;
 bool online;
 void receiveThread();
 void receiveTransfThread() throw(ConnectionException);
@@ -108,6 +110,8 @@ BIO *sbio;
 SSL *ssl;
 std::thread *tListen;
 std::mutex mOnlineMutex;
+std::mutex mSendMutex;
+std::mutex mReceiveMutex;
 char *pass;
 bool online;
 void receiveThread();
