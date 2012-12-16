@@ -1,5 +1,5 @@
 #include <GameServer.h>
-#include <InstServerLoad.h>
+#include <InstControl.h>
 
 
 GameServer::ControlListener::ControlListener() : ConnectionCallback() { }
@@ -157,10 +157,10 @@ void GameServer::queueInstruction(int idZone, Instruction* ins, Connection* c) {
 	}
 }	
 	
-void GameServer::addRouter(int routerId, Connection* c) {
+void GameServer::addRouter(Connection* c) {
 	if (c) {
 		std::lock_guard<std::mutex> lk(mRoutersMutex);
-		mRouters[routerId] = c;
+		mRouters.push_back(c);
 	}
 }
 	
@@ -187,9 +187,8 @@ void GameServer::SendZoneLoads(Connection* c) {
 
 void GameServer::sendToClients(Transferable* t) {
 	std::lock_guard<std::mutex> lk(mRoutersMutex);
-	auto it = mRouters.begin();
-	while(it != mRouters.end()) {
-		it->second->send(*t);
-		++it;
+	
+	for (int i = 0; i < mRouters.size(); ++i) {
+		mRouters[i]->send(*t);
 	}
 }

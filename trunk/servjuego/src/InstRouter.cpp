@@ -5,5 +5,5 @@ AddRouterRcvd::AddRouterRcvd() : Datagram<AddRouterRcvd>("AddRouterRcvd") { }
 AddRouterRcvd::~AddRouterRcvd() { }
 
 void AddRouterRcvd::exec(Connection* c) throw() {
-	GameServer::instance().addRouter(mRouterId, c);
+	GameServer::instance().addRouter(c);
 }
