@@ -23,6 +23,9 @@ void listen(const std::string&) throw(ConnectionException);
 void listenSecure(const std::string&, bool) throw(ConnectionException);
 void setCallbackFunction(ConnectionCallback*) throw();
 void setMyClose(ConnectionClosedListener *func);
-bool isListening();
+bool isListening() throw();
+void setListenOnline(bool b);
+void closeManager();
+void checkConexionsOffline();
 };
 #endif
