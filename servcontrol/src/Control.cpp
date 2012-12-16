@@ -49,15 +49,14 @@ double Control::getStDev() {
 
 void Control::zoneChange(Server* sourceServer, int changedZonePosition, Server* destinationServer) {
 	// Ordenamos quitar la zona de un servidor
-	cout << "zone change: " << "origen: " << sourceServer->id << " zona: " << changedZonePosition << " desti: " << destinationServer->id << endl;
+	cout << "ZONE CHANGE: " << "origen: " << sourceServer->id << " zona: " << changedZonePosition << " destino: " << destinationServer->id << endl;
 	RemoveZoneSend* removeZoneSend = new RemoveZoneSend(changedZonePosition);
 	sourceServer->c->send(*removeZoneSend);
 	delete(removeZoneSend);  	
 	GetZoneSend* getZoneSend = new GetZoneSend(changedZonePosition, sourceServer->id);
 	destinationServer->c->send(*getZoneSend);
 	delete(getZoneSend);   
-	//RouterChangeZoneSend* routerChangeZoneSend = new RouterChangeZoneSend(changedZonePosition, sourceServer->id, destinationServer->id );
-	
+	//RouterChangeZoneSend* routerChangeZoneSend = new RouterChangeZoneSend(changedZonePosition, sourceServer->id, destinationServer->id );	
 }
 
 void Control::balance() {
@@ -65,12 +64,12 @@ void Control::balance() {
 	Server* minLoadServer = servers.front();
 	double standardDev = getStDev();
 	int numIterations = 0;
-	double minLoadZone = 1.0;//minLoadZone = 1.0;
+	double minLoadZone = 1.0;
 	int posMinLoadZone = -1;
-	int changedZonePosition; //posicionZonaACambiar;
+	int changedZonePosition;
 	double minDev = 1.0; //TODO S'ha d'ajustar bé el valor
 	
-	standardDev = 2;//solamente de debug
+	standardDev = 2;//TODO solamente de debug
 	/*cout << "Algoritmo balanceo:" << endl;
 	cout << "stdDev: " << standardDev << endl;
 	cout << "iteracion:" << numIterations << endl;
@@ -109,34 +108,29 @@ void Control::balance() {
 
 void Control::fillIpServerTable(){
 	for(int i=0; i<NSERVERS; i++) { // Se necesita memoria dinamica
-		ipServers[i] = (char*) malloc (17);
+		ipServers[i] = (char*) malloc (IPLENGTH);
 		portServers[i] = (char*) malloc (PORTLENGTH);
 	}
+	Control::instance().ipRouter = (char*) malloc (IPLENGTH);
+	Control::instance().portRouter = (char*) malloc (PORTLENGTH);
+	Control::instance().ipLogin = (char*) malloc (IPLENGTH);
+	Control::instance().portLogin = (char*) malloc (PORTLENGTH);
 	int j = 0;
 	for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
-		if(Control::instance().resultBD[i][2] == "game" && j < NSERVERS) {
-			cout << "copiando ip y port de server juego de bd en ipServerTable" << endl; 
+		if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER && j < NSERVERS) {
 			strcpy(ipServers[j], Control::instance().resultBD[i][0]);
 			strcpy(portServers[j], Control::instance().resultBD[i][1]);
 			j++;
 		}
-        }
-}
-
-void Control::fillPortServerTable(){
-	/*for(int i=0; i<NSERVERS; i++) { // Se necesita memoria dinamica
-		portServers[i] = (char*) malloc (PORTLENGTH);
-	}
-	for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
-		if(Control::instance().resultBD[i][2] == "game") {
-			cout << "copiando ip server juego de bd en ipServerTable" << endl; 
-			strcpy(ipServers[j], Control::instance().resultBD[i][0]);
-			j++;
+		else if(Control::instance().resultBD[i][2] == TYPE_ROUTER_SERVER) {
+			strcpy(Control::instance().ipRouter, Control::instance().resultBD[i][0]);
+			strcpy(Control::instance().portRouter, Control::instance().resultBD[i][1]);
 		}
-        }*/
-	/*strcpy(portServers[0],PORT_GAME_1);
-	strcpy(portServers[1],PORT_GAME_2);
-	strcpy(portServers[2],PORT_GAME_3);*/
+		else if(Control::instance().resultBD[i][2] == TYPE_LOGIN_SERVER) {
+			strcpy(Control::instance().ipLogin, Control::instance().resultBD[i][0]);
+			strcpy(Control::instance().portLogin, Control::instance().resultBD[i][1]);
+		}
+        }
 }
 
 char* Control::getIpServerById(int id){
@@ -150,8 +144,7 @@ char* Control::getPortServerById(int id){
 void Control::initializeServerList() {
 	list<Server*>::iterator it;
 	Control::fillIpServerTable();
-	int i;
-	for(i = 0; i < NSERVERS; ++i){
+	for(int i = 0; i < NSERVERS; ++i){
 		servers.push_back(new Server(i,ipServers[i], portServers[i]));
 	}
 }
@@ -163,27 +156,27 @@ void Control::initializeConnections() {
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnection();
 		if((*it)->c->connect((*it)->ip, (*it)->port)){
-				cout << "Servidor " << i << " conectado\n";
+				cout << "Servidor " << i << " conectado" << endl;
 			}else{
-				cout << "Servidor " << i << " NO conectado\n";
+				cout << "Servidor " << i << " NO conectado" << endl;
 		}
 		i++;
 	}
 
 	loginConnection = new TCPConnection();
-	if(loginConnection->connect(IP_LOGIN, PORT_LOGIN)){
-		cout << "Servidor login conectado\n";
+	if(loginConnection->connect(Control::instance().ipLogin, Control::instance().portLogin)){
+		cout << "Servidor login conectado" << endl;
 				
 	}else{
-		cout << "Servidor login NO conectado\n";
+		cout << "Servidor login NO conectado" << endl;
 	}
 
 	//routerConnection = new TCPConnection();
-	/*if(routerConnection->connect(IP_ROUTER, PORT_ROUTER)){
-		cout << "Servidor redireccion conectado\n";
+	/*if(routerConnection->connect(Control::instance().ipRouter, Control::instance().portRouter)){
+		cout << "Servidor redireccion conectado" << endl;
 				
 	}else{
-		cout << "Servidor redireccion NO conectado\n";
+		cout << "Servidor redireccion NO conectado" << endl;
 	}*/
 }
 
@@ -195,7 +188,7 @@ void Control::writeDownServer(){
 	for( i = 0; i < NSERVERS; i++){
 		serverNum = serverConnectList & serverMask;
 		if(!serverNum){
-			cout << "El servidor: " << i << " no responde." << endl;
+			cout << "El servidor: " << i << " no responde" << endl;
 		}
 		serverMask *= 2;
 	}
@@ -211,19 +204,17 @@ void Control::zoneAssignment(){
 	SetZoneToServerSend* setZoneToServerSend;
 	IPServerSend* ipServerSend;
 	Server* server = servers.front();
-	for(i = 0; i < modZonesPerServer; ++i){
 
-		//fflush(stdout);
-		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor para que este lo guarde
+	for(i = 0; i < modZonesPerServer; ++i){
+		setZoneToServerSend = new SetZoneToServerSend(i,server->id); // Enviamos id de zona y de servidor a juego para que este lo guarde
 		server->c->send(*setZoneToServerSend);
 		//Control::instance().routerConnection->send(*setZoneToServerSend); //reutilizamos la instr para avisar a router tambien
 		//ipServerSend = new IPServerSend(server->ip, server->port);
-		//Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto tambien a router reaprovechando la instruccion IPServer
+		//Control::instance().routerConnection->send(*ipServerSend); //le enviamos la ip y puerto a router
 		delete(setZoneToServerSend);
 		//delete(ipServerSend);
 		zoneServer[i] = server;		
-
-		zl = new ZoneLoad(i, 0);
+		zl = new ZoneLoad(i, 0); //Creamos las distribuciones de zonas y carga para el objeto Server
 		server->load.distribution.push_back(zl);
 		server->load.totalLoad = 0;
 		zonesRestants--;	
@@ -232,22 +223,17 @@ void Control::zoneAssignment(){
 	list<Server*>::iterator it;
 	while(zonesRestants > 0) {
 		for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
-			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); // Enviamos id de zona y de servidor para que este lo guarde
-			//cout << zoneIndex << " " << (*it)->id << endl;
+			setZoneToServerSend = new SetZoneToServerSend(zoneIndex,(*it)->id); 
 			(*it)->c->send(*setZoneToServerSend);
 			//Control::instance().routerConnection->send(*setZoneToServerSend); 
 			//ipServerSend = new IPServerSend(server->ip, server->port);
 			//Control::instance().routerConnection->send(*ipServerSend);
 			delete(setZoneToServerSend);
 			//delete(ipServerSend); 
-			//cout << zoneIndex << " " << (*it)->id << endl;
 			zoneServer[zoneIndex] = (*it);
-
-			// inicializar atributos de carga i zona del servidor
 			zl = new ZoneLoad(zoneIndex, 0);
 			(*it)->load.distribution.push_back(zl);
-			(*it)->load.totalLoad = 0;
-		
+			(*it)->load.totalLoad = 0;		
 			zoneIndex++;
 			if ( zoneIndex == NZONES ){
 				return;
@@ -258,7 +244,7 @@ void Control::zoneAssignment(){
 		
 }
 
-void Control::eliminarServidor(const int idServer) { //Elimina el servidor de la lista de servidores
+void Control::eliminarServidor(const int idServer) {
 	list<Server*>::iterator it;
 	for(it=servers.begin();it!=servers.end();it++) {
 		if((*it)->id == idServer) {
@@ -269,9 +255,7 @@ void Control::eliminarServidor(const int idServer) { //Elimina el servidor de la
 	return;
 }
 
-int Control::getZoneDB(int idUsuari) {
-
-	//cout << 	
+int Control::getZoneDB(int idUsuari) {	
 	//return (rand() % 3 + 1); //valor entre 0-4
 	mysqlpp::Query query = Control::instance().cbd->query("select IDZONE from PLAYERS where IDUSER="+idUsuari);
         if (mysqlpp::StoreQueryResult res = query.store()) {
@@ -294,13 +278,11 @@ void balanceHandle(int signum) {
     breakflag = 1;
 }
 
-
 void loadRequestHandle(int signum){
   timeout = 0;
 }
 
 bool compareServersLoad(Server* first, Server* second) {
-	//std::cout << first->load.totalLoad << " " << second->load.totalLoad << std::endl;
 	return (first->load.totalLoad < second->load.totalLoad);
 }
 
@@ -309,59 +291,55 @@ int main() {
 	//Conexio a BD
 	try
 	{
+		cout << "Conectando a BD..."; fflush(stdout);
 		mysqlpp::Connection* conn = new mysqlpp::Connection("BDpxc03", "mysqlfib.fib.upc.edu", "pxc03", "nJoW03Hi", 3306);
-		cout << "Conexió a BD realitzada? " << conn->connected() << endl;
+		if(conn->connected())
+			cout << "OK" << endl;
 		Control::instance().cbd = conn;
 	}
 	catch (mysqlpp::ConnectionFailed& e)
 	{
-		cerr << "ERROR a conexio a BD! Exception: " << e.what() << endl;
+		cerr << "ERROR en conexion a BD! Exception: " << e.what() << endl;
 	}
-	if(Control::instance().cbd->connected()) { cout << "haciendo query" << endl;
+	if(Control::instance().cbd->connected()) { 
 			mysqlpp::Query query = Control::instance().cbd->query("select * from ADDRESSES");
 			Control::instance().resultBD = query.store();
-        		/*if (mysqlpp::StoreQueryResult res = query.store()) {
-            			//cout << "Resultado" << endl;
-            			for (size_t i = 0; i < res.num_rows(); ++i) {
-                			cout << '\t' << res[i][0] << endl;
-					cout << '\t' << res[i][1] << endl;
-					cout << '\t' << res[i][2] << endl;
-            			}
-			}*/
 	}	
 	//ControlProfile
 	TransferableFactory::instance().setProfile(new ControlProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
 	//Inicialización
+	cout << "Inicializando..." << endl;
 	Control::instance().initializeServerList();
-cout << "final inicializar servers" << endl;
 	Control::instance().initializeConnections();
+	cout << "Inicializando...OK" << endl;
+	cout << "Asignando zonas a servidores de juego...";
 	Control::instance().zoneAssignment();
-cout << "final inicializar conexiones" << endl;
+	cout << "OK" << endl;
+
 	list<Server*>::iterator it;
 	timeout = 1;	
 	Control::instance().recievedConnectionMask = 0;
 	unsigned int shift = (sizeof(int) * 8) - NSERVERS;	
 	Control::instance().recievedConnectionMask = ~Control::instance().recievedConnectionMask;
-	
 	Control::instance().recievedConnectionMask = Control::instance().recievedConnectionMask >> shift; // Ponemos a 1 únicamente NSERVERS
-
-	cout << "enviando conexion a login" << endl;
+	
+	//Enviando señal de vida a login
 	LoginOnlineSend* instr = new LoginOnlineSend();
 	Control::instance().loginConnection->send(*instr);
 	delete(instr);
 	
 	breakflag = 1; // Ponemos a 1 para entrar en la primera vuelta del bucle
-cout << "final inicializacion" << endl;	
+	
 	while(1) { 
 		if(breakflag) {
-			cout << "rebalanceo" << endl;	
-			alarm(0);	// Apagamos el timer
-			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) { //Para todos los servidores...
+			cout << "REBALANCEO" << endl;	
+			alarm(0);// Apagamos el timer
+			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
 				// Inicializamos la carga total del server
 				(*it)->load.totalLoad = 0;
 				ServerLoadSend* serverLoadSend = new ServerLoadSend();
-			cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;
+				//cout << "antes de enviar instruccion solicitar carga al server" << (*it)->id << endl;
 				//if((*it)->c->isLinkOnline()) {				
 					(*it)->c->send(*serverLoadSend); //Enviamos la instruccion de solicitud de carga
 					delete(serverLoadSend);
@@ -370,19 +348,17 @@ cout << "final inicializacion" << endl;
 					//cout << "ERROR: servidor: " << (*it)->id << "CAIDO" << endl;
 					//Control::instance().eliminarServidor((*it)->id);
 				//}
-			cout << "despues de enviar instruccion carga al server" << (*it)->id << endl;
+				//cout << "despues de enviar instruccion carga al server" << (*it)->id << endl;
 			}
 			signal(SIGALRM, loadRequestHandle);
 			alarm(WAITING_RESPONSE_TIME);
 			while(Control::instance().recievedConnectionMask && timeout) { 
-				//Esperamos sin hacer nada o con sleep()
-				sleep(50);
+				sleep(50);//Esperamos sin hacer nada ni consumir cpu
 			}
 			alarm(0);
 			if(Control::instance().recievedConnectionMask) { //s'ha sortit del bucle pel timeout
 				Control::instance().writeDownServer();
 			}
-			
 			/*for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 				cout << "id!!! " << (*it)->id << endl;
 				cout << "load!" << (*it)->load.totalLoad << endl;
@@ -392,7 +368,7 @@ cout << "final inicializacion" << endl;
 				cout << "id!!! " << (*it)->id << endl;
 				cout << "load!" << (*it)->load.totalLoad << endl;
 			}*/
-			Control::instance().balance(); //ejecutar algoritmo balanceo y envia las instrucciones de balanceo a los servidores de juego
+			Control::instance().balance();//Ejecuta algorismo y envia las ordenes pertinentes
 			//poner la alarma para el proximo rebalanceo
 			breakflag = 0; 
 			timeout = 1;  
