@@ -16,6 +16,7 @@ $(BINPATH)router: 	$(BINPATH)libConnection.a \
 			$(BINPATH)Zone.o \
 			$(BINPATH)Server.o \
 			$(BINPATH)InstControl.o \
+			$(BINPATH)InstServer.o \
 			$(BINPATH)main.o
 
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -39,7 +40,10 @@ $(BINPATH)Zone.o: $(SRCPATH)Zone.cpp $(INCLUDEPATH)Router.h
 $(BINPATH)Server.o: $(SRCPATH)Server.cpp $(INCLUDEPATH)Router.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(BINPATH)InstControl.o: $(SRCPATH)InstControl.cpp
+$(BINPATH)InstControl.o: $(SRCPATH)InstControl.cpp $(INCLUDEPATH)InstControl.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(BINPATH)InstServer.o: $(SRCPATH)InstServer.cpp $(INCLUDEPATH)InstServer.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)main.o: $(SRCPATH)main.cpp

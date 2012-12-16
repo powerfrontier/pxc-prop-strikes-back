@@ -1,4 +1,5 @@
 #include <Router.h>
+#include <InstServer.h>
 
 Router::ControlListener::ControlListener() { }
 Router::ControlListener::~ControlListener() { }
@@ -95,9 +96,13 @@ void Router::addServer(int idServer) {
 void Router::connectServer(int idServer, Connection* c) {
 	std::lock_guard<std::mutex> lk(mRouterServersMutex);
 	auto it = mServers.find(idServer);
+	AddRouterSend* addRouter = NULL;
 	
 	if (it != mServers.end()) {
 		it->second->connection(c);
+		addRouter = new AddRouterSend();
+		c->send(*addRouter);
+		delete addRouter;
 	}
 }
 
