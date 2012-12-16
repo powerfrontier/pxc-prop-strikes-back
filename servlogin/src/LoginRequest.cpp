@@ -52,7 +52,9 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	    delete oldConnection;
 	    
 	    ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(oldClientId,oldToken);
-	    Login::instance().controlConnection->sendAnswer(*clientDisconnectSend); 	    	    
+	    if(Login::instance().controlConnected){
+		Login::instance().controlConnection->sendAnswer(*clientDisconnectSend); 	    	    
+	     }
 	    delete clientDisconnectSend;
 	  }
 	  //Insertamos en el mapa de usuario/conexión
@@ -66,13 +68,18 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  answerCode = 1;
   }  
   //Enviar info a balanceo  
-  NewClientSend* newClientSend = new NewClientSend(clientId,token);
-  Login::instance().controlConnection->sendAnswer(*newClientSend);  
+  if(Login::instance().controlConnected){
+    NewClientSend* newClientSend = new NewClientSend(clientId,token);
+    Login::instance().controlConnection->sendAnswer(*newClientSend);  
+    delete newClientSend;
+  }else{
+     cout << "Server control no conectado" << endl;
+  }
    //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
   cout << "port de client: " << c->getPort() << endl;
   c->sendAnswer(*loginRequestSend);  
-  delete newClientSend;
+  
   delete loginRequestSend;
   Login::instance().loginMutex.unlock();
   cout << "Salimos de exec de loginrequest" << endl;

@@ -11,14 +11,15 @@ void Login::initializeManager(){
  
     managerControl = new ConnectionManager();
     managerClient = new ConnectionManager();
-    managerControl->listen(CONTROL_PORT);    
+    managerControl->listenSecure(CONTROL_PORT,true);    
     managerClient->setMyClose(clientClosedConnection);
-    managerClient->listen(CLIENT_PORT);
+    managerClient->listenSecure(CLIENT_PORT,false);
     
 }
 
 void Login::initializeLogin(){
     clientClosedConnection = new ClientClosedConnection();
+    controlConnected = false;
     my_bool reconnect = 1;
     nextFreeToken = 0;
     usersConnected = 0;
