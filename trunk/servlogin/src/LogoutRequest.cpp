@@ -29,9 +29,9 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
 	Login::instance().usersConnected--;
 	std::cout << "Salida del else de logout" << std::endl;
 	//Enviar info balanceo
-	//ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
-	//Login::instance().controlConnection->sendAnswer(*clientDisconnectSend);  
-	//delete clientDisconnectSend;
+	ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
+	Login::instance().controlConnection->sendAnswer(*clientDisconnectSend);  
+	delete clientDisconnectSend;
       }    
   }
   Login::instance().loginMutex.unlock();
