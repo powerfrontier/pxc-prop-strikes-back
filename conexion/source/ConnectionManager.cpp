@@ -63,11 +63,13 @@ ConnectionManager::ConnectionManager() throw(){
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
     cCallB = NULL;
+    myClose = NULL;
 }
 
 ConnectionManager::~ConnectionManager() throw(){
 	//TODO: KILL THREADS
 	cCallB = NULL;
+	myClose = NULL;
 	if (tListen != NULL){
 		delete tListen;
 		tListen = NULL;
@@ -79,8 +81,8 @@ void ConnectionManager::listen(const std::string& port) throw(ConnectionExceptio
 	tListenN.push_back(t);
 }
 
-void ConnectionManager::listenSecure(const std::string& port) throw(ConnectionException){
-	std::thread *t = new std::thread(&ConnectionManager::listenThreadSecure, this, port);
+void ConnectionManager::listenSecure(const std::string& port, bool bidirectional) throw(ConnectionException){
+	std::thread *t = new std::thread(&ConnectionManager::listenThreadSecure, this, port, bidirectional);
 	tListenN.push_back(t);
 }
 
@@ -122,7 +124,7 @@ void ConnectionManager::listenThread(const std::string& port) throw(ConnectionEx
 	}
 }
 
-void ConnectionManager::listenThreadSecure(const std::string& port) throw(ConnectionException){
+void ConnectionManager::listenThreadSecure(const std::string& port, bool secureBidirectional) throw(ConnectionException){
 	int sock,s;
 	BIO *sbio;
 	SSL_CTX *ctx;
@@ -205,19 +207,38 @@ void ConnectionManager::listenThreadSecure(const std::string& port) throw(Connec
 			continue;
 		}
 
-		sbio=BIO_new_socket(s,BIO_NOCLOSE);
 		ssl=SSL_new(ctx);
+		sbio=BIO_new_socket(s,BIO_NOCLOSE);
 		SSL_set_bio(ssl,sbio,sbio);
 		if((r=SSL_accept(ssl)<=0)){
 			std::cerr << "SSL accept error because..." << SSL_get_error(ssl, r) << std::endl;	
 			continue;
 		}else{
-			Connection *c = new TCPConnectionSecurity(ssl, port);
-			if (cCallB != NULL){
-				c->setCallbackFunction(cCallB);
+			TCPConnectionSecurity *c = new TCPConnectionSecurity(ssl, port);
+			bool secureOk;
+			if (secureBidirectional){
+				//std::cout << "WHAT" << std::endl;
+				//secureOk = c->checkCertificate();//TODO: IpS?
+				//std::cout << "NOW" << std::endl;
+			}else{
+				secureOk = true;
 			}
-			c->receive();
+			if (secureOk){
+				if (cCallB != NULL){
+					c->setCallbackFunction(cCallB);
+				}
+				if (myClose != NULL){
+					c->setCloseFunction(myClose);
+				}
+				c->receive();
+			}else{
+				c->close();
+			}
 		}
 		
   	}
+}
+
+void ConnectionManager::setMyClose(ConnectionClosedListener *func){
+	myClose = func;
 }

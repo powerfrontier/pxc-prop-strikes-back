@@ -127,6 +127,7 @@ void TCPConnection::close(bool threadListen) throw(){
 		tListen = NULL;
 		std::cout << "CERRANDO SOCKET" << std::endl;
 		r = BIO_free(sbio);
+		if (mClosedConn != NULL) mClosedConn->callOnClose(this);
 		if (r == 0) {
 			std::cout << "ERROR AL CERRAR SOCKET" << std::endl;
 		} 
