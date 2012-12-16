@@ -1,17 +1,13 @@
-Done: testClient.exe testServer.exe
+Done: testClient.exe 
 	echo "DONE"
 
 testClient.exe: testClient.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o TestClasses.o TransferableProfile.o TCPConnectionSecurity.o sysConnect.o
 	g++ TestClasses.o ConnectionException.o Connection.o TCPConnection.o testClient.o TransferableFactory.o Transferable.o TransferableProfile.o TCPConnectionSecurity.o sysConnect.o -o testClient -lssl -lcrypto -pthread
 
-testServer.exe: testServer.o Connection.o ConnectionException.o TCPConnection.o Transferable.o TransferableFactory.o ConnectionManager.o TestClassesServer.o TransferableProfile.o TCPConnectionSecurity.o sysConnect.o
-	g++ TestClassesServer.o ConnectionException.o Connection.o TCPConnection.o testServer.o TransferableFactory.o Transferable.o TransferableProfile.o ConnectionManager.o TCPConnectionSecurity.o sysConnect.o -o testServer -lssl -lcrypto -pthread
 TestClasses.o: src/TestClasses.cpp
 	g++ -c src/TestClasses.cpp -I../../conexion/include/ -I./testClasses/ -std=c++0x -I./include/
 TestClassesServer.o: src/TestClassesServer.cpp
 	g++ -c src/TestClassesServer.cpp -I../../conexion/include/ -I./testClasses/ -std=c++0x -I./include/
-testServer.o: src/testServer.cpp
-	g++ -c src/testServer.cpp -I../../conexion/include/ -I./testClasses/ -std=c++0x -I./include/
 testClient.o: src/testClient.cpp
 	g++ -c src/testClient.cpp -I../../conexion/include/ -I./testClasses/ -std=c++0x -I./include/
 ConnectionManager.o: ../../conexion/source/ConnectionManager.cpp
