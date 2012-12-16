@@ -15,5 +15,10 @@ GameServerProfile::GameServerProfile() {
 }
 
 GameServerProfile::~GameServerProfile() {
+	auto it = mCreators.begin();
 	
+	while (it != mCreators.end()) {
+		delete it->second;
+		++it;
+	}
 }
