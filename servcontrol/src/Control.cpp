@@ -107,9 +107,11 @@ void Control::balance() {
 }
 
 void Control::fillIpServerTable(){
+	Control::instance().ipServers = new char*[Control::instance().numberServers];
+	Control::instance().portServers = new char*[Control::instance().numberServers];
 	for(int i=0; i<Control::instance().numberServers; i++) { // Se necesita memoria dinamica
-		ipServers[i] = (char*) malloc (IPLENGTH);
-		portServers[i] = (char*) malloc (PORTLENGTH);
+		ipServers[i] = new char[IPLENGTH];
+		portServers[i] = new char[PORTLENGTH];
 	}
 	Control::instance().ipRouter = (char*) malloc (IPLENGTH);
 	Control::instance().portRouter = (char*) malloc (PORTLENGTH);
@@ -295,6 +297,7 @@ int main(int argc, char** argv) {
 	}
 	else {
 		Control::instance().numberServers = DEF_GAME_SERVERS; //Sino ponemos un numero por defecto
+		cout << "No se ha especificado el numero de servers de juego. Se aplica el valor por defecto" << endl; 
 	}
 	cout << "Nº Servers de juego: " << Control::instance().numberServers << endl;
 	//Conexio a BD
@@ -313,6 +316,23 @@ int main(int argc, char** argv) {
 	if(Control::instance().cbd->connected()) { 
 			mysqlpp::Query query = Control::instance().cbd->query("select * from ADDRESSES");
 			Control::instance().resultBD = query.store();
+			std::string auxquery = "select COUNT(*) from ADDRESSES where TYPE=\"game\"";
+			cout << auxquery << endl; 
+			mysqlpp::Query query2 = Control::instance().cbd->query(auxquery);
+			mysqlpp::StoreQueryResult res2 = query.store();
+			int aux = 0;
+			for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
+				if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER) {
+					aux++;	
+				}
+			}
+			aux = res2[0][0];
+			cout << res2[0][0] << endl;
+			if( aux < Control::instance().numberServers) {
+				Control::instance().numberServers = aux;
+				cout << "El numero de servidores de juego en la BD es menor que el que se demanda. Corrigiendo numero de servers de juego a: " << aux << endl; 
+			}
+			
 	}	
 	//ControlProfile
 	TransferableFactory::instance().setProfile(new ControlProfile());

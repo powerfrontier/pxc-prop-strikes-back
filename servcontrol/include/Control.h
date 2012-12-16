@@ -24,13 +24,12 @@
 class Control : public Singleton<Control> {
 	double getAverage();
 	double getStDev();
-	char* ipServers[MAX_GAME_SERVERS];
-	char* portServers[MAX_GAME_SERVERS];
+	char** ipServers;
+	char** portServers;
 	void fillIpServerTable();
 	bool compareServersLoad(Server* first, Server* second);	
-	//friend class Singleton<Control>;	
 
-public:
+	public:
 	int numberServers;
 	char* ipRouter;
 	char* portRouter;
