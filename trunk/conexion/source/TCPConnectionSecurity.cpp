@@ -31,6 +31,7 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	OpenSSL_add_all_algorithms();
 
 	tListen = NULL;
+	mClosedConn = NULL;
 	/* Create the TCP socket */
 	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
 		std::cerr << "DIE CREATING A SOCKET" << std::endl;
@@ -60,8 +61,7 @@ TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() :
 }
 
 TCPConnectionSecurity::~TCPConnectionSecurity() throw(){
-	if (isLinkOnline())
-		close(false);
+	close(false);
 }
 
 bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException){
@@ -85,24 +85,37 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 		std::cerr << "SSL connect error " << SSL_get_error(ssl, n) <<  std::endl;
 		return false;
 	}
+	if (!this->checkCertificate(/*TODO:ip*/)) return false;
+	mPort = port;
+	setLinkOnline(true);
+	receive();
+	return true;
+}
 
+bool TCPConnectionSecurity::checkCertificate(){
+	std::cout << "WHERE " << std::endl;
+	std::string ipAddr("127.0.0.1");
+	std::cout << "IS " << std::endl;
 	X509 *peer;
+	std::cout << "the " << std::endl;
 	char peer_CN[256];
+	std::cout << "error " << std::endl;
 	if(SSL_get_verify_result(ssl)!=X509_V_OK){
 		std::cerr << "Certificate doesn't verify " << std::endl ;
 		std::cerr << "The expected certificate is "<< X509_V_OK << " The received certificate is " << SSL_get_verify_result(ssl)  << std::endl ;
 		return false;
 	}
+	std::cout << SSL_get_verify_result(ssl) << std::endl;
+	std::cout << "FUUU " << std::endl;
 	/*Check the common name*/
 	peer=SSL_get_peer_certificate(ssl);
+	std::cout << "I DONT CARE " << std::endl;
 	X509_NAME_get_text_by_NID(X509_get_subject_name(peer),NID_commonName, peer_CN, 256);
-	if(strcasecmp(peer_CN,ipAddr.c_str())){
+	if(strcasecmp(peer_CN,ipAddr.c_str())){//TODO:ipS?
 		std::cerr << "Common name " << peer_CN << " doesn't match host name " << ipAddr.c_str() <<std::endl;
 		return false;
 	}
-	mPort = port;
-	setLinkOnline(true);
-	receive();
+	std::cout << "IS NOT HERE " << std::endl;
 	return true;
 }
 
@@ -113,23 +126,33 @@ void TCPConnectionSecurity::close() throw(){
 void TCPConnectionSecurity::close(bool threadListen) throw(){
 	setLinkOnline(false);
 	int r = 0;
-	//if (sbio != NULL){
+	int shutdown = 0;
+	if (isLinkOnline()){
+		if (ssl != NULL){
+			while (shutdown == 0){
+				shutdown = SSL_shutdown(ssl);
+				if (shutdown != 0) {
+					ssl = NULL;
+					setLinkOnline(false);
+					if (mClosedConn != NULL) mClosedConn->callOnClose(this);
+				}
+			}
+		}else{
+			setLinkOnline(false);
+		}
 		if (!threadListen && tListen != NULL){
-			std::cout << "CERRANDO LISTEN" << std::endl;
 			tListen->join();
 			delete tListen;
+			tListen = NULL;
 		}
-		tListen = NULL;
-		std::cout << "CERRANDO SOCKET" << std::endl;
-		//r = BIO_free(sbio);
-		//if (r == 0) {
-		//	std::cout << "ERROR AL CERRAR SOCKET" << std::endl;
-		//} 
-		//sbio = NULL;
-		//std::cout << "CONEXION CERRADA" << std::endl;
-	//}else{
-	//	//std::cout << "LA CONEXION ESTABA CERRADA" << std::endl;
-	//}
+	}else{
+		ssl = NULL;
+		if (!threadListen && tListen != NULL){
+			tListen->join();
+			delete tListen;
+			tListen = NULL;
+		}
+	}
 }
 
 bool TCPConnectionSecurity::isLinkOnline() throw(){
@@ -231,7 +254,7 @@ void TCPConnectionSecurity::receive() throw(ConnectionException){
 
 void TCPConnectionSecurity::receiveThread(){
 	while(isLinkOnline()){
-		try{
+		try{	
 			receiveTransfThread();
 		}catch (std::exception e){	
 			std::cerr << e.what() << std::endl;
@@ -261,7 +284,7 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 			return;
 		case SSL_ERROR_SYSCALL:
 			close(true);
-			std::cerr << "SSL Error: Premature close" << std::endl;
+			std::cerr << "SSL Error: Premature close1" << std::endl;
 			return;
 		default:
 			close(true);
@@ -303,7 +326,7 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 			return;
 		case SSL_ERROR_SYSCALL:
 			close(true);
-			std::cerr << "SSL Error: Premature close" << std::endl;
+			std::cerr << "SSL Error: Premature close2" << std::endl;
 			return;
 		default:
 			close(true);

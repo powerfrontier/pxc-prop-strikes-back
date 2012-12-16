@@ -19,13 +19,16 @@
 class Connection;
 
 struct ConnectionCallback {
-ConnectionCallback();
-virtual ~ConnectionCallback();
-
-
-virtual void callbackFunction(Transferable* received, Connection*) throw() = 0;
+	ConnectionCallback();
+	virtual ~ConnectionCallback();
+	virtual void callbackFunction(Transferable* received, Connection*) throw() = 0;
 };
 
+struct ConnectionClosedListener {
+	ConnectionClosedListener(){};
+	virtual ~ConnectionClosedListener(){};
+	virtual void callOnClose(Connection*) throw() = 0;
+};
 
 
 class ConnectionException : public std::exception {
@@ -41,9 +44,11 @@ const char* what() const throw();
 class Connection {
 protected:
 ConnectionCallback* mCallback;
+ConnectionClosedListener* mClosedConn;
 bool	mIsOpen;
 std::string mPort;
 public:
+typedef void(Connection::*customClose)(void);
 Connection() throw();
 virtual ~Connection() throw(ConnectionException);
 
@@ -51,14 +56,12 @@ virtual ~Connection() throw(ConnectionException);
 virtual const std::string& getPort() = 0;
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException) = 0;
 virtual void close() throw() = 0;
-
 virtual bool isLinkOnline() throw() = 0;
-
 virtual void send(Transferable& message) throw (ConnectionException) = 0;
 virtual void sendAnswer(Transferable& message) throw (ConnectionException) = 0;
 virtual void receive() throw(ConnectionException) = 0;
-
-void setCallbackFunction(ConnectionCallback*) throw();
+virtual void setCallbackFunction(ConnectionCallback*) throw();
+virtual void setCloseFunction(ConnectionClosedListener*) throw();
 };
 
 class TCPConnection : public Connection {
@@ -88,11 +91,8 @@ class UDPConnection : public Connection {
 public:
 UDPConnection() throw();
 virtual ~UDPConnection() throw();
-
 virtual bool connect(std::string& ipAddr, const std::string& port) throw(ConnectionException);
-
 virtual void close() throw();
-
 virtual bool isLinkOnline() throw();
 virtual const std::string& getPort();
 virtual void send(Transferable& message) throw (ConnectionException);
@@ -109,14 +109,13 @@ SSL *ssl;
 std::thread *tListen;
 std::mutex mOnlineMutex;
 char *pass;
-
 bool online;
 void receiveThread();
 void receiveTransfThread() throw(ConnectionException);
 void setLinkOnline(bool);
 virtual void close(bool) throw();
 public:
-int password_cb(char *buf,int num, int rwflag,void *userdata);
+bool checkCertificate();
 TCPConnectionSecurity() throw();
 TCPConnectionSecurity(SSL*, std::string port) throw();
 virtual ~TCPConnectionSecurity() throw();
