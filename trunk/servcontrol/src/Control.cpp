@@ -82,7 +82,7 @@ void Control::balance() {
 	cout << "maxloadserver id: " << maxLoadServer->id << endl;
 	cout << "size:" << maxLoadServer->load.distribution.size() << endl;*/
 	while (standardDev > minDev && numIterations < servers.size() && maxLoadServer->load.distribution.size() != 1 && maxLoadServer != minLoadServer)
-	{	cout << "entro en while" << endl;
+	{	cout << "Entrando algoritmo de balanceo" << endl;
 		// Escogemos la zona menos cargada de maxLoadServer
 		for(int i = 0; i < maxLoadServer->load.distribution.size();++i)
 		{
@@ -371,9 +371,9 @@ int main(int argc, char** argv) {
 	//Control::instance().initializeServerList();
 	Control::instance().initializeConnectionsAndServerList();
 	cout << "Inicializando...OK" << endl;
-	cout << "Asignando zonas a servidores de juego...";
+	cout << "Asignando zonas a servidores de juego..." << endl;
 	Control::instance().zoneAssignment();
-	cout << "OK" << endl;
+	cout << "Asignando zonas a servidores de juego...OK" << endl;
 
 	list<Server*>::iterator it;
 	timeout = 1;	
@@ -391,7 +391,7 @@ int main(int argc, char** argv) {
 	
 	while(1) { 
 		if(breakflag) {
-			cout << "REBALANCEO" << endl;	
+			cout << endl << "REBALANCEO" << endl;	
 			alarm(0);// Apagamos el timer
 			for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {
 				// Inicializamos la carga total del server
