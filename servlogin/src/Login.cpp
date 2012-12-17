@@ -58,16 +58,16 @@ bool Login::validate(string user, string pwd){
   string query = "SELECT * FROM USERS WHERE USERNAME='" + user + "' AND PASSWORD='" + pwd +"'" ;
   mysql_query(mysqlConnection, query.c_str());
   result = mysql_store_result(mysqlConnection);
-  num_fields = mysql_num_fields(result);
+  //num_fields = mysql_num_fields(result);
   num_rows = mysql_num_rows(result);
-  while ((row = mysql_fetch_row(result)))
+  /*while ((row = mysql_fetch_row(result)))
   {
       for(i = 0; i < num_fields; i++)
       {
           printf("%s ", row[i] ? row[i] : "NULL");
       }
       printf("\n");
-  }
+  }*/
   mysql_free_result(result);
   return num_rows;
 	
