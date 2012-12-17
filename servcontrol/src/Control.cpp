@@ -50,13 +50,18 @@ double Control::getStDev() {
 void Control::zoneChange(Server* sourceServer, int changedZonePosition, Server* destinationServer) {
 	// Ordenamos quitar la zona de un servidor
 	cout << "ZONE CHANGE: " << "origen: " << sourceServer->id << " zona: " << changedZonePosition << " destino: " << destinationServer->id << endl;
+
 	RemoveZoneSend* removeZoneSend = new RemoveZoneSend(changedZonePosition);
 	sourceServer->c->send(*removeZoneSend);
 	delete(removeZoneSend);  	
+	
 	GetZoneSend* getZoneSend = new GetZoneSend(changedZonePosition, sourceServer->id);
 	destinationServer->c->send(*getZoneSend);
 	delete(getZoneSend);   
-	//RouterChangeZoneSend* routerChangeZoneSend = new RouterChangeZoneSend(changedZonePosition, sourceServer->id, destinationServer->id );	
+	
+	RouterChangeZoneSend* routerChangeZoneSend = new RouterChangeZoneSend(changedZonePosition, sourceServer->id, destinationServer->id );
+	Control::instance().routerConnection->send(*routerChangeZoneSend);
+	delete(routerChangeZoneSend);	
 }
 
 void Control::balance() {
@@ -90,7 +95,7 @@ void Control::balance() {
 		changedZonePosition = posMinLoadZone; // de moment faig aixo perque funcioni
 		//if(posMinLoadZone != -1) // s'ha selecciona almenys alguna zona i la carrega es > 0
 		//{
-			zoneChange(maxLoadServer, changedZonePosition, minLoadServer);
+		zoneChange(maxLoadServer, changedZonePosition, minLoadServer);
 		//}
 		// Actualizamos tabla zona/server
 		zoneServer[changedZonePosition] = minLoadServer;
@@ -185,13 +190,13 @@ void Control::initializeConnectionsAndServerList() {
 		cout << "Servidor login NO conectado" << endl;
 	}
 
-	//routerConnection = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
-	/*if(routerConnection->connect(Control::instance().ipRouter, Control::instance().portRouter)){
+	routerConnection = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
+	if(routerConnection->connect(Control::instance().ipRouter, Control::instance().portRouter)){
 		cout << "Servidor redireccion conectado" << endl;
 				
 	}else{
 		cout << "Servidor redireccion NO conectado" << endl;
-	}*/
+	}
 }
 
 /*void Control::writeDownServer(){
@@ -281,9 +286,8 @@ int Control::getZoneDB(int idUsuari) {
 	cout << consulta << endl;
 	mysqlpp::Query query = Control::instance().cbd->query(consulta);
         if (mysqlpp::StoreQueryResult res = query.store()) {
-		return res[0][0];cout << res[0][0] << endl;
+		return res[0][0];
 	}
-	cout << "nooooooooooo!!!!!!!!!!!!!" << endl;
 	return -1;
 }
 
