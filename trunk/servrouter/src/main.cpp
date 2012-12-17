@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
 	//Configure connection
 	TransferableFactory::instance().setProfile(new RouterProfile());
 	TransferableFactory::instance().setProtocol("0.1a");
+	r = Router::instancePtr();
 	
 	//Start listening
 	controlCM = new ConnectionManager();
