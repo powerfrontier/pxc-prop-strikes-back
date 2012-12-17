@@ -31,12 +31,28 @@ void Login::initializeLogin(){
     } 
 }
 
-bool Login::validate(string user, string pwd){
+unsigned char* Login::convertPwdToSha1(unsigned char* pwdOrig, int lengthPwd){
+    unsigned char* pwdCrypt;
+    SHA1(pwdOrig, lengthPwd, pwdCrypt);
 
+    int i;
+    for (i = 0; i < lengthPwd; i++) {
+        printf("%02x ", pwdCrypt[i]);
+    }
+    printf("\n"); 
+    return pwdCrypt;
+}
+
+
+
+bool Login::validate(string user, string pwd){
+  const char* resultPwd;
   MYSQL_RES *result;
   MYSQL_ROW row;
   int num_fields, num_rows;
   int i;
+  //resultPwd = pwd.c_str();
+  //Login::instance().convertPwdToSha1((unsigned char*)resultPwd,user.length());
   cout << "user i password enviats: " << user << " " << pwd << endl;
   string query = "SELECT * FROM USERS WHERE USERNAME='" + user + "' AND PASSWORD='" + pwd +"'" ;
   mysql_query(mysqlConnection, query.c_str());
