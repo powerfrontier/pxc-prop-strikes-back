@@ -260,7 +260,8 @@ void ConnectionManager::listenThreadSecure(const std::string& port, bool secureB
 		}else{
 			TCPConnectionSecurity *c = new TCPConnectionSecurity(ssl, port);
 			if (secureBidirectional){
-				if (c->checkCertificate()) {
+				//Aqui iria un bucle de comprobaciones de certificado pero todos usan el mismo certificado (commonName: "127.0.0.1")
+				if (c->checkCertificate(std::string("127.0.0.1"))){
 					secureOk = true;	
 				}else{
 					secureOk = false;
