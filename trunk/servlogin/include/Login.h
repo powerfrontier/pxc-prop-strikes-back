@@ -8,8 +8,6 @@
 #include <mysql.h>
 #include <map>
 
-#define CLIENT_PORT "3450"
-#define CONTROL_PORT "3457"
 #define ROUTER_IP "127.0.0.1"
 #define ROUTER_PORT "3500"
 #define IP_LENGTH 16
@@ -43,7 +41,7 @@ public:
 
 	virtual ~Login();
 	std::string convertPwdToSha1(std::string pwdOrig, int lengthPwd);
-	void initializeManager();
+	void initializeManager(char* controlPort, char* clientPort);
 	void initializeLogin();
 	bool validate(std::string user,std::string pwd);
 	Connection* getControlConnection();

@@ -8,13 +8,14 @@
 
 using namespace std;
 
-void Login::initializeManager(){
- 
+void Login::initializeManager(char* controlPort, char* clientPort){
+    string controlPortString = string(controlPort);
+    string clientPortString = string(clientPort);
     managerControl = new ConnectionManager();
     managerClient = new ConnectionManager();
-    managerControl->listenSecure(CONTROL_PORT,true);    
+    managerControl->listenSecure(controlPortString,true);    
     managerClient->setMyClose(clientClosedConnection);
-    managerClient->listenSecure(CLIENT_PORT,false);
+    managerClient->listenSecure(clientPortString,false);
     
 }
 
