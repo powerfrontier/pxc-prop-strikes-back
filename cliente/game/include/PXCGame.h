@@ -1,6 +1,8 @@
 #ifndef _PXC_GAME_H_
 #define _PXC_GAME_H_
 
+#include <SDL.h>
+
 #include <Zone.h>
 #include <map>
 
@@ -32,6 +34,7 @@ public:
 };
 
 class PXCGame : public ClientGame {
+	SDL_Surface* mSurface;
 	protected:
 	virtual void sendAction();
 
