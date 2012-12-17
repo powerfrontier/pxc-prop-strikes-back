@@ -144,29 +144,37 @@ char* Control::getPortServerById(int id){
 	return portServers[id];
 }
 
-void Control::initializeServerList() {
+/*void Control::initializeServerList() {
 	list<Server*>::iterator it;
 	Control::fillIpServerTable();
 	for(int i = 0; i < Control::instance().numberServers; ++i){
 		servers.push_back(new Server(i,ipServers[i], portServers[i]));
 	}
-}
+}*/
 
-void Control::initializeConnections() {
+void Control::initializeConnectionsAndServerList() {
+	Control::fillIpServerTable();
 	list<Server*>::iterator it;
 	int i=0;
 	//Control::instance().numberServersIni = Control::instance().numberServers;	
+	int ipsIni = Control::instance().numberServers;
+	Connection* auxConn = NULL;
+	Server* auxServ = NULL;
 
-	for(it=servers.begin();it!=servers.end();it++) {
-		(*it)->c = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
-		if((*it)->c->connect((*it)->ip, (*it)->port)){
-				cout << "Servidor " << i << " conectado" << endl;
+	for(int i = 0; i < ipsIni; ++i){
+		auxConn = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
+		if(auxConn->connect(ipServers[i], portServers[i])){
+			cout << "Servidor " << i << " conectado" << "Conexion: " << auxConn << endl;
+			auxServ = new Server(i, ipServers[i], portServers[i]);
+			auxServ->c = auxConn;
+			cout << "Conexion: " << auxServ->c << endl;
+			servers.push_back(auxServ);
 		}else{
-				(*it)->c = NULL;
-				Control::instance().numberServers--;
-				cout << "Servidor " << i << " NO conectado" << "Nº Servers juego conectados: " << Control::instance().numberServers << endl;
+			Control::instance().numberServers--;
+			cout << "Servidor " << i << " NO conectado" << "Nº Servers juego conectados: " << Control::instance().numberServers << endl;
+			delete auxConn;
 		}
-		i++;
+		
 	}
 
 	loginConnection = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
@@ -356,8 +364,8 @@ int main(int argc, char** argv) {
 	TransferableFactory::instance().setProtocol("0.1a");
 	//Inicialización
 	cout << "Inicializando..." << endl;
-	Control::instance().initializeServerList();
-	Control::instance().initializeConnections();
+	//Control::instance().initializeServerList();
+	Control::instance().initializeConnectionsAndServerList();
 	cout << "Inicializando...OK" << endl;
 	cout << "Asignando zonas a servidores de juego...";
 	Control::instance().zoneAssignment();
