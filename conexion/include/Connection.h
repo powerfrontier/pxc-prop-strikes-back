@@ -45,8 +45,6 @@ class Connection {
 protected:
 ConnectionCallback* mCallback;
 ConnectionClosedListener* mClosedConn;
-std::mutex mReceiveMutex;
-std::mutex mSendMutex;
 bool	mIsOpen;
 std::string mPort;
 public:
@@ -71,6 +69,8 @@ private:
 BIO *sbio;
 std::thread *tListen;
 std::mutex mOnlineMutex;
+std::mutex mSendMutex;
+std::mutex mReceiveMutex;
 bool online;
 void receiveThread();
 void receiveTransfThread() throw(ConnectionException);
@@ -89,6 +89,18 @@ virtual void sendAnswer(Transferable& message) throw (ConnectionException);
 virtual void receive() throw(ConnectionException);
 };
 
+class UDPConnection : public Connection {
+public:
+UDPConnection() throw();
+virtual ~UDPConnection() throw();
+virtual bool connect(std::string& ipAddr, const std::string& port) throw(ConnectionException);
+virtual void close() throw();
+virtual bool isLinkOnline() throw();
+virtual const std::string& getPort();
+virtual void send(Transferable& message) throw (ConnectionException);
+virtual void sendAnswer(Transferable& message) throw (ConnectionException);
+virtual void receive() throw(ConnectionException);
+};
 
 class TCPConnectionSecurity : public Connection {
 private:
@@ -98,6 +110,8 @@ BIO *sbio;
 SSL *ssl;
 std::thread *tListen;
 std::mutex mOnlineMutex;
+std::mutex mSendMutex;
+std::mutex mReceiveMutex;
 char *pass;
 bool online;
 void receiveThread();
@@ -105,10 +119,10 @@ void receiveTransfThread() throw(ConnectionException);
 void setLinkOnline(bool);
 virtual void close(bool) throw();
 public:
-bool checkCertificate(const std::string& namehost);
+bool checkCertificate();
 TCPConnectionSecurity() throw();
-TCPConnectionSecurity(SSL*, const std::string& port) throw();
-TCPConnectionSecurity(const std::string& certif, const std::string& dhfile) throw();
+TCPConnectionSecurity(SSL*, std::string port) throw();
+TCPConnectionSecurity(std::string certif, std::string dhfile) throw();
 virtual ~TCPConnectionSecurity() throw();
 virtual const std::string& getPort();
 virtual bool connect(const std::string& ipAddr, const std::string& port) throw(ConnectionException);
