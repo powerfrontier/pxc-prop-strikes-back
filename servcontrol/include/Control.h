@@ -51,7 +51,7 @@ class Control : public Singleton<Control> {
 	char* getIpServerById(int id);
 	char* getPortServerById(int id);
 	void initializeServerList();
-	void initializeConnections();
+	void initializeConnectionsAndServerList();
 	void balance();
 	void zoneChange(Server* sourceServer, int changedZonePosition, Server* destinationServer);
 	void writeDownServer();
