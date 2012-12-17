@@ -43,8 +43,6 @@ int main(int argc, char** argv) {
 		routerCM->listenSecure(routerPort, true);
 	}
 	catch (ConnectionException& cs) {
-		std::cerr << "Error trying to listen connections: " << cs.what() << std::endl;
-		
 		gs->stopAll();
 		delete gs;
 		delete controlCM;
@@ -52,8 +50,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	catch (std::system_error& se) {
-		std::cerr << "Error trying to listen connections: " << se.what() << std::endl;
-		
 		gs->stopAll();
 		delete gs;
 		delete controlCM;
@@ -69,12 +65,14 @@ int main(int argc, char** argv) {
 		delete routerCM;
 		return 1;
 	}
-	
+	while(1){
+
+	}	
+	/*
 	while (command != "exit") {
 		std::cin >> command;
 		
-	}
-	
+	}*/
 	gs->stopAll();
 	delete controlCM;
 	delete routerCM;
