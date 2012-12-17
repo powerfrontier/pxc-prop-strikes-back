@@ -17,3 +17,6 @@ IPServerSend - respuesta de control que devuelve la ip y puerto del server solic
 		int idServer
 		char ipSourceServer[IPLENGTH]; IPLENGHT=16
   		char portSourceServer[PORTLENGTH]; PORTLENGT=5
+
+
+CONTROL 5

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <SDL.h>
+
 #include <Connection.h>
 #include <Singleton.h>
 
@@ -96,9 +98,15 @@ protected:
 
 	Connection* mLogin;
 	Connection* mRouter;
+	
+	SDL_Surface* mSurface;
+	
 	bool mLoggedIn;
+	bool mBadLogOn;
+	bool mInit;
 
-
+	bool init();
+	void go();
 public:
 	virtual ~Client();
 

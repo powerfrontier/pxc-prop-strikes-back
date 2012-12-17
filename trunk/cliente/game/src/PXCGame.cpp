@@ -3,7 +3,7 @@
 
 GameCreator* Client::sGameCreator = new PXCGameCreator();
 
-PXCGame::PXCGame(PXCZone* zone) : ClientGame(zone) {
+PXCGame::PXCGame(PXCZone* zone) : ClientGame(zone), mSurface(NULL) {
 
 }
 
@@ -12,7 +12,9 @@ PXCGame::~PXCGame() {
 }	
 
 bool PXCGame::init() {
-	std::cout << "Zona " << mZone->id() << " iniciada." << std::endl;
+	mSurface = SDL_GetVideoSurface();
+	if (!mSurface) return false;
+	SDL_WM_SetCaption( "PXC: The Game", NULL ); 
 	return true;
 }
 
