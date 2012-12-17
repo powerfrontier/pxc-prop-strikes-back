@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
 	}
 	
 	while (command != "exit") {
-		std::cin >> command;
-		//sleep(2);
+		//std::cin >> command;
+		sleep(2);
 	}
 	
 	delete controlCM;
