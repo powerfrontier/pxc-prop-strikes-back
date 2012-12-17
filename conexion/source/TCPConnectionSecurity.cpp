@@ -54,7 +54,7 @@ TCPConnectionSecurity::TCPConnectionSecurity() throw() : Connection() {
 	setLinkOnline(false);
 }
 
-TCPConnectionSecurity::TCPConnectionSecurity(std::string certificate, std::string dhfile) throw() : Connection() {
+TCPConnectionSecurity::TCPConnectionSecurity(const std::string& certificate, const std::string& dhfile) throw() : Connection() {
 	/* call the standard SSL init functions */
 	CRYPTO_malloc_init(); // Initialize malloc, free, etc for OpenSSL's use
 	SSL_load_error_strings();
@@ -118,7 +118,7 @@ TCPConnectionSecurity::TCPConnectionSecurity(std::string certificate, std::strin
 }
 
 
-TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, std::string port) throw() : Connection() {
+TCPConnectionSecurity::TCPConnectionSecurity(SSL* c, const std::string& port) throw() : Connection() {
 	ssl = c;
 	mPort = port;
 	mClosedConn = NULL;
@@ -151,15 +151,14 @@ bool TCPConnectionSecurity::connect(const std::string& ipAddr, const std::string
 		std::cerr << "SSL connect error " << SSL_get_error(ssl, n) <<  std::endl;
 		return false;
 	}
-	if (!this->checkCertificate(/*TODO:ip*/)) return false;
+	if (!this->checkCertificate(ipAddr)) return false;
 	mPort = port;
 	setLinkOnline(true);
 	receive();
 	return true;
 }
 
-bool TCPConnectionSecurity::checkCertificate(){
-	std::string nameHost("127.0.0.1");
+bool TCPConnectionSecurity::checkCertificate(const std::string& nameHost){
 	X509 *peer;
 	char peer_CN[256];
 	if(SSL_get_verify_result(ssl)!=X509_V_OK){
@@ -170,8 +169,8 @@ bool TCPConnectionSecurity::checkCertificate(){
 	/*Check the common name*/
 	peer=SSL_get_peer_certificate(ssl);
 	X509_NAME_get_text_by_NID(X509_get_subject_name(peer),NID_commonName, peer_CN, 256);
-	if(strcasecmp(peer_CN,nameHost.c_str())){//TODO:ipS?
-		std::cerr << "Common name " << peer_CN << " doesn't match host name " << nameHost <<std::endl;
+	if(strcasecmp(peer_CN,nameHost.c_str())){
+		std::cerr << "Certificate received common name " << peer_CN << " doesn't match host name " << nameHost <<std::endl;
 		return false;
 	}
 	return true;
@@ -255,7 +254,7 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 
 
 		/* Send the word to the server */
-		int r;
+	/*	int r;
 		r=SSL_write(ssl,buffer,lengthPacket);
 		switch(SSL_get_error(ssl,r)){      
 			case SSL_ERROR_NONE:
@@ -266,7 +265,26 @@ void TCPConnectionSecurity::send(Transferable& message) throw (ConnectionExcepti
 				close(false);
 				std::cerr << "SSL write problem" << std::endl;
 		}
-		sleep(1);
+	}*/
+		/* Send the word to the server */
+		int n = 0;
+		while (n != lengthPacket){
+			int r;
+			r=SSL_write(ssl,buffer+n,1);
+			switch(SSL_get_error(ssl,r)){      
+				case SSL_ERROR_NONE:
+					if(r!= 1){
+						std::cerr << "Incomplete write!" << std::endl;
+					}else{
+						++n;
+					}
+					break;
+				default:
+					close(false);
+					std::cerr << "SSL write problem" << std::endl;
+					return;
+			}
+		}
 	}
 }
 
@@ -293,21 +311,25 @@ void TCPConnectionSecurity::sendAnswer(Transferable& message) throw (ConnectionE
 	memcpy(buffer+sizeof(size_t)+8, (char*) &type, sizeof(int));
 	memcpy(buffer+sizeof(size_t)+8+sizeof(int), (char*) message.transferableObject(), lengthMessage);
 
-
-
-	/* Send the word to the server */
-	int r;
-	r=SSL_write(ssl,buffer,lengthPacket);
-	switch(SSL_get_error(ssl,r)){      
-		case SSL_ERROR_NONE:
-			if(lengthPacket!=r)
-				std::cerr << "Incomplete write!" << std::endl;
-			break;
-		default:
-			close(true);
-			std::cerr << "SSL write problem" << std::endl;
+	int n = 0;
+	while (n != lengthPacket){
+		int r;
+		r=SSL_write(ssl,buffer+n,1);
+		switch(SSL_get_error(ssl,r)){      
+			case SSL_ERROR_NONE:
+				if(r!= 1){
+					std::cerr << "Incomplete write!" << std::endl;
+					return;
+				}else{
+					++n;
+				}
+				break;
+			default:
+				close(true);
+				std::cerr << "SSL write problem" << std::endl;
+				return;
+		}
 	}
-	sleep(1);
 }
 
 
