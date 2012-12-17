@@ -163,7 +163,7 @@ void Control::initializeConnections() {
 		}else{
 				(*it)->c = NULL;
 				Control::instance().numberServers--;
-				cout << "Servidor " << i << " NO conectado" << (*it)->c << endl;
+				cout << "Servidor " << i << " NO conectado" << Control::instance().numberServers--; << endl;
 		}
 		i++;
 	}
@@ -305,7 +305,11 @@ int main(int argc, char** argv) {
 	//Cogemos el numero de servidores como el argumento de entrada
 	if(argc >= 2) {
 		int aux = atoi(argv[1]);
-		if(aux <= MAX_GAME_SERVERS) {
+		if(aux < 1) {
+			cout << "El numero de servidores de juego tiene que ser mayor que 0" << endl;
+			return -1;
+		}
+		else if(aux <= MAX_GAME_SERVERS) {
 			Control::instance().numberServers = aux;
 		}
 		else {
