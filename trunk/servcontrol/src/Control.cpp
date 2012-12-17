@@ -121,6 +121,7 @@ void Control::fillIpServerTable(){
 	for (int i = 0; i < Control::instance().resultBD.num_rows(); ++i) {
 		if(Control::instance().resultBD[i][2] == TYPE_GAME_SERVER && j < Control::instance().numberServers) {
 			strcpy(ipServers[j], Control::instance().resultBD[i][0]);
+			//cout << "copia de direccions!!!!" << Control::instance().resultBD[i][0] << endl;
 			strcpy(portServers[j], Control::instance().resultBD[i][1]);
 			j++;
 		}
@@ -154,7 +155,7 @@ void Control::initializeServerList() {
 void Control::initializeConnections() {
 	list<Server*>::iterator it;
 	int i=0;
-	Control::instance().numberServersIni = Control::instance().numberServers;	
+	//Control::instance().numberServersIni = Control::instance().numberServers;	
 
 	for(it=servers.begin();it!=servers.end();it++) {
 		(*it)->c = new TCPConnectionSecurity(std::string("control.pem"), std::string("dh1024.pem"));
@@ -163,7 +164,7 @@ void Control::initializeConnections() {
 		}else{
 				(*it)->c = NULL;
 				Control::instance().numberServers--;
-				cout << "Servidor " << i << " NO conectado" << Control::instance().numberServers--; << endl;
+				cout << "Servidor " << i << " NO conectado" << "Nº Servers juego conectados: " << Control::instance().numberServers << endl;
 		}
 		i++;
 	}
@@ -185,7 +186,7 @@ void Control::initializeConnections() {
 	}*/
 }
 
-void Control::writeDownServer(){
+/*void Control::writeDownServer(){
 	int i;
 	int serverMask = 1;
 	int serverNum = 0;
@@ -197,7 +198,7 @@ void Control::writeDownServer(){
 		}
 		serverMask *= 2;
 	}
-}
+}*/
 
 void Control::zoneAssignment(){
 	int zonesRestants = NZONES;
@@ -401,9 +402,9 @@ int main(int argc, char** argv) {
 				sleep(50);//Esperamos sin hacer nada ni consumir cpu
 			}
 			alarm(0);
-			if(Control::instance().recievedConnectionMask) { //s'ha sortit del bucle pel timeout
-				Control::instance().writeDownServer();
-			}
+			//if(Control::instance().recievedConnectionMask) { //s'ha sortit del bucle pel timeout
+			//	Control::instance().writeDownServer();
+			//}
 			/*for (it=Control::instance().servers.begin(); it!=Control::instance().servers.end(); it++) {
 				cout << "id!!! " << (*it)->id << endl;
 				cout << "load!" << (*it)->load.totalLoad << endl;
