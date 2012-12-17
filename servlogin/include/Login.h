@@ -42,6 +42,7 @@ class Login : public Singleton<Login> {
 public:
 
 	virtual ~Login();
+	unsigned char* convertPwdToSha1(unsigned char* pwdOrig, int lengthPwd);
 	void initializeManager();
 	void initializeLogin();
 	bool validate(std::string user,std::string pwd);
