@@ -7,7 +7,7 @@ void ServerLoadRcvd::exec(Connection* c) const throw(){
 	
 	//Inserir la carrega a la carrega del server que toca i actualitzar la mascara on toca també
 	std::cout << "Recibiendo mensaje del server: " << idServer << std::endl; //debug
-	std::cout <<  idServer << " "  << idZone << " " << zoneLoad << " " << remainingZones << std::endl; //debug
+	std::cout <<  "server: " << idServer << " zona: "  << idZone << " carga: " << zoneLoad << " faltan: " << remainingZones << std::endl; //debug
 	std::list<Server*>::iterator it;
 	int i;
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {

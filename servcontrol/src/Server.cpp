@@ -13,6 +13,7 @@ cout << "End Destruct Server";
 }
 
 void Server::printServer() {
+	//cout << endl;
 	cout << "Id: " << id << endl;
 	cout << "IP: " << ip << endl;
 	cout << "Connection: " << c << endl;
@@ -21,4 +22,5 @@ void Server::printServer() {
 	for(int i=0; i<load.distribution.size(); ++i){
 		cout << "zona " << load.distribution.at(i)->zone << " carga: " << load.distribution.at(i)->load << endl; 
 	}
+	cout << endl;
 }

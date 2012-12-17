@@ -8,7 +8,7 @@
 
 void NewUserRcvd::exec(Connection* c) const throw(){
 	
-	std::cout << "LLEGA NUEVO USUARIO:" << idUser << std::endl;
+	std::cout << "LLEGA UN LOGIN DEL USUARIO:" << idUser << std::endl;
 	int zone = Control::instance().getZoneDB(idUser); //aconseguim la zona on estaba l'usuari de BD
 	std::cout << "zona guardada: " << zone << std::endl;
 	Server* gameServer = Control::instance().zoneServer[zone]; //aconseguim el server que está ara en aquesta zona
