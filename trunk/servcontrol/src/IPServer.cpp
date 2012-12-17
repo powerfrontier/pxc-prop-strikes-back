@@ -33,7 +33,7 @@ void IPServerRcvd::exec(Connection* c) const throw(){
 	for(it=Control::instance().servers.begin();it!=Control::instance().servers.end();it++) {		
 		if ((*it)->id == idServer) {
 			IPServerSend* ipServerSend = new IPServerSend((*it)->id, ipSend, portSend);
-			(*it)->c->sendAnswer(*ipServerSend);
+			c->sendAnswer(*ipServerSend);
 			delete ipServerSend;		
 		}		
 	}	
