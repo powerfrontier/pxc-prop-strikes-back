@@ -4,6 +4,7 @@
 #include <mysql.h>
 #include <ClientClosedConnection.h>
 #include <Connection.h>
+#include <sstream>
 
 using namespace std;
 
@@ -31,29 +32,29 @@ void Login::initializeLogin(){
     } 
 }
 
-unsigned char* Login::convertPwdToSha1(unsigned char* pwdOrig, int lengthPwd){
-    unsigned char* pwdCrypt;
-    SHA1(pwdOrig, lengthPwd, pwdCrypt);
-
-    int i;
-    for (i = 0; i < lengthPwd; i++) {
-        printf("%02x ", pwdCrypt[i]);
-    }
-    printf("\n"); 
-    return pwdCrypt;
+string Login::convertPwdToSha1(string pwd, int lengthPwd){
+   	unsigned char ibuf[SHA_DIGEST_LENGTH*2];
+	unsigned char obuf[SHA_DIGEST_LENGTH*2];	
+	int i;	
+	strcpy((char*) ibuf,pwd.c_str());	
+	SHA1(ibuf, lengthPwd, obuf);
+	char resultPwd[SHA_DIGEST_LENGTH*2];
+	memset(resultPwd, 0x0, SHA_DIGEST_LENGTH);
+	for (i=0; i < SHA_DIGEST_LENGTH; i++) {
+		sprintf((char*)&(resultPwd[i*2]), "%02x", obuf[i]);
+	}
+    	return resultPwd;
 }
-
 
 
 bool Login::validate(string user, string pwd){
   const char* resultPwd;
+  string passwordCod;
   MYSQL_RES *result;
   MYSQL_ROW row;
   int num_fields, num_rows;
   int i;
-  //resultPwd = pwd.c_str();
-  //Login::instance().convertPwdToSha1((unsigned char*)resultPwd,user.length());
-  cout << "user i password enviats: " << user << " " << pwd << endl;
+  pwd = Login::instance().convertPwdToSha1(pwd,static_cast< int >( strlen( user.c_str() ) ));
   string query = "SELECT * FROM USERS WHERE USERNAME='" + user + "' AND PASSWORD='" + pwd +"'" ;
   mysql_query(mysqlConnection, query.c_str());
   result = mysql_store_result(mysqlConnection);
@@ -68,7 +69,6 @@ bool Login::validate(string user, string pwd){
       printf("\n");
   }
   mysql_free_result(result);
-  //delete result;
   return num_rows;
 	
 }

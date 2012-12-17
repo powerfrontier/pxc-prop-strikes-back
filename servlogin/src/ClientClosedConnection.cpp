@@ -9,7 +9,6 @@ void ClientClosedConnection::callOnClose(Connection* c) throw(){
 	int clientId; 
 	string username;
 	Login::instance().loginMutex.lock();
-	cout << "Cerramos el preclose con usuarios conectados " << Login::instance().usersConnected << endl;
 	if(Login::instance().connectionToIdMap.find(c) != Login::instance().connectionToIdMap.end()){
 	  clientId = Login::instance().connectionToIdMap.find(c)->second;
 	  username = Login::instance().idToUserMap.find(clientId)->second;
@@ -20,7 +19,6 @@ void ClientClosedConnection::callOnClose(Connection* c) throw(){
 	  Login::instance().idToUserMap.erase(Login::instance().idToUserMap.find(clientId));
 	  Login::instance().usersConnected--;
 	}
-	cout << "Cerramos el close con usuarios conectados " << Login::instance().usersConnected << endl;
 	Login::instance().loginMutex.unlock();
 	
 }

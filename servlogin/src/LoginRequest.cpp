@@ -64,6 +64,7 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	  Login::instance().idToUserMap.insert(pair<int,string>(clientId,user));
 	  Login::instance().nextFreeToken++;
 	  Login::instance().usersConnected++;
+	  cout << "Usuario '" << user << "' logueado correctamente." << endl;
   }else{
 	  answerCode = 1;
   }  
@@ -77,12 +78,10 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   }
    //Enviar info a cliente
   LoginRequestSend* loginRequestSend = new LoginRequestSend(answerCode, routerIp,routerPort, clientId,token);
-  cout << "port de client: " << c->getPort() << endl;
   c->sendAnswer(*loginRequestSend);  
   
   delete loginRequestSend;
   Login::instance().loginMutex.unlock();
-  cout << "Salimos de exec de loginrequest" << endl;
 }
 
 LoginRequestRcvd::~LoginRequestRcvd(){

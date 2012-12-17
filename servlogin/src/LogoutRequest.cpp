@@ -9,7 +9,6 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
   Login::instance().loginMutex.lock();
   int answerCode; //Código de respuesta de logout. 0=OK, 1=Invalid username. 2=Invalid token. El resto si os motiva hacer alguno.
   std::map<int,int>::iterator it;
-  std::cout << "Usuarios connectats prelogout: " << Login::instance().usersConnected << std::endl;
   it = Login::instance().userTokenMap.find(clientId);
   if( it == Login::instance().userTokenMap.end() ){
     answerCode = 1;
@@ -27,13 +26,13 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
 	Login::instance().userTokenMap.erase(it);
 	answerCode = 0;	
 	Login::instance().usersConnected--;
-	std::cout << "Salida del else de logout" << std::endl;
 	//Enviar info balanceo
 	if(Login::instance().controlConnected){
 	  ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(clientId,token);
 	  Login::instance().controlConnection->sendAnswer(*clientDisconnectSend);  
 	  delete clientDisconnectSend;
 	}
+	std::cout << "Usuario deslogueado correctamente." << std::endl;
       }    
   }
   Login::instance().loginMutex.unlock();
@@ -42,7 +41,6 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
   LogoutRequestSend* logoutRequestSend = new LogoutRequestSend(answerCode);
   c->sendAnswer(*logoutRequestSend);
   delete logoutRequestSend;
-  std::cout << "Usuarios connectats post logout: " << Login::instance().usersConnected << std::endl;
   
 }
 
