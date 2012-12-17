@@ -25,7 +25,7 @@ int main(int argc, char** argv){
 
 	if (n->isLinkOnline()){			
 			TestTransferableSent100* sent100 = NULL;
-			sent100 = new TestTransferableSent100("user1","user1");
+			sent100 = new TestTransferableSent100(argv[3],argv[4]);
 		
 			printf("MainClient(): Sending100...\n");
 			fflush(stdout);
@@ -38,7 +38,7 @@ int main(int argc, char** argv){
 			printf("Ahora hacemos logout\n");
 			fflush(stdout);
 			TestTransferableSent102* sent102 = NULL;
-			sent102 = new TestTransferableSent102(atoi(argv[3]),atoi(argv[4]));
+			sent102 = new TestTransferableSent102(0,0);
 			printf("MainClient(): Sending102...\n");
 			fflush(stdout);
 			n->send(*sent102);
