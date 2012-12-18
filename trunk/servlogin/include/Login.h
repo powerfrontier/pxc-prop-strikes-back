@@ -9,7 +9,7 @@
 #include <map>
 
 #define ROUTER_IP "127.0.0.1"
-#define ROUTER_PORT "3500"
+#define ROUTER_PORT "3456"
 #define IP_LENGTH 16
 #define PORT_LENGTH 5
 
