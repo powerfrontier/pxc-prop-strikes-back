@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <InstClient.h>
+
 //SENT
 
 //ID 1
@@ -67,3 +69,18 @@ DelUserRcvd::~DelUserRcvd() { }
 void DelUserRcvd::exec(Connection* c) const throw() {
 	Router::instance().delUser(mUserId);
 }
+
+ConnectUserRcvd::ConnectUserRcvd() : Datagram<ConnectUserRcvd>("ConnectUserRcvd") { }
+ConnectUserRcvd::~ConnectUserRcvd() { }
+
+void ConnectUserRcvd::exec(Connection* c) const throw() {
+	Router::instance().connectUser(mUserId, mToken, c);
+	ConnectCLientSend* sendA = new ConnectCLientSend(mUserId, mToken);
+	c->sendAnswer(*sendA);
+	delete sendA;
+}
+
+
+ConnectCLientSend::ConnectCLientSend(int32_t id, int32_t token) : Datagram<ConnectCLientSend>("ConnectCLientSend"), mIdClient(id), mZone(token) { }
+ConnectCLientSend::~ConnectCLientSend() { }
+

@@ -374,8 +374,11 @@ void TCPConnectionSecurity::receiveTransfThread() throw(ConnectionException){
 
         TransferableCreator* c;
         try {
+		std::cout << "PRO1" << protocol << " inst" << instruction << std::endl;
                 TransferableFactory::instance().setProtocol(protocol);
+		std::cout << "PRO2" << protocol << " inst" << instruction << std::endl;
                 c = TransferableFactory::instance().creator(instruction);
+		std::cout << "PRO3" << protocol << " inst" << instruction << std::endl;
         }catch(TransferableVersionException& e){
                 std::cerr << "Protocol or instruction received incorrect" << std::endl;
                 throw ConnectionException(e.what());

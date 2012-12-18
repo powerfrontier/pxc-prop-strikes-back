@@ -77,4 +77,24 @@ public:
 	void exec(Connection* c) const throw();
 };
 
+
+class ConnectUserRcvd : public Datagram<ConnectUserRcvd> {
+	int32_t mUserId;
+	int32_t mToken;
+public:
+	ConnectUserRcvd();
+	~ConnectUserRcvd();
+	
+	void exec(Connection* c) const throw();
+};
+
+class ConnectUserSend : public Datagram<ConnectUserSend> {
+	int32_t mUserId;
+	int32_t mToken;
+public:
+	ConnectUserSend(int32_t id, int32_t t);
+	~ConnectUserSend();
+
+};
+
 #endif
