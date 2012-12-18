@@ -3,4 +3,7 @@ De 150 a 200: instrucciones entre router y servidor de juegos
 150: AddRouterSend - AddRouterRcvd
 155: EndZoneTransferSend - EndZoneTransferRcvd
 
+De 200 a 250: instrucciones entre cliente y router
+200: ConnectClientSend - ConnectClientRcvd
+
 De 500 en adelante: Instrucciones entre cliente de juego y servidor de juego pasando por router, y sentido inverso 

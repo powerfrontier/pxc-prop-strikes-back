@@ -1,4 +1,6 @@
 #include <Client.h>
+#include <iostream>
+
 
 int main(int argc, char** argv) {
 	Client* c = NULL;
@@ -8,7 +10,7 @@ int main(int argc, char** argv) {
 	std::string password = "";
 
 	if (argc < 5) {
-		cerr << "Usage: client iplogin portlogin user pass" << std::endl;
+		std::cerr << "Usage: client iplogin portlogin user pass" << std::endl;
 		return 1;
 	}
 
@@ -17,7 +19,7 @@ int main(int argc, char** argv) {
 	username = argv[3];
 	password = argv[4];
 
-	c = Client::instance();
+	c = Client::instancePtr();
 	c->setLoginAddress(loginIp, loginPort);
 	c->login(username, password);
 

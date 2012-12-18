@@ -70,11 +70,15 @@ int main(int argc, char** argv) {
 	}	
 	/*
 	while (command != "exit") {
+		std::cout << std::endl << ">";
 		std::cin >> command;
-		
 	}*/
 	gs->stopAll();
+	std::cout << "1" << std::endl;
 	delete controlCM;
+	std::cout << "2" << std::endl;
 	delete routerCM;
+	std::cout << "3" << std::endl;
 	delete gs;
+	std::cout << "out" << std::endl;
 }

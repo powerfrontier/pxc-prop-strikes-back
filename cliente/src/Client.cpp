@@ -1,31 +1,94 @@
 #include <Client.h>
+#include <iostream>
+#include <ctime>
 
-ClientLoginListener::ClientLoginListener() : ConnectionCallback() { }
-ClientLoginListener::~ClientLoginListener() { }
+#include <InstLogin.h>
+#include <InstRouter.h>
 
-void ClientLoginListener::callbackFunction(Transferable* received, Connection*) throw() {
+Zone::Zone(int id) : mZoneId(id), mUsers() {
+	
+}
+
+Zone::~Zone() {
+	
+}
+
+int Zone::id() const { return mZoneId; }
+const std::set<int>& Zone::users() const { return mUsers; }
+
+bool Zone::hasUser(int idUser) const {
+	auto it = mUsers.find(idUser);
+	
+	return it != mUsers.end();
+}
+
+
+void ClientGame::execInstructions() throw() {
+	std::pair<Instruction*, Connection*> ins;
+	while(!mInstructions.empty()) {
+		//Exec every pending instruction and delete ir afterwards
+		ins = mInstructions.front();
+		ins.first->exec(ins.second);
+		delete ins.first;
+
+		mInstructions.pop();
+	}
+}
+
+ClientGame::ClientGame(Zone* zone) : mInstructions(), mZone(zone) { }
+
+ClientGame::~ClientGame() {
+	if (mZone) delete mZone;
+}
+
+bool ClientGame::step (double stepTime) throw() {
+	bool valid = true;
+	valid = gameStep(stepTime);
+	if (valid) execInstructions();
+
+	return valid;
+}
+
+Zone* ClientGame::zone() const {
+	return mZone;
+}
+
+void ClientGame::addInstruction (Instruction* ins, Connection* c) throw() {
+	if (ins) mInstructions.push(std::pair<Instruction*, Connection*>(ins, c));
+}
+
+
+
+
+
+Client::ClientLoginListener::ClientLoginListener() : ConnectionCallback() { }
+Client::ClientLoginListener::~ClientLoginListener() { }
+
+void Client::ClientLoginListener::callbackFunction(Transferable* received, Connection*) throw() {
 
 }
 
-ClientRouterListener::ClientRouterListener() : ConnectionCallback() { }
-ClientRouterListener::~ClientRouterListener() { }
+Client::ClientRouterListener::ClientRouterListener() : ConnectionCallback() { }
+Client::ClientRouterListener::~ClientRouterListener() { }
 
-void ClientRouterListener::callbackFunction(Transferable* received, Connection*) throw() {
+void Client::ClientRouterListener::callbackFunction(Transferable* received, Connection*) throw() {
 
 }
 
 
 
-Client::Client() 	: CONTROL_LISTENER(new ClientControlListener())
-			, ROUTER_LISTENER(new ClientRouterListener())
+
+
+Client::Client() 	: Singleton<Client>()
+			, LOGIN_LISTENER(new Client::ClientLoginListener())
+			, ROUTER_LISTENER(new Client::ClientRouterListener())
 			, mGame(NULL)
 			, mUserId(-1)
+			, mToken(-1)
 			, mUser()
 			, mPassword()
 			, mLoginIp()
 			, mLoginPort()
-			, mRouterIp()
-			, mRouterPort()
 			, mLogin(NULL)
 			, mRouter(NULL)
 			, mSurface(NULL)
@@ -37,11 +100,11 @@ Client::Client() 	: CONTROL_LISTENER(new ClientControlListener())
 
 
 Client::~Client() {
-	if (CONTROL_LISTENER) delete CONTROL_LISTENER;
+	if (LOGIN_LISTENER) delete LOGIN_LISTENER;
 	if (ROUTER_LISTENER) delete ROUTER_LISTENER;
 	if (mGame) delete mGame;
 	if (mLogin) delete mLogin;
-	if (mRouter) delete mRouter);
+	if (mRouter) delete mRouter;
 	
 	if (mInit) {
 		SDL_Quit();
@@ -56,24 +119,63 @@ int Client::id() const {
 	return mUserId;
 }
 
+void Client::token(int token) {
+	mToken = token;
+}
+
+int Client::token() const {
+	return mToken;
+}
+
 void Client::setLoginAddress(const std::string& ip, const std::string& port) {
 	mLoginIp = ip;
 	mLoginPort = port;
+	mLogin = new TCPConnectionSecurity();
+	
+	if (!mLogin->connect(mLoginIp, mLoginPort)) {
+		delete mLogin;
+		mLogin = NULL;
+	}
 }
 
 bool Client::login(const std::string& user, const std::string& password) {
-	//TODO: Conectar
-	//TODO: InstLogin
+	time_t startTime, endTime;
+	double connectTime = 0.0;
+	
+	if (!mLogin) return false;
+	LoginRequestSend* login = new LoginRequestSend(user, password);
+	mLogin->send(*login);
+	delete login;
+	
+	
+	time(&startTime);
 	while(!mLoggedIn || !mBadLogOn) { 
-		//TODO: TimeOut
+		//Wait for ConnectClient to work
+		time(&endTime);
+		connectTime = difftime(endTime, startTime);
+		
+		if (connectTime > 10.0) {
+			std::cerr << "Timeout" << std::endl;
+			mLogin->close();
+			delete mLogin;
+			return;
+		}
 	}
 	if (!mBadLogOn && init()) {
+		mUser = user;
+		mPassword = password;
+		
 		go();
 		return true;
 	} else {
 		std::cerr << "Unable to init game" << std::endl;
 		return false;
 	}
+}
+
+void Client::login(bool right) {
+	mLoggedIn = right;
+	mBadLogOn = !right;
 }
 
 bool Client::init() {
@@ -94,8 +196,16 @@ bool Client::init() {
 }
 
 void Client::go() {
+	time_t startTime, endTime;
+	double stepTime = 0.0;
+	
+	time(&startTime);
 	while(mLoggedIn && mInit) {
-		mGame->step();
+		mGame->step(stepTime);
+		time(&endTime);
+		stepTime = difftime(endTime, startTime);
+		
+		time(&startTime);
 	}
 }
 
@@ -112,12 +222,16 @@ void Client::routerConnection(Connection* c) {
 }
 
 void Client::setZone(int idZone) {
+	ClientGame* newGame = NULL;
+	if (!mGame) return;
+	
+	newGame = sGameCreator->create(idZone);
 	//TODO
-	ClientGame* newGame = 
+	//ClientGame* newGame = 
 }
 
-Zone* Client::zone() {
-	return mGame ? mGame->zone() : NULL;
+ClientGame* Client::game() {
+	return mGame;
 }
 
 void Client::addInstruction(Instruction* inst, Connection* c) throw() {

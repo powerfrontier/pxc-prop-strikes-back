@@ -14,7 +14,21 @@ public:
 };
 
 
+
 //RECEIVED
+
+
+//ID 5
+class ChangeZoneRcvd : public Datagram<ChangeZoneRcvd> {
+	int mIdZone;
+	int mIdSourceServer;
+	int mIdDestServer;
+public:
+	ChangeZoneRcvd();
+	~ChangeZoneRcvd();
+	
+	void exec(Connection* c) const throw();
+};
 
 //ID 6
 class GetServerIpRvcd : public Datagram<GetServerIpRvcd> {

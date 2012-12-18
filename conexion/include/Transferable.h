@@ -8,6 +8,7 @@
 #include <string>
 #include <typeinfo>
 #include <exception>
+#include <cstdint>
 #include <Singleton.h>
 #include <Instruction.h>
 

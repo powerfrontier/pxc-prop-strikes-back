@@ -20,7 +20,7 @@ ServerLoadAnswerSend::~ServerLoadAnswerSend() {
 
 //ID 1
 GetServerIpSend::GetServerIpSend(int serverId) 	: Datagram<GetServerIpSend>("GetServerIpSend")
-						, mServerId(serverId) { }
+							, mServerId(serverId) { }
 						
 GetServerIpSend::~GetServerIpSend() { }
 

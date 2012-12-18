@@ -1,10 +1,10 @@
 #ifndef _PXC_GAME_H_
 #define _PXC_GAME_H_
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
-#include <Zone.h>
 #include <map>
+#include <Client.h>
 
 class PXCGame;
 
@@ -36,24 +36,25 @@ public:
 class PXCGame : public ClientGame {
 	SDL_Surface* mSurface;
 	protected:
-	virtual void sendAction();
 
-	void initDrawWindow();
-	void draw() const;
-
-	virtual bool gameStep (double stepTime) throw();
+	bool initDrawWindow();
 	
+	void logic(double stepTime);
+	void draw() const;
+	void input();
+	
+	bool gameStep (double stepTime) throw();
 	public:
 	PXCGame(PXCZone* zone);
-	virtual ~PXCGame();	
+	virtual ~PXCGame();
 
 	virtual bool init();
-	virtual void setState(int idUser, double pos[3], double dir[3], double speed);
+	virtual void setUserState(int idUser, double pos[3], double dir[3], double speed);
 };
 
-class PXCGameCreator : public ZoneCallbackCreator {
+class PXCGameCreator : public GameCreator {
 public:
-	virtual ZoneCallback* create(int zoneId);
+	ClientGame* create(int zoneId);
 };
 
 
