@@ -1,5 +1,6 @@
 #include <Client.h>
 #include <iostream>
+#include <ClientProfile.h>
 
 
 int main(int argc, char** argv) {
@@ -19,6 +20,9 @@ int main(int argc, char** argv) {
 	username = argv[3];
 	password = argv[4];
 
+	//Configure connection
+	TransferableFactory::instance().setProfile(new ClientProfile());
+	TransferableFactory::instance().setProtocol("0.1a");
 	c = Client::instancePtr();
 	c->setLoginAddress(loginIp, loginPort);
 	c->login(username, password);
