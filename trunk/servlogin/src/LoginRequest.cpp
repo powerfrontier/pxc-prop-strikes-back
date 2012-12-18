@@ -22,10 +22,11 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   int clientId,oldClientId; //Id del cliente en nuestro sistema (mapeo directo id-username)
   int token,oldToken; //Token de sesión si es un login correcto. Si no, se ignora. Login necesita mandar el mismo token con el id del cliente al router, junto a la zona en la que se encuentra inicialmente
   ///////////////////////
-  
+
   Login::instance().loginMutex.lock();  
   user = username;
   pwd = password;
+  cout << "Se ejecuta nueva petición de login con usuario: " << user << endl;
   if(Login::instance().validate(user,pwd) ){
 	  answerCode = 0;
 	  strcpy(routerIp, ROUTER_IP);
