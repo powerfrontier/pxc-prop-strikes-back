@@ -48,7 +48,7 @@ for(i = 0; i < 100; ++i){
 	fflush(stdout);
 	delete sent100;
 			
-	printf("Ahora hacemos logout\n");
+	/*printf("Ahora hacemos logout\n");
 	fflush(stdout);
 	TestTransferableSent102* sent102 = NULL;
 	sent102 = new TestTransferableSent102(0,0);
@@ -58,7 +58,7 @@ for(i = 0; i < 100; ++i){
 	printf("MainClient(): sent102\n");
 	fflush(stdout);
 	delete sent102;
-
+*/
 	
 
 //		}else{

@@ -32,6 +32,7 @@ class Login : public Singleton<Login> {
 	std::map<std::string,int> userToIdMap;
 	std::map<int,std::string> idToUserMap;
 	std::mutex loginMutex;
+	std::mutex queryBdMutex;
 	unsigned int usersConnected;
 	friend class LoginRequestRcvd;
 	friend class LogoutRequestRcvd;
