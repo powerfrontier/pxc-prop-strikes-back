@@ -1,0 +1,18 @@
+//LOGIN sControl sJugador
+pxc-prop-strikes-back/servlogin$ bin/Login  3457 3450
+
+//ServerGame
+pxc-prop-strikes-back/servjuego/bin$ ./gameServer 3458 ????
+pxc-prop-strikes-back/servjuego/bin$ ./gameServer 3459 ????
+pxc-prop-strikes-back/servjuego/bin$ ./gameServer 3460 ????
+pxc-prop-strikes-back/servjuego/bin$ ./gameServer 3461 ????
+pxc-prop-strikes-back/servjuego/bin$ ./gameServer 3462 ????
+
+//control
+pxc-prop-strikes-back/servcontrol$ ./Control
+
+//servrouter
+pxc-prop-strikes-back/servrouter/bin$ ./router 3456 CLIENT_LISTENER
+
+//cliente
+pxc-prop-strikes-back/cliente/bin$ ./client 127.0.0.1 3450 user1 user1
