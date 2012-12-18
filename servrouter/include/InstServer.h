@@ -28,30 +28,30 @@ public:
 //RECEIVED
 
 //ID 8
-class AddUserRcvd : public Datagram<AddUserRcvd> {
-	int idUser;
-	int idZone;
+class SetAddUserRcvd : public Datagram<SetAddUserRcvd> {
+	int32_t idUser;
+	int32_t idZone;
 public:
-	AddUserRcvd();
-	~AddUserRdcvd();
+	SetAddUserRcvd();
+	~SetAddUserRcvd();
 	
 	void exec(Connection* c) throw();
 };
 
 //ID 9
-class DelUserRcvd : public Datagram<DelUserRcvd> {int idUser;
-	int mIdUser;
-	int mIdZone;
+class SetDelUserRcvd : public Datagram<SetDelUserRcvd> {
+	int32_t mIdUser;
+	int32_t mIdZone;
 public:
-	DelUserRcvd();
-	~DelUserRcvd();
+	SetDelUserRcvd();
+	~SetDelUserRcvd();
 	
 	void exec(Connection* c) throw();
 };
 
 //ID 155
 class EndZoneTransferRcvd : public Datagram<EndZoneTransferRcvd> {
-	int mZoneId;
+	int32_t mZoneId;
 public:
 	EndZoneTransferRcvd();
 	~EndZoneTransferRcvd();

@@ -3,12 +3,28 @@
 
 #include <Datagram.h>
 
-class ClientConnectsRcvd : public Datagram<ClientConnectsRcvd> {
-	int mIdClient;
-	int mToken;
+//SENT
+
+//ID 201
+class ConnectCLientSend : public Datagram<ConnectCLientSend> {
+	int32_t mIdClient;
+	int32_t mZone;
 public:
-	ClientConnectsRcvd();
-	~ClientConnectsRcvd();
+	ConnectCLientSend();
+	~ConnectCLientSend();
+	
+};
+
+//RECEIVED
+
+
+//ID 200
+class ConnectCLientRcvd : public Datagram<ConnectCLientRcvd> {
+	int32_t mIdClient;
+	int32_t mToken;
+public:
+	ConnectCLientRcvd();
+	~ConnectCLientRcvd();
 	
 	void exec(Connection* c) const throw();
 };

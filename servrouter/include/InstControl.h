@@ -20,9 +20,9 @@ public:
 
 //ID 5
 class ChangeZoneRcvd : public Datagram<ChangeZoneRcvd> {
-	int mIdZone;
-	int mIdSourceServer;
-	int mIdDestServer;
+	int32_t mIdZone;
+	int32_t mIdSourceServer;
+	int32_t mIdDestServer;
 public:
 	ChangeZoneRcvd();
 	~ChangeZoneRcvd();
@@ -32,7 +32,7 @@ public:
 
 //ID 6
 class GetServerIpRvcd : public Datagram<GetServerIpRvcd> {
-	int mServerId;
+	int32_t mServerId;
 	char mIpServer[16]; //Char[16] con la IP del server
 	char mPortServer[5]; //Char[5] con el puerto del server
 	
@@ -45,8 +45,8 @@ public:
 	
 //ID 7: Initialize (not change) a new server/zone pair, create both if not exist
 class SetZoneToServerRcvd : public Datagram<SetZoneToServerRcvd> {
-	int mIdServer; //-1 as invalid
-	int mIdZone; //-1 as invalid
+	int32_t mIdServer; //-1 as invalid
+	int32_t mIdZone; //-1 as invalid
 public:
 	SetZoneToServerRcvd();
 	~SetZoneToServerRcvd();
@@ -56,9 +56,9 @@ public:
 	
 //ID 60: Add a new user/modify it's current token
 class AddUserRcvd : public Datagram<AddUserRcvd> {
-	int mIdUser;
-	int mToken;
-	int mZoneId;
+	int32_t mIdUser;
+	int32_t mToken;
+	int32_t mZoneId;
 	
 public:
 	AddUserRcvd();
@@ -69,7 +69,7 @@ public:
 
 //ID 61: Removes a currently active user
 class DelUserRcvd : public Datagram<DelUserRcvd> {
-	int mUserId;
+	int32_t mUserId;
 public:
 	DelUserRcvd();
 	~DelUserRcvd();

@@ -12,18 +12,18 @@ AddRouterSend::~AddRouterSend() { }
 //RECEIVED
 
 //ID 8
-AddUserRcvd::AddUserRcvd() : Datagram<AddUserRcvd>("AddUserRcvd") { }
-AddUserRcvd::~AddUserRdcvd() { }
+SetAddUserRcvd::SetAddUserRcvd() : Datagram<SetAddUserRcvd>("SetAddUserRcvd") { }
+SetAddUserRcvd::~SetAddUserRcvd() { }
 
-void AddUserRcvd::exec(Connection* c) throw() {
+void SetAddUserRcvd::exec(Connection* c) throw() {
 	//TODO
 }
 
 //ID 9
-DelUserRcvd::DelUserRcvd() : Datagram<DelUserRcvd>("DelUserRcvd") { }
-DelUserRcvd::~DelUserRcvd() { }
+SetDelUserRcvd::SetDelUserRcvd() : Datagram<SetDelUserRcvd>("SetDelUserRcvd") { }
+SetDelUserRcvd::~SetDelUserRcvd() { }
 
-void DelUserRcvd::exec(Connection* c) throw() {
+void SetDelUserRcvd::exec(Connection* c) throw() {
 	//TODO
 }
 
