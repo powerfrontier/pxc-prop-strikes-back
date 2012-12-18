@@ -92,6 +92,7 @@ Client::Client() 	: Singleton<Client>()
 			, mLogin(NULL)
 			, mRouter(NULL)
 			, mSurface(NULL)
+			, mGameMutex()
 			, mLoggedIn(false)
 			, mBadLogOn(false)
 			, mInit(false) {
@@ -201,7 +202,10 @@ void Client::go() {
 	
 	time(&startTime);
 	while(mLoggedIn && mInit) {
+		mGameMutex.lock();
 		mGame->step(stepTime);
+		mGameMutex.unlock();
+		
 		time(&endTime);
 		stepTime = difftime(endTime, startTime);
 		
@@ -216,18 +220,24 @@ void Client::logout() {
 void Client::routerConnection(Connection* c) {
 	if (mRouter) {
 		mRouter->close();
-// 		delete mRouter;
+		delete mRouter;
 	}
 	mRouter = c;
 }
 
 void Client::setZone(int idZone) {
 	ClientGame* newGame = NULL;
+	ClientGame* oldGame = mGame;
+	
 	if (!mGame) return;
 	
 	newGame = sGameCreator->create(idZone);
-	//TODO
-	//ClientGame* newGame = 
+	newGame->init();
+	mGameMutex.lock();
+	mGame = newGame;
+	mGameMutex.unlock();
+	delete oldGame;
+	
 }
 
 ClientGame* Client::game() {
@@ -235,7 +245,11 @@ ClientGame* Client::game() {
 }
 
 void Client::addInstruction(Instruction* inst, Connection* c) throw() {
-	//TODO: if (mGame) mGame->addInstruction(inst, c);
+	if (mGame) mGame->addInstruction(inst, c);
+	else {
+		inst->exec(c);
+		delete inst;
+	}
 }
 
 void Client::sendAction(Transferable* tr) {

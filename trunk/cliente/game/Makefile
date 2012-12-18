@@ -23,4 +23,3 @@ clean:
 
 cleanest: clean
 	rm -f $(BINPATH)libGame.a
-

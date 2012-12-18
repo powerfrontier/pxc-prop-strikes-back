@@ -4,6 +4,7 @@
 #include <string>
 #include <set>
 #include <queue>
+#include <thread>
 
 #include <SDL/SDL.h>
 
@@ -99,6 +100,8 @@ protected:
 	Connection* mRouter;
 	
 	SDL_Surface* mSurface;
+	
+	std::mutex mGameMutex;
 	
 	bool mLoggedIn;
 	bool mBadLogOn;
