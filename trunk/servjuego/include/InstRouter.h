@@ -17,11 +17,11 @@ public:
 
 //ID 8
 class AddUserRcvd : public Datagram<AddUserRcvd> {
-	int idUser;
-	int idZone;
+	int mIdUser;
+	int mIdZone;
 public:
 	AddUserRcvd();
-	~AddUserRdcvd();
+	~AddUserRcvd();
 	
 	void exec(Connection* c) throw();
 };
