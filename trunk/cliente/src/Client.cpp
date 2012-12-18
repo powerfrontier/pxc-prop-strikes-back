@@ -93,6 +93,7 @@ Client::Client() 	: Singleton<Client>()
 			, mRouter(NULL)
 			, mSurface(NULL)
 			, mGameMutex()
+			, mIsOnLogin(false)
 			, mLoggedIn(false)
 			, mBadLogOn(false)
 			, mInit(false) {
@@ -145,26 +146,34 @@ bool Client::login(const std::string& user, const std::string& password) {
 	
 	if (!mLogin) return false;
 	LoginRequestSend* login = new LoginRequestSend(user, password);
+	
+	isOnLogin(true);
+	
 	mLogin->send(*login);
 	delete login;
 	
 	
 	time(&startTime);
-	while(!mLoggedIn || !mBadLogOn) { 
+	while(isOnLogin()) { 
 		//Wait for ConnectClient to work
 		time(&endTime);
 		connectTime = difftime(endTime, startTime);
 		
 		if (connectTime > 10.0) {
 			std::cerr << "Timeout" << std::endl;
-			mLogin->close();
-			delete mLogin;
+			isOnLogin(false);
+			
 			return false;
 		}
+	}if (mBadLogOn) {
+		std::cerr << "Wrong username/password!" << std::endl;
+		return false;
 	}
-	if (!mBadLogOn && init()) {
+	else if (init()) {
 		mUser = user;
 		mPassword = password;
+		
+		mLoggedIn = true;
 		
 		go();
 		return true;
@@ -174,9 +183,21 @@ bool Client::login(const std::string& user, const std::string& password) {
 	}
 }
 
-void Client::login(bool right) {
-	mLoggedIn = right;
+void Client::correctLogin(bool right) {
 	mBadLogOn = !right;
+	isOnLogin(false);
+}
+
+void Client::isOnLogin(bool b) {
+	mIsOnLogin = b;
+}
+
+bool Client::isOnLogin() const {
+	return mIsOnLogin;
+}
+
+bool Client::isLoggedIn() const {
+	return mLoggedIn;
 }
 
 bool Client::init() {
@@ -213,9 +234,6 @@ void Client::go() {
 	}
 }
 
-void Client::logout() {
-	mLoggedIn = false;
-}
 
 void Client::routerConnection(Connection* c) {
 	if (mRouter) {

@@ -12,5 +12,5 @@ ConnectCLientReceived::ConnectCLientReceived() : Datagram<ConnectCLientReceived>
 ConnectCLientReceived::~ConnectCLientReceived () { }
 
 void ConnectCLientReceived::exec(Connection* ) const throw() {
-	Client::instance().login(mAccessCode == 0);
+	Client::instance().isOnLogin(false);
 }

@@ -26,16 +26,17 @@ void LoginRequestRcvd::exec(Connection*) const throw() {
 	ConnectClientSend* conn = NULL;
 	
 	if (mAnswerCode != 0) {
-		Client::instance().login(false);
+		Client::instance().correctLogin(false);
 		return;
 	}
 	
 	Client::instance().id(mClientId);
 	Client::instance().token(mToken);
+	
 	router = new TCPConnectionSecurity();
 	if (!router->connect(mRouterIp, mRouterPort)) {
 		delete router;
-		Client::instance().login(false);
+		Client::instance().isOnLogin(false);
 		return;
 	}
 	Client::instance().routerConnection(router);
@@ -43,4 +44,5 @@ void LoginRequestRcvd::exec(Connection*) const throw() {
 	conn = new ConnectClientSend(mClientId, mToken);
 	router->send(*conn);
 	delete conn;
+	
 }
