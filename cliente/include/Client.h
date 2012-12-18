@@ -103,6 +103,7 @@ protected:
 	
 	std::mutex mGameMutex;
 	
+	bool mIsOnLogin;
 	bool mLoggedIn;
 	bool mBadLogOn;
 	bool mInit;
@@ -120,7 +121,10 @@ public:
 
 	void setLoginAddress(const std::string& ip, const std::string& port);
 	bool login(const std::string& user, const std::string& password);
-	void login(bool right);
+	void correctLogin(bool right);
+	void isOnLogin(bool);
+	bool isOnLogin() const;
+	bool isLoggedIn() const;
 
 	void routerConnection(Connection*);
 
@@ -130,7 +134,6 @@ public:
 	
 	void addInstruction(Instruction*, Connection*) throw();
 
-	void logout();
 	void sendAction(Transferable*);
 
 };

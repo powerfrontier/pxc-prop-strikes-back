@@ -20,6 +20,7 @@ public:
 
 class ConnectCLientReceived : public Datagram<ConnectCLientReceived> {
 	int32_t mAccessCode;
+	int32_t mZone;
 public:
 	ConnectCLientReceived();
 	~ConnectCLientReceived ();
