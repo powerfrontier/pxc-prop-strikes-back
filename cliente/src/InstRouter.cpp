@@ -13,6 +13,7 @@ ConnectCLientReceived::~ConnectCLientReceived () { }
 
 void ConnectCLientReceived::exec(Connection* ) const throw() {
 	if ((Client::instance().id() == mIdClient) && Client::instance().isOnLogin()) {
+		Client::instance().setZone(mZone);
 		Client::instance().isOnLogin(false);
 	}
 }
