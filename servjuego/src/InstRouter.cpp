@@ -3,7 +3,7 @@
 
 //ID 8
 AddUserRcvd::AddUserRcvd() : Datagram<AddUserRcvd>("AddUserRcvd") { }
-AddUserRcvd::~AddUserRdcvd() { }
+AddUserRcvd::~AddUserRcvd() { }
 
 void AddUserRcvd::exec(Connection* c) throw() {
 	GameServer::instance().addClient(mIdUser, mIdZone);
