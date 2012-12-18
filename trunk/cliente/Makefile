@@ -2,7 +2,7 @@ INCLUDEPATH = include/
 SRCPATH = src/
 BINPATH = bin/
 CC      = g++
-CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -std=c++0x
+CFLAGS  = -I$(INCLUDEPATH) -I../conexion/$(INCLUDEPATH) -Igame/$(INCLUDEPATH) -std=c++0x
 LDFLAGS = -L$(BINPATH) -lConnection -lGame -lssl -lcrypto -pthread -lSDL
 
 .PHONY: all clean cleanest $(BINPATH)libConnection.a game/$(BINPATH)libGame.a
@@ -15,6 +15,7 @@ $(BINPATH)client: 	$(BINPATH)libConnection.a \
 			$(BINPATH)ClientProfile.o \
 			$(BINPATH)InstLogin.o \
 			$(BINPATH)InstRouter.o \
+			$(BINPATH)InstServer.o \
 			$(BINPATH)main.o
 
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -37,6 +38,9 @@ $(BINPATH)InstLogin.o: $(SRCPATH)InstLogin.cpp $(INCLUDEPATH)InstLogin.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)InstRouter.o: $(SRCPATH)InstRouter.cpp $(INCLUDEPATH)InstRouter.h
+	$(CC) -c $(CFLAGS) $< -o $@
+	
+$(BINPATH)InstServer.o: $(SRCPATH)InstServer.cpp $(INCLUDEPATH)InstServer.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINPATH)main.o: $(SRCPATH)main.cpp

@@ -49,7 +49,7 @@ class PXCGame : public ClientGame {
 	virtual ~PXCGame();
 
 	virtual bool init();
-	virtual void setUserState(int idUser, double pos[3], double dir[3], double speed);
+	virtual void setUserState(int idUser, const double pos[3], const double dir[3], double speed);
 };
 
 class PXCGameCreator : public GameCreator {
