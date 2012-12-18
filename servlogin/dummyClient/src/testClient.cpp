@@ -39,7 +39,7 @@ for(i = 0; i < 100; ++i){
 	std::cout << "Conexion num: " << i << std::endl;	
 	n = conexiones.at(i);
 	TestTransferableSent100* sent100 = NULL;
-	sent100 = new TestTransferableSent100((char*)numberConnection.c_str(),argv[4]);
+	sent100 = new TestTransferableSent100(argv[3],argv[4]);
 
 	printf("MainClient(): Sending100...\n");
 	fflush(stdout);
