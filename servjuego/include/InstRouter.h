@@ -27,7 +27,7 @@ public:
 };
 
 //ID 9
-class DelUserRcvd : public Datagram<DelUserRcvd> {int idUser;
+class DelUserRcvd : public Datagram<DelUserRcvd> {
 	int mIdUser;
 	int mIdZone;
 public:
