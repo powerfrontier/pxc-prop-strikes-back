@@ -12,7 +12,7 @@ pxc-prop-strikes-back/servjuego/bin$ ./gameServer 3462 ????
 pxc-prop-strikes-back/servcontrol$ ./Control 5
 
 //servrouter
-pxc-prop-strikes-back/servrouter/bin$ ./router 3456 CLIENT_LISTENER
+pxc-prop-strikes-back/servrouter/bin$ ./router 3456 3455
 
 //cliente
 pxc-prop-strikes-back/cliente/bin$ ./client 127.0.0.1 3450 user1 user1
