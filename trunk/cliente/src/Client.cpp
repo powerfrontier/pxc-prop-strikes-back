@@ -187,7 +187,6 @@ bool Client::login(const std::string& user, const std::string& password) {
 
 void Client::correctLogin(bool right) {
 	mBadLogOn = !right;
-	isOnLogin(false);
 }
 
 void Client::isOnLogin(bool b) {

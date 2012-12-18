@@ -27,8 +27,10 @@ void LoginRequestRcvd::exec(Connection*) const throw() {
 	
 	if (mAnswerCode != 0) {
 		Client::instance().correctLogin(false);
+		Client::instance().isOnLogin(false);
 		return;
 	}
+	Client::instance().correctLogin(true);
 	
 	Client::instance().id(mClientId);
 	Client::instance().token(mToken);
