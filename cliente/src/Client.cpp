@@ -158,7 +158,7 @@ bool Client::login(const std::string& user, const std::string& password) {
 			std::cerr << "Timeout" << std::endl;
 			mLogin->close();
 			delete mLogin;
-			return;
+			return false;
 		}
 	}
 	if (!mBadLogOn && init()) {
