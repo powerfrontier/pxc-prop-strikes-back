@@ -43,7 +43,7 @@ for(i = 0; i < 100; ++i){
 
 	printf("MainClient(): Sending100...\n");
 	fflush(stdout);
-	n->send(*sent100);
+	conexiones.at(i)->send(*sent100);
 	printf("MainClient(): sent100\n");
 	fflush(stdout);
 	delete sent100;
@@ -54,7 +54,7 @@ for(i = 0; i < 100; ++i){
 	sent102 = new TestTransferableSent102(0,0);
 	printf("MainClient(): Sending102...\n");
 	fflush(stdout);
-	n->send(*sent102);
+	conexiones.at(i)->send(*sent102);
 	printf("MainClient(): sent102\n");
 	fflush(stdout);
 	delete sent102;
