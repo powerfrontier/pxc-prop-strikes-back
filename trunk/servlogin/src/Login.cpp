@@ -58,11 +58,11 @@ bool Login::validate(string user, string pwd){
   int i;
   pwd = Login::instance().convertPwdToSha1(pwd,static_cast< int >( strlen( user.c_str() ) ));
   string query = "SELECT * FROM USERS WHERE USERNAME='" + user + "' AND PASSWORD='" + pwd +"'" ;
-  std::cout << "QUERY!INI"<< std::endl;
+  //std::cout << "QUERY!INI"<< std::endl;
   mysql_query(mysqlConnection, query.c_str());
-  std::cout << "QUERY!FIN"<< std::endl;
+  //std::cout << "QUERY!FIN"<< std::endl;
   result = mysql_store_result(mysqlConnection);
-  std::cout << "QUERY!STORE"<< std::endl;
+  //std::cout << "QUERY!STORE"<< std::endl;
   //num_fields = mysql_num_fields(result);
   num_rows = mysql_num_rows(result);
   /*while ((row = mysql_fetch_row(result)))
