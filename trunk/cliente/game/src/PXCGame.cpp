@@ -69,6 +69,7 @@ void PXCGame::input() {
 	int32_t y = -1;
 	SetDestinationSend* sendDest = NULL;
 	SetZoneSend* sendZone = NULL;
+	SDLKey keyPressed;
 	
 	while( SDL_PollEvent( &ev ) ){
 		switch( ev.type ){
@@ -79,7 +80,9 @@ void PXCGame::input() {
 				delete sendDest;
 			break;
 			case SDL_KEYDOWN:
-				switch (ev.keysim) { //ESTOY VAGO
+				keyPressed = ev.key.keysym.sym;
+      
+				switch (keyPressed) { //ESTOY VAGO
 					case SDLK_0:
 						x = 0;
 						break;
@@ -132,7 +135,7 @@ void PXCGame::setUserState(int idUser, const double pos[3], const double dir[3],
 	PXCZone* z = static_cast<PXCZone*>(mZone);
 	auto it = z->mUserData.find(idUser);
 	
-	if (it != mUserData.end()) {
+	if (it != z->mUserData.end()) {
 		it->second->mPosition[0] = pos[0];
 		it->second->mPosition[1] = pos[1];
 		it->second->mPosition[2] = pos[2];
