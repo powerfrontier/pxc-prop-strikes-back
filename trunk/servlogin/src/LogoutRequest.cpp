@@ -12,10 +12,12 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
   it = Login::instance().userTokenMap.find(clientId);
   if( it == Login::instance().userTokenMap.end() ){
     answerCode = 1;
+    std::cout << "Usuario no encontrado." << std::endl;
   }else{
       it = Login::instance().userTokenMap.find(clientId);
       if( it->second != token ){
 	answerCode = 2;
+	std::cout << "El token no se corresponde con la id del usuario." << std::endl;
       }else{
 	//Desconexión correcta
 	std::string username = Login::instance().idToUserMap.find(clientId)->second;
@@ -24,7 +26,7 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
 	Login::instance().idToConnectionMap.erase(Login::instance().idToConnectionMap.find(clientId));
 	Login::instance().connectionToIdMap.erase(Login::instance().connectionToIdMap.find(c));
 	Login::instance().userTokenMap.erase(it);
-	answerCode = 0;	
+	answerCode = 0;
 	Login::instance().usersConnected--;
 	//Enviar info balanceo
 	if(Login::instance().controlConnected){
@@ -35,13 +37,12 @@ void LogoutRequestRcvd::exec(Connection* c) const throw(){
 	std::cout << "Usuario deslogueado correctamente." << std::endl;
       }    
   }
-  Login::instance().loginMutex.unlock();
-  
+
   //Enviar info cliente
   LogoutRequestSend* logoutRequestSend = new LogoutRequestSend(answerCode);
   c->sendAnswer(*logoutRequestSend);
   delete logoutRequestSend;
-  
+  Login::instance().loginMutex.unlock();
 }
 
 LogoutRequestRcvd::~LogoutRequestRcvd(){
