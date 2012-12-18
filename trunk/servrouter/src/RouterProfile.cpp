@@ -1,6 +1,7 @@
 #include <RouterProfile.h>
 #include <InstControl.h>
 #include <InstServer.h>
+#include <InstClient.h>
 
 RouterProfile::RouterProfile() {
 	
@@ -25,7 +26,7 @@ RouterProfile::RouterProfile() {
 	//Clients
 	mCreatorIds.push_back(std::pair<std::string, int>("ConnectCLientSend", 201));
 	
-	mCreators.push_back(std::pair<int, TransferableCreator*>(200, new ConnectCLientRcvd::Creator("ConnectCLientRcvd")));
+	//mCreators.push_back(std::pair<int, TransferableCreator*>(200, new ConnectCLientRcvd::Creator("ConnectCLientRcvd")));
 }
 
 RouterProfile::~RouterProfile() {
