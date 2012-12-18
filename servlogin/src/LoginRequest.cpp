@@ -71,7 +71,6 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
   }  
   //Enviar info a balanceo  
   if(Login::instance().controlConnected){
-     cout << "Server control con enviado" << endl;
     NewClientSend* newClientSend = new NewClientSend(clientId,token);
     Login::instance().controlConnection->sendAnswer(*newClientSend);  
     delete newClientSend;
