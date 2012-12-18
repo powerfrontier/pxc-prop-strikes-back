@@ -10,7 +10,7 @@ class ConnectCLientSend : public Datagram<ConnectCLientSend> {
 	int32_t mIdClient;
 	int32_t mZone;
 public:
-	ConnectCLientSend();
+	ConnectCLientSend(int32_t client, int32_t zone);
 	~ConnectCLientSend();
 	
 };
