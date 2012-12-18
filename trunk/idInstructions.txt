@@ -7,3 +7,6 @@ De 200 a 250: instrucciones entre cliente y router
 200: ConnectClientSend - ConnectClientRcvd
 
 De 500 en adelante: Instrucciones entre cliente de juego y servidor de juego pasando por router, y sentido inverso 
+500: SetUserStatusSend - SetUserStatusRcvd
+501: SetZoneSend - SetZoneRcvd
+502: SetDestinationSend - SetDestinationRcvd
