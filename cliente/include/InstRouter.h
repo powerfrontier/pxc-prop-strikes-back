@@ -19,7 +19,7 @@ public:
 //ID 201
 
 class ConnectCLientReceived : public Datagram<ConnectCLientReceived> {
-	int32_t mAccessCode;
+	int32_t mIdClient;
 	int32_t mZone;
 public:
 	ConnectCLientReceived();

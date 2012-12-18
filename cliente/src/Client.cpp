@@ -165,7 +165,9 @@ bool Client::login(const std::string& user, const std::string& password) {
 			
 			return false;
 		}
-	}if (mBadLogOn) {
+	}
+	
+	if (mBadLogOn) {
 		std::cerr << "Wrong username/password!" << std::endl;
 		return false;
 	}

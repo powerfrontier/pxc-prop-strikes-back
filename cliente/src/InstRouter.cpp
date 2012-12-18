@@ -12,5 +12,7 @@ ConnectCLientReceived::ConnectCLientReceived() : Datagram<ConnectCLientReceived>
 ConnectCLientReceived::~ConnectCLientReceived () { }
 
 void ConnectCLientReceived::exec(Connection* ) const throw() {
-	Client::instance().isOnLogin(false);
+	if ((Client::instance().id() == mIdClient) && Client::instance().isOnLogin()) {
+		Client::instance().isOnLogin(false);
+	}
 }
