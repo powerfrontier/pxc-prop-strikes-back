@@ -63,6 +63,7 @@ public:
 
 //ID 6
 class SetServerIpRvcd : public Datagram<SetServerIpRvcd> {
+	int mServerId;
 	char mIPServer[16]; //Char[16] con la IP del server
 	char mPortServer[5]; //Char[5] con el puerto del server
 	

@@ -1,6 +1,7 @@
 #include <GameServer.h>
 #include <InstControl.h>
 
+#include <iostream>
 
 GameServer::ControlListener::ControlListener() : ConnectionCallback() { }
 GameServer::ControlListener::~ControlListener() { }

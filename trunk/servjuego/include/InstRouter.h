@@ -15,6 +15,28 @@ public:
 
 //RECEIVED
 
+//ID 8
+class AddUserRcvd : public Datagram<AddUserRcvd> {
+	int idUser;
+	int idZone;
+public:
+	AddUserRcvd();
+	~AddUserRdcvd();
+	
+	void exec(Connection* c) throw();
+};
+
+//ID 9
+class DelUserRcvd : public Datagram<DelUserRcvd> {int idUser;
+	int mIdUser;
+	int mIdZone;
+public:
+	DelUserRcvd();
+	~DelUserRcvd();
+	
+	void exec(Connection* c) throw();
+};
+
 //ID 150
 class AddRouterRcvd : public Datagram<AddRouterRcvd> {
 public:
@@ -23,5 +45,7 @@ public:
 	
 	void exec(Connection* c) throw();
 };
+
+
 
 #endif

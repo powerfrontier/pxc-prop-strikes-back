@@ -13,6 +13,14 @@ GetServerIpSend::~GetServerIpSend() { }
 
 //RECEIVED
 
+//ID 5
+ChangeZoneRcvd::ChangeZoneRcvd() : Datagram<ChangeZoneRcvd>("ChangeZoneRcvd") { }
+ChangeZoneRcvd::~ChangeZoneRcvd() { }
+
+void ChangeZoneRcvd::exec(Connection* c) const throw() {
+	//TODO
+}
+
 //ID 6
 GetServerIpRvcd::GetServerIpRvcd() : Datagram<GetServerIpRvcd>("GetServerIpRvcd") { }
 GetServerIpRvcd::~GetServerIpRvcd() { }

@@ -2,8 +2,10 @@
 #define _CLIENT_H_
 
 #include <string>
+#include <set>
+#include <queue>
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include <Connection.h>
 #include <Singleton.h>
@@ -33,7 +35,6 @@ class ClientGame {
 	Zone* mZone;
 	virtual bool gameStep(double stepTime) throw() = 0;
 	virtual void execInstructions() throw();
-	virtual void sendState() throw() = 0;
 
 	public:
 	ClientGame(Zone* zone);
@@ -75,7 +76,7 @@ public:
 	void callbackFunction(Transferable* received, Connection*) throw();
 	};
 
-	ClientLoginListener* CONTROL_LISTENER;
+	ClientLoginListener* LOGIN_LISTENER;
 	ClientRouterListener* ROUTER_LISTENER;
 
 private:
@@ -87,14 +88,12 @@ protected:
 	ClientGame* mGame;
 
 	int mUserId;
+	int mToken;
 	std::string mUser;
 	std::string mPassword;
 
 	std::string mLoginIp;
 	std::string mLoginPort;
-
-	std::string mRouterIp;
-	std::string mRouterPort;
 
 	Connection* mLogin;
 	Connection* mRouter;
@@ -112,15 +111,20 @@ public:
 
 	void id(int);
 	int id() const;
+	
+	void token(int);
+	int token() const;
 
 	void setLoginAddress(const std::string& ip, const std::string& port);
 	bool login(const std::string& user, const std::string& password);
+	void login(bool right);
 
 	void routerConnection(Connection*);
 
 	void setZone(int idZone);
-	Zone* zone();
-
+	
+	ClientGame* game();
+	
 	void addInstruction(Instruction*, Connection*) throw();
 
 	void logout();
