@@ -6,17 +6,17 @@
 
 int main(int argc, char** argv) {
 	ConnectionManager* controlCM = NULL;
-	ConnectionManager* serverCM = NULL;
+	//ConnectionManager* serverCM = NULL;
 	ConnectionManager* clientCM = NULL;
 	Router* r = NULL;
 	
 	std::string controlPort = "";
-	std::string serverPort = "";
+	//std::string serverPort = "";
 	std::string clientPort = "";
 	
 	std::string command = "";
 	
-	if (argc < 4) {
+	if (argc < 3) {
 		std::cerr << "Error: No listening ports entered." << std::endl;
 		std::cerr << "Usage:" << std::endl;
 		std::cerr << "router controlPort serverPort clientPort" << std::endl;
@@ -24,8 +24,8 @@ int main(int argc, char** argv) {
 	}
 
 	controlPort = std::string(argv[1]);
-	serverPort = std::string(argv[2]);
-	clientPort = std::string(argv[3]);
+	//serverPort = std::string(argv[2]);
+	clientPort = std::string(argv[2]);
 	
 	//Configure connection
 	TransferableFactory::instance().setProfile(new RouterProfile());
@@ -34,22 +34,22 @@ int main(int argc, char** argv) {
 	
 	//Start listening
 	controlCM = new ConnectionManager();
-	serverCM = new ConnectionManager();
+	//serverCM = new ConnectionManager();
 	clientCM = new ConnectionManager();
 	
 	controlCM->setCallbackFunction(r->CONTROL_LISTENER);
-	serverCM->setCallbackFunction(r->SERVER_LISTENER);
+	//serverCM->setCallbackFunction(r->SERVER_LISTENER);
 	clientCM->setCallbackFunction(r->CLIENT_LISTENER);
 	try {
 		controlCM->listenSecure(controlPort, true);
-		serverCM->listenSecure(serverPort, true);
+		//serverCM->listenSecure(serverPort, true);
 		clientCM->listenSecure(clientPort, false);
 	}
 	catch (ConnectionException& cs) {
 		std::cerr << "Error trying to listen connections: " << cs.what() << std::endl;
 		
 		delete controlCM;
-		delete serverCM;
+		//delete serverCM;
 		delete clientCM;
 		delete r;
 		return 1;
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 		std::cerr << "Error trying to listen connections: " << se.what() << std::endl;
 		
 		delete controlCM;
-		delete serverCM;
+		//delete serverCM;
 		delete clientCM;
 		delete r;
 		return 1;
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 		std::cerr << "Unexpected error: " << std::endl;
 		
 		delete controlCM;
-		delete serverCM;
+		//delete serverCM;
 		delete clientCM;
 		delete r;
 		return 1;
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 	}
 	
 	delete controlCM;
-	delete serverCM;
+	//delete serverCM;
 	delete clientCM;
 	delete r;
 	return 1;
