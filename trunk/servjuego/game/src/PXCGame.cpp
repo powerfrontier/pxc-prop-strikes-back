@@ -30,7 +30,7 @@ bool PXCGame::gameStep (double stepTime) throw() {
 }
 
 void PXCGame::sendState() throw() {
-	//TODO: Estado de los usuarios
+	//TODO
 	//GameServer::instance().sendToClients();
 }
 
