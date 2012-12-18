@@ -17,7 +17,7 @@ int main(int argc, char** argv){
         fflush(stdout);
 	int i = 0;
 	Connection* n;
-	for( i = 0; i < 100 ; ++i){
+	for( i = 0; i < 1 ; ++i){
 		n = new TCPConnectionSecurity();
 		n->connect(ip, port);
 		conexiones.push_back(n);
@@ -31,7 +31,7 @@ int main(int argc, char** argv){
         fflush(stdout);
 	printf("MainClient(): Connected\n");
         fflush(stdout);
-for(i = 0; i < 100; ++i){
+for(i = 0; i < 1; ++i){
 //	if (n->isLinkOnline()){			
 	std::ostringstream ostr;
 	ostr << i;   
@@ -48,7 +48,7 @@ for(i = 0; i < 100; ++i){
 	fflush(stdout);
 	delete sent100;
 			
-	/*printf("Ahora hacemos logout\n");
+	printf("Ahora hacemos logout\n");
 	fflush(stdout);
 	TestTransferableSent102* sent102 = NULL;
 	sent102 = new TestTransferableSent102(0,0);
@@ -58,7 +58,7 @@ for(i = 0; i < 100; ++i){
 	printf("MainClient(): sent102\n");
 	fflush(stdout);
 	delete sent102;
-*/
+
 	
 
 //		}else{

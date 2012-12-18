@@ -50,8 +50,8 @@ void LoginRequestRcvd::exec(Connection* c) const throw(){
 	    //Hacemos logout del antiguo usuario
 	    // Recogemos los datos antiguos
 	    Login::instance().usersConnected--;
-	    delete oldConnection;
-	    
+//	    if(oldConnection != c)	    
+//		delete oldConnection;
 	    ClientDisconnectSend* clientDisconnectSend = new ClientDisconnectSend(oldClientId,oldToken);
 	    if(Login::instance().controlConnected){
 		Login::instance().controlConnection->sendAnswer(*clientDisconnectSend); 	    	    
